@@ -22,10 +22,12 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/npm/@xz/fonts@1/serve/plus-jakarta-display.min.css"
         />
       </Head>
-      <body className={`plusJakartaDisplay antialiased`}>
+      <body className={`plusJakartaDisplay antialiased bg-background`}>
+        {/* <MaterialThemeProvider> */}
         <Header />
         {children}
         <Footer />
+        {/* </MaterialThemeProvider> */}
       </body>
     </html>
   );

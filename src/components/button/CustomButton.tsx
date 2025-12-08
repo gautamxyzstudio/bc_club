@@ -1,4 +1,7 @@
 "use client";
+
+import React from "react";
+
 interface CustomButtonProps {
   label: string;
   onClick: () => void;
@@ -23,15 +26,15 @@ const getButtonStyle = (
   }
 };
 
-const CustomButton = ({
+const CustomButton: React.FC<CustomButtonProps> = ({
   label,
   onClick,
-  buttonType,
+  buttonType = "primary",
   customClasses,
-}: CustomButtonProps) => {
+}) => {
   return (
     <button
-      className={`font-normal text-xs md:text-sm xl:text-base md:py-2.5 py-1.5 px-2.5 rounded-md h-auto ${getButtonStyle(
+      className={` text-xs md:text-sm xl:text-base md:py-2.5 py-1.5 px-2.5 rounded-lg h-auto cursor-pointer ${getButtonStyle(
         buttonType
       )} ${customClasses}`}
       onClick={onClick}

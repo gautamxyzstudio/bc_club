@@ -9,7 +9,16 @@ const Icons = {
   twitter: "../twitter.svg",
   emailIcon: "../emailIcon.svg",
   notFound: "../not_found.svg",
-  bgWaveLine:"../bgWaveLine.svg"
+  bgWaveLine: "../bgWaveLine.svg",
+  bathtub: "../bathtub.svg",
+  bedroom: "../bedroom.svg",
+  scale: "../scale.svg",
 };
 
-export { Icons };
+const Images = {
+  apartment: "/apartment.webp",
+  townHouse: "/townHouse.webp",
+  singleFamily: "/singleFamily.webp",
+};
+
+export { Icons, Images };

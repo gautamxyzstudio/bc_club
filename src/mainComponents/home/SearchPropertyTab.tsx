@@ -9,16 +9,15 @@ const SearchPropertyTab = () => {
   return (
     <div className="xl:w-[735px] w-full xl:absolute p-2.5 flex flex-row gap-y-4 justify-between shadow-[0_0_16px_0_rgba(0,0,0,0.12)] rounded-xl bg-background z-99 tabs tabs-box">
       {tabList.map((item, idx) => (
-        <>
+        <React.Fragment key={idx}>
           <input
-            key={idx}
             type="radio"
             name="my_tabs"
             className="tab checked:bg-primary bg-gray checked:text-background font-semibold text-lightWhite min-w-[30%] w-[32%]!  md:py-2.5 py-1.5 rounded-md h-auto"
             aria-label={item}
             defaultChecked={idx === 0}
           />
-          <div key={idx-3} className="tab-content">
+          <div key={idx - 3} className="tab-content">
             <div className="border border-borderColor p-[5px_5px_5px_16px] flex justify-between items-center-safe rounded-2xl">
               <input
                 placeholder={`Enter an address, neighborhood, city, or ZIP code for ${item}`}
@@ -44,7 +43,7 @@ const SearchPropertyTab = () => {
               </button>
             </div>
           </div>
-        </>
+        </React.Fragment>
       ))}
     </div>
   );

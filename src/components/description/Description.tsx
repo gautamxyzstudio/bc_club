@@ -19,7 +19,7 @@ const getDescriptionStyles = (type: IDescriptionTypes) => {
     case IDescriptionTypes.dec14:
       return `text-sm`;
     case IDescriptionTypes.dec16:
-      return `xl:text-base text-sm`;
+      return `md:text-base text-sm`;
     case IDescriptionTypes.description16:
       return `text-base`;
     default:

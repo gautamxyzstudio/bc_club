@@ -24,7 +24,7 @@ const menulist = [
 
 const Header = () => {
   return (
-    <header className="xl:max-w-screen-2xl mx-auto xl:px-16 md:px-13 px-6 xl:py-6 md:py-4 py-3 flex items-center justify-between w-full">
+    <header className="xl:max-w-screen-2xl mx-auto xl:px-16 md:px-13 px-6 xl:py-6 md:py-4 py-3 flex items-center justify-between w-full fixed top-0 left-0 right-0 z-9999">
       {/* Logo */}
       <Link href={"/"}>
         <Image
@@ -41,7 +41,7 @@ const Header = () => {
             <Link
               key={idx}
               href={item.href}
-              className="text-foreground text-base uppercase hover:font-semibold"
+              className="text-foreground text-base uppercase hover:font-semibold transition-all duration-300"
             >
               {item.title}
             </Link>

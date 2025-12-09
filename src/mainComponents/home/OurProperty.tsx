@@ -6,26 +6,52 @@ import PropertiesCard, {
 } from "@/src/components/common/propertiesCard/PropertiesCard";
 import Heading, { IHeadingTypes } from "@/src/components/heading/Heading";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
-import { Autoplay } from "swiper/modules";
+import "swiper/css/pagination";
+
+const tabList = [
+  "Newly Listed properties",
+  "Court ordered sales",
+  "Sold properties",
+];
 
 const OurProperty = () => {
-  const tabList = [
-    "Newly Listed properties",
-    "Court ordered sales",
-    "Sold properties",
-  ];
+  const [tab, setTab] = useState<string>("Newly Listed properties");
 
-  const [tab, selectedTab] = useState<string>("Newly Listed properties");
+  // refs for each section
+  const newlyListedRef = useRef<HTMLDivElement | null>(null);
+  const courtOrderedRef = useRef<HTMLDivElement | null>(null);
+  const soldRef = useRef<HTMLDivElement | null>(null);
 
-  const handleClick = (tab: string) => {
-    selectedTab(tab);
-    console.log("Button clicked!", tab);
+  // HEIGHT of fixed header or desired space from top
+  const OFFSET = 120;
+
+  const handleClick = (tabName: string) => {
+    setTab(tabName);
+
+    const refMap: Record<string, React.RefObject<HTMLDivElement | null>> = {
+      "Newly Listed properties": newlyListedRef,
+      "Court ordered sales": courtOrderedRef,
+      "Sold properties": soldRef,
+    };
+
+    const target = refMap[tabName].current;
+
+    if (target) {
+      const targetPosition =
+        target.getBoundingClientRect().top + window.scrollY - OFFSET;
+
+      window.scrollTo({
+        top: targetPosition,
+        behavior: "smooth",
+      });
+    }
   };
   return (
-    <section className="xl:max-w-screen-2xl mx-auto xl:pl-16 md:pl-13 pl-6 w-full xl:pt-[106px] md:pt-[124px] pt-13 xl:pb-36 md:pb-[132px] pb-[78px]">
+    <section className="xl:max-w-screen-2xl mx-auto xl:pl-16 md:pl-13 pl-6 w-full xl:pt-[106px] md:pt-[124px] pt-13 xl:pb-36 md:pb-[132px] pb-[78px] relative">
       <Heading
         tagType="h2"
         type={IHeadingTypes.heading32}
@@ -33,7 +59,7 @@ const OurProperty = () => {
         customClasses="w-full text-center xl:pr-16 md:pr-13 pr-6"
       />
       {/* Tab  */}
-      <div className="xl:mt-13 md:mt-6 mt-4 w-full flex items-center-safe justify-between flex-col gap-y-2 md:flex-row xl:pr-16 md:pr-13 pr-6">
+      <div className="xl:mt-13 md:mt-6 mt-4 w-full flex items-center-safe justify-between flex-col gap-y-2 md:flex-row xl:pr-16 md:pr-13 pr-6 ">
         <div className="w-full md:w-[70%] xl:w-[60%] flex flex-nowrap flex-row h-auto shadow-[0_0_20px_0_rgba(0,0,0,0.12)] gap-x-2 rounded-xl p-2">
           {tabList.map((item, idx) => (
             <CustomButton
@@ -65,34 +91,120 @@ const OurProperty = () => {
         </Link>
       </div>
 
-      {/* Newly Listed properties */}
-      <div id="newlyListed" className="xl:mt-6 md:mt-7 mt-8">
-        <Heading
-          tagType="h3"
-          type={IHeadingTypes.heading20}
-          content="Newly Listed Properties"
-          customClasses="xl:mb-5 mb-4"
-        />
-        <div className="flex flex-row gap-x-5 w-full">
-          <Swiper
-            speed={3000}
-            spaceBetween={32}
-            slidesPerView={3}
-            autoplay={{
-              delay: 0,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true,
-            }}
-            modules={[Autoplay]}
-            loop
-            className="my-swiper w-full py-10"
-          >
-            {listings.map((item, index) => (
-              <SwiperSlide key={index}>
-                <PropertiesCard {...item} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
+      {/* Tab Content */}
+      <div className="w-full flex flex-col xl:space-y-13 space-y-7 xl:mt-6 md:mt-7 mt-8">
+        {/* Newly Listed properties */}
+        <div ref={newlyListedRef} className="flex flex-col">
+          <Heading
+            tagType="h3"
+            type={IHeadingTypes.heading20}
+            content="Newly Listed Properties"
+          />
+          <div className="flex flex-row gap-x-5 w-full">
+            <Swiper
+              speed={1500}
+              spaceBetween={12}
+              slidesPerView={1.1}
+              autoplay={{
+                delay: 0,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              modules={[Autoplay, Pagination]}
+              loop
+              pagination={{
+                clickable: true,
+                dynamicBullets: true,
+              }}
+              breakpoints={{
+                640: { slidesPerView: 1.8, spaceBetween: 20, speed: 2500 },
+                1024: { slidesPerView: 3, spaceBetween: 32, speed: 2500 },
+              }}
+              className="mySwiper w-full pt-5! pb-9!"
+            >
+              {listings.map((item, index) => (
+                <SwiperSlide key={index}>
+                  <PropertiesCard {...item} isLogin />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </div>
+
+        {/* Court ordered sales */}
+        <div ref={courtOrderedRef} className="flex flex-col">
+          <Heading
+            tagType="h3"
+            type={IHeadingTypes.heading20}
+            content="Court Ordered Sales"
+          />
+          <div className="flex flex-row gap-x-5 w-full">
+            <Swiper
+              speed={1500}
+              spaceBetween={12}
+              slidesPerView={1.1}
+              autoplay={{
+                delay: 0,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              modules={[Autoplay, Pagination]}
+              loop
+              pagination={{
+                clickable: true,
+                dynamicBullets: true,
+              }}
+              breakpoints={{
+                640: { slidesPerView: 1.8, spaceBetween: 20, speed: 2500 },
+                1024: { slidesPerView: 3, spaceBetween: 32, speed: 2500 },
+              }}
+              className="mySwiper w-full pt-5! pb-9!"
+            >
+              {listings.map((item, index) => (
+                <SwiperSlide key={index}>
+                  <PropertiesCard {...item} isLogin={false} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </div>
+
+        {/* Sold properties */}
+        <div ref={soldRef} className="flex flex-col">
+          <Heading
+            tagType="h3"
+            type={IHeadingTypes.heading20}
+            content="Sold Properties"
+          />
+          <div className="flex flex-row gap-x-5 w-full">
+            <Swiper
+              speed={1500}
+              spaceBetween={12}
+              slidesPerView={1.1}
+              autoplay={{
+                delay: 0,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              modules={[Autoplay, Pagination]}
+              loop
+              pagination={{
+                clickable: true,
+                dynamicBullets: true,
+              }}
+              breakpoints={{
+                640: { slidesPerView: 1.8, spaceBetween: 20, speed: 2500 },
+                1024: { slidesPerView: 3, spaceBetween: 32, speed: 2500 },
+              }}
+              className="mySwiper w-full pt-5! pb-9!"
+            >
+              {listings.map((item, index) => (
+                <SwiperSlide key={index}>
+                  <PropertiesCard {...item} isLogin={false} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
         </div>
       </div>
     </section>
@@ -134,7 +246,7 @@ const listings: PropertyCardProps[] = [
     title: "Single Family Residence ",
     price: 555000,
     daysAgo: 10,
-    image: Images.townHouse,
+    image: Images.singleFamily,
     address: "1056 Nicola Street Vancouver BC West End VW",
     sqft: "1200",
     beds: 4,
@@ -148,7 +260,7 @@ const listings: PropertyCardProps[] = [
     title: "Townhouse",
     price: 450000,
     daysAgo: 10,
-    image: Images.townHouse,
+    image: Images.condoTwo,
     address: "1056 Nicola Street Vancouver BC West End VW",
     sqft: "1500",
     beds: 4,
@@ -162,7 +274,7 @@ const listings: PropertyCardProps[] = [
     title: "Apartment/Condo",
     price: 350000,
     daysAgo: 10,
-    image: Images.apartment,
+    image: Images.singleFamilyTwo,
     address: "1056 Nicola Street Vancouver BC West End VW",
     sqft: "1200",
     beds: 2,
@@ -176,7 +288,7 @@ const listings: PropertyCardProps[] = [
     title: "Single Family Residence ",
     price: 555000,
     daysAgo: 10,
-    image: Images.townHouse,
+    image: Images.singleFamilyThree,
     address: "1056 Nicola Street Vancouver BC West End VW",
     sqft: "1200",
     beds: 4,
@@ -190,7 +302,7 @@ const listings: PropertyCardProps[] = [
     title: "Apartment/Condo",
     price: 350000,
     daysAgo: 10,
-    image: Images.apartment,
+    image: Images.condoTwo,
     address: "1056 Nicola Street Vancouver BC West End VW",
     sqft: "1200",
     beds: 2,

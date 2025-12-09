@@ -85,3 +85,16 @@ body {
 body::-webkit-scrollbar {
   display: none !important;
 }
+
+.mySwiper {
+  .swiper-pagination-bullet {
+    width: 15px;
+    height: 15px;
+    background: var(--secondary);
+    opacity: 0.5;
+  }
+
+  .swiper-pagination-bullet-active {
+    opacity: 1;
+  }
+}

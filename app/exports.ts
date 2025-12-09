@@ -17,8 +17,11 @@ const Icons = {
 
 const Images = {
   apartment: "/apartment.webp",
+  condoTwo: "/condoTwo.webp",
   townHouse: "/townHouse.webp",
   singleFamily: "/singleFamily.webp",
+  singleFamilyTwo: "/singleFamilyTwo.webp",
+  singleFamilyThree: "/singleFamilyThree.webp",
 };
 
 export { Icons, Images };

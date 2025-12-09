@@ -1,10 +1,10 @@
 "use client";
-
+import { ButtonProps } from "@mui/material";
 import React from "react";
 
-interface CustomButtonProps {
+interface CustomButtonProps extends ButtonProps {
   label: string;
-  onClick: () => void;
+  onClick?: () => void;
   buttonType: "primary" | "secondary" | "disabled" | "secondary-outlined";
   customClasses?: string;
 }

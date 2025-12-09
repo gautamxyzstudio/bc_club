@@ -13,6 +13,7 @@ const Icons = {
   bathtub: "../bathtub.svg",
   bedroom: "../bedroom.svg",
   scale: "../scale.svg",
+   google:"../google.svg"
 };
 
 const Images = {
@@ -22,6 +23,7 @@ const Images = {
   singleFamily: "/singleFamily.webp",
   singleFamilyTwo: "/singleFamilyTwo.webp",
   singleFamilyThree: "/singleFamilyThree.webp",
+ 
 };
 
 export { Icons, Images };

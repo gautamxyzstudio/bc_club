@@ -9,6 +9,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import NavBarDrawer from "./NavBarDrawer";
 import CustomButton from "@/src/components/button/CustomButton";
+import CustomDialog from "@/src/components/common/customDialog/CustomDialog";
+import LoginPopup from "../auth/LoginPopup";
+import SignupPopup from "../auth/SignupPopup";
 
 export const menulist = [
   {
@@ -36,6 +39,8 @@ const Header = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const isLaptop = useMediaQuery("(min-width: 1024px)");
   const [showMenu, setShowMenu] = useState(false);
+  const [openLogin, setOpenLogin] = useState(false);
+  const [openSignup, setOpenSignup] = useState(false);
 
   useEffect(() => {
     if (!isLaptop) {
@@ -93,6 +98,11 @@ const Header = () => {
   const onPressMenuButton = useCallback(() => {
     setShowMenu((prev) => !prev);
   }, []);
+
+  const handleLoginPopup = () =>{
+    setOpenLogin(true)
+  }
+  console.log("handleLoginPopup",handleLoginPopup )
   return (
     <AnimatePresence>
       <motion.header
@@ -147,13 +157,15 @@ const Header = () => {
             <CustomButton
               label="Login"
               buttonType="primary"
-              onClick={() => console.log("Login ")}
+              // onClick={() => console.log("Login ")}
+              onClick={handleLoginPopup}
               customClasses="w-[132px]"
             />
             <CustomButton
               label="Sign up"
               buttonType="secondary-outlined"
-              onClick={() => console.log("Sign up")}
+              // onClick={() => console.log("Sign up")}
+              onClick={() => setOpenSignup(true)}
               customClasses="w-[132px]"
             />
           </div>
@@ -195,8 +207,14 @@ const Header = () => {
           </button>
         </div>
         <NavBarDrawer open={showMenu} onClose={onPressMenuButton} />
+      {/* <CustomDialog open={openLogin} onClose={() => setOpenLogin(false)} /> */}
+        <LoginPopup open={openLogin} onClose={() => setOpenLogin(false)} onOpenSignup={()=>{
+          setOpenLogin(false);
+          setOpenSignup(true)
+        }} />
+        <SignupPopup open={openSignup} onClose={() => setOpenSignup(false)} />
       </motion.header>
-    </AnimatePresence>
+    </AnimatePresence>   
   );
 };
 

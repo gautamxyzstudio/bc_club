@@ -34,7 +34,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 }) => {
   return (
     <button
-      className={` text-xs md:text-sm xl:text-base md:py-2.5 py-1.5 px-2.5 rounded-lg h-auto cursor-pointer ${getButtonStyle(
+      className={` text-xs md:text-sm xl:text-base md:py-2.5 py-2.5 px-2.5 rounded-lg h-auto cursor-pointer ${getButtonStyle(
         buttonType
       )} ${customClasses}`}
       onClick={onClick}

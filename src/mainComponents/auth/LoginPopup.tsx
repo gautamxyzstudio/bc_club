@@ -11,14 +11,37 @@ interface LoginModalProps {
   open: boolean;
   onClose: () => void;
   onOpenSignup: () => void;
+  onOpenForgot: () => void;
 }
 
-const LoginPopup = ({ open, onClose, onOpenSignup }: LoginModalProps) => {
+const LoginPopup = ({
+  open,
+  onClose,
+  onOpenSignup,
+  onOpenForgot,
+}: LoginModalProps) => {
   const [showPassword, setShowPassword] = React.useState(false);
   return (
-    <CustomDialog open={open} onClose={onClose}  title="WelCome Back To" description="Let’s Login to grab amazing deal"  >
+    <CustomDialog
+      open={open}
+      onClose={onClose}
+      title="WelCome Back"
+      description="Let’s Login to grab amazing deal"
+    >
       {/* Email */}
-      <TextField label="Email" type="email" className="w-full" />
+      {/* <TextField label="Email" type="email" className="w-full " /> */}
+      <TextField
+        label="Email"
+        type="email"
+        
+        className="w-full"
+        InputProps={{
+          style: {
+            paddingTop: "3px",
+
+          },
+        }}
+      />
 
       {/* Password */}
       <div className="relative mt-4">
@@ -45,7 +68,10 @@ const LoginPopup = ({ open, onClose, onOpenSignup }: LoginModalProps) => {
           Keep me logged in
         </label>
 
-        <button className="text-[#22558B] text-sm hover:underline">
+        <button
+          onClick={onOpenForgot}
+          className="text-[#22558B] text-sm hover:underline"
+        >
           Forget password
         </button>
       </div>
@@ -53,7 +79,7 @@ const LoginPopup = ({ open, onClose, onOpenSignup }: LoginModalProps) => {
       <CustomButton
         label="Login"
         buttonType="primary"
-        customClasses="w-full mt-5"
+        customClasses="w-full  mt-5"
       />
 
       <div className="flex items-center gap-3 my-5">
@@ -62,7 +88,7 @@ const LoginPopup = ({ open, onClose, onOpenSignup }: LoginModalProps) => {
         <div className="flex-1 h-px bg-gray-300"></div>
       </div>
       <div className="bg-[#F3F3F3] flex justify-center gap-2 py-3 px-[52px] rounded-md">
-        <button className="flex hover:bg-gray-50 transition text-[#232323]">
+        <button className="flex   transition text-[#232323]">
           Continue with
         </button>
 

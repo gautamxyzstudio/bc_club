@@ -47,15 +47,13 @@ export default function CustomDialog({
           outline: "none",
         }}
       >
-        <div className="bg-white rounded-2xl shadow-2xl p-8 xl:w-[550px] md:w-[450px] w-[350px]">
-          <h2 className="text-3xl font-bold text-center">
+        <div className="bg-white rounded-2xl shadow-2xl px-8 py-8 xl:w-[550px] md:w-[450px] w-[350px]">
+          <h2 className="text-4xl font-bold text-center">
             <span className="text-yellow-500">{firstWord}</span>{" "}
             {restWords.join(" ")}
           </h2>
 
-          <p className="text-[#9b9a9a] text-center mt-1 mb-6">
-            {description}
-          </p>
+          <p className="text-[#9b9a9a] text-[14px] plusJakartaDisplay  text-center mt-1 mb-6">{description}</p>
 
           <>{children}</>
         </div>

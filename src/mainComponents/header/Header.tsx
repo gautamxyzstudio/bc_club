@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
 import { Icons } from "@/app/exports";
 import { useMediaQuery } from "@/src/hooks/useMediaQuery";
 import { AnimatePresence, motion } from "framer-motion";
@@ -9,28 +10,18 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import NavBarDrawer from "./NavBarDrawer";
 import CustomButton from "@/src/components/button/CustomButton";
-import CustomDialog from "@/src/components/common/customDialog/CustomDialog";
+
 import LoginPopup from "../auth/LoginPopup";
 import SignupPopup from "../auth/SignupPopup";
+import ForgotPassword from "../auth/ForgotPassword";
+import OtpScreen from "../auth/OtpScreen";
+import NewPassword from "../auth/NewPassword";
 
 export const menulist = [
-  {
-    title: "About Us",
-    href: "/about-us",
-  },
-  {
-    title: "Market Trends",
-    href: "/market-trends",
-  },
-  {
-    title: "Properties",
-    href: "/properties",
-  },
-
-  {
-    title: "Contact Us",
-    href: "/contact-us",
-  },
+  { title: "About Us", href: "/about-us" },
+  { title: "Market Trends", href: "/market-trends" },
+  { title: "Properties", href: "/properties" },
+  { title: "Contact Us", href: "/contact-us" },
 ];
 
 const Header = () => {
@@ -39,8 +30,13 @@ const Header = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const isLaptop = useMediaQuery("(min-width: 1024px)");
   const [showMenu, setShowMenu] = useState(false);
+
+  // POPUP STATES
   const [openLogin, setOpenLogin] = useState(false);
   const [openSignup, setOpenSignup] = useState(false);
+  const [openForgot, setOpenForgot] = useState(false);
+  const [openOtp, setOpenOtp] = useState(false);
+  const [openNewPassword, setOpenNewPassword] = useState(false);
 
   useEffect(() => {
     if (!isLaptop) {
@@ -54,44 +50,29 @@ const Header = () => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      if (currentScrollY < lastScrollY || currentScrollY < 100) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+      currentScrollY < lastScrollY || currentScrollY < 100
+        ? setIsVisible(true)
+        : setIsVisible(false);
 
       setLastScrollY(currentScrollY);
       setIsScrolled(currentScrollY > 300);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY, isLaptop]);
 
   const navVariants = {
-    hidden: {
-      opacity: 0,
-      y: -100,
-    },
+    hidden: { opacity: 0, y: -100 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 20,
-        mass: 1,
-      },
+      transition: { type: "spring", stiffness: 100, damping: 20, mass: 1 },
     },
     exit: {
       y: -100,
       opacity: 0,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut",
-      },
+      transition: { duration: 0.3, ease: "easeInOut" },
     },
   };
 
@@ -99,10 +80,12 @@ const Header = () => {
     setShowMenu((prev) => !prev);
   }, []);
 
-  const handleLoginPopup = () =>{
-    setOpenLogin(true)
-  }
-  console.log("handleLoginPopup",handleLoginPopup )
+  // OTP verified callback
+  const handleOtpVerified = () => {
+    setOpenOtp(false);
+    setOpenNewPassword(true);
+  };
+
   return (
     <AnimatePresence>
       <motion.header
@@ -115,15 +98,10 @@ const Header = () => {
               ? "bg-lightWhite"
               : "bg-transparent"
             : "shadow bg-[#f2f2f2]"
-        }
-        `}
+        }`}
       >
         {/* Logo */}
-        <Link
-          href={"/"}
-          onClick={onPressMenuButton}
-          className="xl:hidden block"
-        >
+        <Link href={"/"} className="xl:hidden block">
           <Image
             alt="logo"
             src={Icons.bcClub}
@@ -132,6 +110,7 @@ const Header = () => {
             className="w-22.5 h-9 object-contain"
           />
         </Link>
+
         <Link href={"/"} className="xl:block hidden">
           <Image
             alt="logo"
@@ -141,6 +120,7 @@ const Header = () => {
             className="w-[119px] h-10.5 object-contain"
           />
         </Link>
+
         <nav className="hidden xl:flex justify-end-safe items-center-safe gap-x-5">
           <div className="flex items-center gap-x-5">
             {menulist.map((item, idx) => (
@@ -153,68 +133,96 @@ const Header = () => {
               </Link>
             ))}
           </div>
+
+          {/* LOGIN / SIGNUP BUTTONS */}
           <div className="flex items-center gap-x-3">
             <CustomButton
               label="Login"
               buttonType="primary"
-              // onClick={() => console.log("Login ")}
-              onClick={handleLoginPopup}
+              onClick={() => setOpenLogin(true)}
               customClasses="w-[132px]"
             />
+
             <CustomButton
               label="Sign up"
               buttonType="secondary-outlined"
-              // onClick={() => console.log("Sign up")}
               onClick={() => setOpenSignup(true)}
               customClasses="w-[132px]"
             />
           </div>
         </nav>
+
+        {/* Mobile Menu */}
         <div onClick={onPressMenuButton} className="block lg:hidden">
-          <button
-            className="group inline-flex w-12 h-12 text-primary text-center items-center justify-center rounded shadow-[0_1px_0_--theme(--color-slate-950/.04),0_1px_2px_--theme(--color-slate-950/.12),inset_0_-2px_0_--theme(--color-slate-950/.04)] hover:shadow-[0_1px_0_--theme(--color-slate-950/.04),0_4px_8px_--theme(--color-slate-950/.12),inset_0_-2px_0_--theme(--color-slate-950/.04)] transition"
-            aria-pressed={showMenu}
-            type="button"
-          >
+          <button className="group inline-flex w-12 h-12 text-primary items-center justify-center rounded transition">
             <span className="sr-only">Menu</span>
             <svg
               className="w-6 h-6 fill-current pointer-events-none"
               viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
             >
-              <rect
-                className="origin-center -translate-y-[5px] translate-x-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-pressed:translate-x-0 group-aria-pressed:translate-y-0 group-aria-pressed:rotate-315"
-                y="7"
-                width="9"
-                height="2"
-                rx="1"
-              />
-              <rect
-                className="origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] group-aria-pressed:rotate-45"
-                y="7"
-                width="16"
-                height="2"
-                rx="1"
-              />
-              <rect
-                className="origin-center translate-y-[5px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-pressed:translate-y-0 group-aria-pressed:rotate-135"
-                y="7"
-                width="9"
-                height="2"
-                rx="1"
-              />
+              <rect y="7" width="16" height="2" rx="1" />
             </svg>
           </button>
         </div>
+
         <NavBarDrawer open={showMenu} onClose={onPressMenuButton} />
-      {/* <CustomDialog open={openLogin} onClose={() => setOpenLogin(false)} /> */}
-        <LoginPopup open={openLogin} onClose={() => setOpenLogin(false)} onOpenSignup={()=>{
-          setOpenLogin(false);
-          setOpenSignup(true)
-        }} />
-        <SignupPopup open={openSignup} onClose={() => setOpenSignup(false)} />
+
+        {/* LOGIN POPUP */}
+        <LoginPopup
+          open={openLogin}
+          onClose={() => setOpenLogin(false)}
+          onOpenSignup={() => {
+            setOpenLogin(false);
+            setOpenSignup(true);
+          }}
+          onOpenForgot={() => {
+            setOpenLogin(false);
+            setOpenForgot(true);
+          }}
+        />
+
+        {/* SIGNUP POPUP */}
+        <SignupPopup
+          open={openSignup}
+          onClose={() => setOpenSignup(false)}
+          onOpenLogin={() => {
+            setOpenSignup(false);
+            setOpenLogin(true);
+          }}
+        />
+
+        {/* FORGOT PASSWORD POPUP */}
+        <ForgotPassword
+          open={openForgot}
+          onClose={() => setOpenForgot(false)}
+          onOpenOtp={() => {
+            setOpenForgot(false);
+            setOpenOtp(true);
+          }}
+          onOpenSignup={() => {
+            setOpenForgot(false);
+            setOpenSignup(true);
+          }}
+          onOpenForgot={() => {
+            setOpenForgot(false);
+            setOpenForgot(true);
+          }}
+        />
+
+        {/* OTP SCREEN */}
+        <OtpScreen
+          open={openOtp}
+          onClose={() => setOpenOtp(false)}
+          onVerified={handleOtpVerified}
+        />
+
+        {/* NEW PASSWORD SCREEN */}
+        <NewPassword
+          open={openNewPassword}
+          onClose={() => setOpenNewPassword(false)}
+        />
       </motion.header>
-    </AnimatePresence>   
+    </AnimatePresence>
   );
 };
 

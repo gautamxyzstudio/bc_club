@@ -32,7 +32,7 @@ const HomePropertiesSold = () => {
     return (
       <div className="w-full bg-gray rounded-xl p-4">
         <h3 className="text-lg font-bold text-foreground">Market Demand</h3>
-        <div className="relative w-full flex items-center justify-center min-h-[200px]">
+        <div className="relative w-full flex items-center justify-center min-h-50">
           <GaugeChartComponent value={value} label={label} />
         </div>
         <div className="flex items-center justify-center gap-1.5 -mt-8">

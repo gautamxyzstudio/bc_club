@@ -51,7 +51,7 @@ const OurProperty = () => {
     }
   };
   return (
-    <section className="xl:max-w-screen-2xl mx-auto xl:pl-16 md:pl-13 pl-6 w-full xl:pt-[106px] md:pt-[124px] pt-13 xl:pb-36 md:pb-[132px] pb-[78px] relative">
+    <section className="xl:max-w-screen-2xl mx-auto xl:pl-16 md:pl-13 pl-6 w-full xl:pt-26.5 md:pt-31 pt-13 xl:pb-36 md:pb-33 pb-19.5 relative">
       <Heading
         tagType="h2"
         type={IHeadingTypes.heading32}

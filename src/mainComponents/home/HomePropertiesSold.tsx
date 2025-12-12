@@ -102,11 +102,11 @@ const HomePropertiesSold = () => {
       </div>
 
       {/* Property Cards */}
-      <div className="w-full flex flex-row flex-wrap justify-between gap-6">
+      <div className="w-full flex flex-row flex-wrap justify-between">
         {propertyData.map((property, index) => (
           <div
             key={index}
-            className="bg-white rounded-xl shadow-[0_0_20px_0_rgba(0,0,0,0.12)] p-6 flex flex-col gap-6 w-full md:w-[48%] xl:w-[32%]"
+            className="bg-white rounded-xl shadow-[0_0_20px_0_rgba(0,0,0,0.12)] p-6 flex flex-col gap-6 w-full md:w-[47%] xl:w-[32%]"
           >
             {/* Sales Statistics */}
             <div className="flex flex-col items-center text-center">

@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import Heading, { IHeadingTypes } from "@/src/components/heading/Heading";
 import { MenuItem, Select } from "@mui/material";
 import React, { useState } from "react";
@@ -6,9 +6,6 @@ import { cities } from ".";
 import Description, {
   IDescriptionTypes,
 } from "@/src/components/description/Description";
-import MedianAverageDays from "@/src/components/charts/MedianAverageDays";
-import MedianAveragePrice from "@/src/components/charts/MedianAveragePrice";
-import SalesReported from "@/src/components/charts/SalesReported";
 
 const HomeSellingTrends = () => {
   const [location, setLocation] = useState<string>("Surrey, BC");
@@ -49,12 +46,6 @@ const HomeSellingTrends = () => {
             ))}
           </Select>
         </div>
-      </div>
-
-      <SalesReported location={location} />
-      <div className="flex md:flex-nowrap flex-wrap gap-6 items-center justify-between mt-6">
-        <MedianAverageDays />
-        <MedianAveragePrice />
       </div>
     </section>
   );

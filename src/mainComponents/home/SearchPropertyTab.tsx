@@ -7,7 +7,7 @@ const SearchPropertyTab = () => {
   const [search, setSearch] = useState<string>("");
   const tabList = ["Find Home", "Home Assessment", "Market Trends"];
   return (
-    <div className="xl:w-183.75 w-full xl:absolute p-2.5 flex flex-row gap-y-4 justify-between shadow-[0_0_16px_0_rgba(0,0,0,0.12)] rounded-xl bg-background z-99 tabs tabs-box">
+    <div className="xl:w-[735px] w-full xl:absolute p-2.5 flex flex-row gap-y-4 justify-between shadow-[0_0_16px_0_rgba(0,0,0,0.12)] rounded-xl bg-background z-99 tabs tabs-box">
       {tabList.map((item, idx) => (
         <React.Fragment key={idx}>
           <input

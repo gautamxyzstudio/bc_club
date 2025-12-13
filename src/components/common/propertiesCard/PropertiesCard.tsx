@@ -6,6 +6,7 @@ import LineGradient from "../lineGradient/LineGradient";
 import Description, { IDescriptionTypes } from "../../description/Description";
 import { Icons } from "@/src/app/exports";
 import CustomButton from "../../button/CustomButton";
+import { usePathname } from "next/navigation";
 
 export interface PropertyCardProps {
   image: string;
@@ -21,6 +22,7 @@ export interface PropertyCardProps {
   mls: string;
   realtor: string;
   isLogin?: boolean;
+  // isStyle?: boolean;
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
@@ -37,18 +39,28 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   mls,
   realtor,
   isLogin,
+  // isStyle,
 }) => {
+  const pathname = usePathname();
+  console.log(pathname);
+
   return (
-    <div className="relative rounded-xl flex overflow-hidden border border-borderColor hover:border-none hover:shadow-[0_0_20px_0_rgba(0,0,0,0.12)] transition w-full h-auto">
+    <div
+      className={`relative rounded-xl flex overflow-hidden border border-borderColor hover:border-none hover:shadow-[0_0_20px_0_rgba(0,0,0,0.12)] transition h-auto ${pathname === "/properties"?"xl:w-[31.5%] md:w-[48%] w-full ":"w-full "}    ${
+        isLogin && "group"
+      }`}
+    >
       <div className="flex flex-col gap-y-3 p-5 w-full h-auto">
         <div className="relative">
-          <Image
-            src={image}
-            alt={title}
-            className="w-full h-56 object-cover rounded-lg"
-            width={700}
-            height={403}
-          />
+          <div className="w-full h-56 overflow-clip rounded-lg">
+            <Image
+              src={image}
+              alt={title}
+              className="w-full h-56 object-cover rounded-lg group-hover:scale-125 transition duration-300 ease-in-out"
+              width={700}
+              height={403}
+            />
+          </div>
 
           {/* Favorite Icon */}
           <button className="absolute top-3 left-3 bg-background p-2 rounded-full shadow">
@@ -75,7 +87,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 
         <div className="space-y-3 mt-1">
           <h3 className="font-bold text-xl">{title}</h3>
-          <div className="flex items-end-safe justify-between">
+          <div
+            className={`flex justify-between ${
+              pathname === "/properties"
+                ? "xl:flex-col gap-y-1 xl:items-start items-end-safe "
+                : "items-end-safe"
+            }`}
+          >
             <div className="flex flex-col">
               <span className="text-xs text-lightWhite">List Price Now</span>
               <p className="text-2xl font-bold text-primary">
@@ -133,8 +151,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           <p className="text-lightWhite text-sm">{address}</p>
 
           {/* Specs */}
-          <div className="flex items-center gap-4">
-            <div className="flex flex-row items-center gap-x-1 justify-center py-2 rounded-md bg-gray text-lightWhite text-sm w-full">
+          <div className={`flex items-center justify-between ${ pathname === "/properties" ? "gap-x-1" : "gap-3"}`} >
+            <div
+              className={`flex flex-row items-center gap-x-1 justify-center p-2 rounded-md bg-gray text-lightWhite   ${
+                pathname === "/properties" ? "md:w-auto w-full" : "w-full "
+              }`}
+            >
               <Image
                 src={Icons.scale}
                 alt="sqft"
@@ -144,7 +166,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               />
               <span>{sqft} sqft</span>
             </div>
-            <div className="flex flex-row items-center gap-x-1 justify-center py-2 rounded-md bg-gray text-lightWhite text-sm w-full">
+            <div
+              className={`flex flex-row items-center gap-x-1 justify-center p-2 rounded-md bg-gray text-lightWhite   ${
+                pathname === "/properties" ? "md:w-auto w-full" : "w-full "
+              }`}
+            >
               <Image
                 src={Icons.bedroom}
                 alt="bedroom"
@@ -154,7 +180,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               />
               <span>{beds}</span>
             </div>
-            <div className="flex flex-row items-center gap-x-1 justify-center py-2 rounded-md bg-gray text-lightWhite text-sm w-full">
+            <div
+              className={`flex flex-row items-center gap-x-1 justify-center p-2 rounded-md bg-gray text-lightWhite   ${
+                pathname === "/properties" ? "md:w-auto w-full" : "w-full "
+              }`}
+            >
               <Image
                 src={Icons.bathtub}
                 alt="bathtub"

@@ -79,7 +79,7 @@ export default function FiltersPopup({ open, onClose }: FiltersDialogProps) {
         {/* Status */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="flex flex-col items-center gap-2 p-3 border rounded-xl cursor-pointer">
-            <Image src={Icons.forsale} width={40} height={40} alt="For Sale" />
+            <Image src={Icons.forSale} width={40} height={40} alt="For Sale" />
             <span className="text-sm font-medium">For Sale</span>
           </div>
           <div className="flex flex-col items-center gap-2 p-3 border rounded-xl cursor-pointer">

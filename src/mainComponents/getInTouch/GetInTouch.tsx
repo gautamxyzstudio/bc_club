@@ -68,7 +68,7 @@ const GetInTouch = () => {
         <GetInTouchForm />
       </div>
       <LineGradient customClasses="md:my-13 my-8" />
-      <div className="flex flex-row w-full flex-nowrap whitespace-break-spaces justify-between gap-x-15 items-start overflow-x-scroll scrollBar">
+      <div className="flex flex-row w-full flex-nowrap whitespace-break-spaces justify-between gap-x-15 items-start overflow-x-scroll scrollBar overflow-hidden">
         <GetInTouchLink title={saleBC.title} linkList={saleBC.linkList} />
         <GetInTouchLink title={soldBC.title} linkList={soldBC.linkList} />
         <GetInTouchLink

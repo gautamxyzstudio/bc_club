@@ -13,10 +13,13 @@ const Icons = {
   bathtub: "../bathtub.svg",
   bedroom: "../bedroom.svg",
   scale: "../scale.svg",
-   google:"../google.svg",
-  forsale:"../forsale.svg",
+  google:"../google.svg",
+  forSale:"../forSale.svg",
   sold:"../sold.svg",
-  expire:"../expire.svg"
+  expire:"../expire.svg",
+  accurate:"../accurate.svg",
+  free:"../free.svg",
+  instantResult:"../instantResult.svg",
 };
 
 const Images = {

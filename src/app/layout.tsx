@@ -23,12 +23,10 @@ export default function RootLayout({
         />
       </Head>
       <body className={`plusJakartaDisplay antialiased bg-background`}>
-        {/* <MaterialThemeProvider> */}
-        <Header />
+         <Header />
         {children}
         <Footer />
-        {/* </MaterialThemeProvider> */}
-      </body>
+       </body>
     </html>
   );
 }

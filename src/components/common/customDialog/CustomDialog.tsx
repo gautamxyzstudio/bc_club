@@ -47,7 +47,7 @@ export default function CustomDialog({
           outline: "none",
         }}
       >
-        <div className="bg-white rounded-2xl shadow-2xl px-8 py-8 xl:w-[550px] md:w-[450px] w-[350px]">
+        <div className="bg-white rounded-2xl shadow-2xl px-8 py-8 xl:w-137.5 md:w-112.5 w-87.5">
           <h2 className="text-4xl font-bold text-center">
             <span className="text-yellow-500">{firstWord}</span>{" "}
             {restWords.join(" ")}

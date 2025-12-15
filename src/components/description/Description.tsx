@@ -19,7 +19,7 @@ const getDescriptionStyles = (type: IDescriptionTypes) => {
     case IDescriptionTypes.dec14:
       return `text-sm`;
     case IDescriptionTypes.dec16:
-      return `md:text-base text-sm`;
+      return `xl:text-base text-sm`;
     case IDescriptionTypes.description16:
       return `text-base`;
     default:
@@ -49,7 +49,7 @@ const Description: React.FC<IDescriptionProps> = ({
   }
 
   return (
-    <p ref={compRef} className={styles + ` ${customClasses} text-sm` + ' '}>
+    <p ref={compRef} className={styles + ` ${customClasses}` + ' '}>
       {content}
     </p>
   );

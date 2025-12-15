@@ -44,8 +44,8 @@ export const buyAndSell: LinkListProps = {
       href: "/list-your-property",
     },
     {
-      label: "Property Valuation",
-      href: "/property-valuation",
+      label: "Home Estimation",
+      href: "/home-estimation",
     },
     {
       label: "Neighborhood Insights",

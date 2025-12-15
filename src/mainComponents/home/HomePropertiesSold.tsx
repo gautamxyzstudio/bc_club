@@ -71,7 +71,7 @@ const HomePropertiesSold = () => {
   };
 
   return (
-    <section className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-13 px-6 xl:py-35 md:py-31 py-14">
+    <section className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-13 px-6 xl:py-35 md:py-31 py-14 overflow-hidden">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
         <Heading
@@ -102,7 +102,7 @@ const HomePropertiesSold = () => {
       </div>
 
       {/* Property Cards */}
-      <div className="w-full flex flex-row flex-wrap justify-between">
+      <div className="w-full flex flex-row flex-wrap justify-between gap-y-6">
         {propertyData.map((property, index) => (
           <div
             key={index}

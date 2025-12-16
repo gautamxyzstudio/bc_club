@@ -119,7 +119,7 @@ export const company: LinkListProps = {
     },
     {
       label: "Our Story",
-      href: "/our-story",
+      href: "/blogs",
     },
     {
       label: "News & Articles",

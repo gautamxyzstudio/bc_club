@@ -13,18 +13,18 @@ const Icons = {
   bathtub: "../bathtub.svg",
   bedroom: "../bedroom.svg",
   scale: "../scale.svg",
-  google:"../google.svg",
-  forSale:"../forSale.svg",
-  sold:"../sold.svg",
-  expire:"../expire.svg",
-  courtorder:"../courtorder.svg",
-  openhouse:"../openhouse.svg",
-  soldicon:"../soldicon.svg",
-  star:"../star.svg",
-  save:"../save.svg",
-  accurate:"../accurate.svg",
-  free:"../free.svg",
-  instantResult:"../instantResult.svg",
+  google: "../google.svg",
+  forSale: "../forSale.svg",
+  sold: "../sold.svg",
+  expire: "../expire.svg",
+  courtorder: "../courtorder.svg",
+  openhouse: "../openhouse.svg",
+  soldicon: "../soldicon.svg",
+  star: "../star.svg",
+  save: "../save.svg",
+  accurate: "../accurate.svg",
+  free: "../free.svg",
+  instantResult: "../instantResult.svg",
 };
 
 const Images = {
@@ -34,10 +34,10 @@ const Images = {
   singleFamily: "/singleFamily.webp",
   singleFamilyTwo: "/singleFamilyTwo.webp",
   singleFamilyThree: "/singleFamilyThree.webp",
-  map:"/map.webp"
-
-
- 
+  map: "/map.webp",
+  blogimg: "/blogimg.webp",
+  firsttown: "/firsttown.webp",
+  secondtown: "/secondtown.webp",
 };
 
 export { Icons, Images };

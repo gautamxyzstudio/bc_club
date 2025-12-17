@@ -5,12 +5,22 @@ import React from "react";
 interface CustomButtonProps extends ButtonProps {
   label: string;
   onClick?: () => void;
-  buttonType: "primary" | "secondary" | "disabled" | "secondary-outlined";
+  buttonType:
+    | "primary"
+    | "secondary"
+    | "disabled"
+    | "secondary-outlined"
+    | "white-primary";
   customClasses?: string;
 }
 
 const getButtonStyle = (
-  type: "primary" | "secondary" | "disabled" | "secondary-outlined"
+  type:
+    | "primary"
+    | "secondary"
+    | "disabled"
+    | "secondary-outlined"
+    | "white-primary"
 ) => {
   switch (type) {
     case "primary":
@@ -21,6 +31,8 @@ const getButtonStyle = (
       return `bg-gray text-lightWhite`;
     case "secondary-outlined":
       return `bg-transparent text-secondary border border-secondary`;
+    case "white-primary":
+      return `bg-background text-primary`;
     default:
       return `bg-background text-primary`;
   }

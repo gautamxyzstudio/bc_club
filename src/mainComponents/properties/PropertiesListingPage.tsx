@@ -1,113 +1,26 @@
 "use client";
 import React, { useState } from "react";
 import { FiSearch, FiX } from "react-icons/fi";
-import { Images } from "@/src/app/exports";
-import Image from "next/image";
 import PropertyCard from "@/src/components/common/propertiesCard/PropertiesCard";
 import FiltersPopup from "@/src/components/common/propertiesCard/FiltersPopup";
 import { Chip } from "@mui/material";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import PropertiesMap from "./PropertiesMap";
+import { propertyData } from "../dummyData";
 
 export default function PropertiesListingPage() {
   const [openFilters, setOpenFilters] = useState(false);
   const [search, setSearch] = useState("");
   const [isChip, setIsChip] = useState(false);
-  const [activePrice, setActivePrice] = useState(false);
-  const [activeBedBath, setActiveBedBath] = useState(false);
-  const [activeProperty, setActiveProperty] = useState(false);
-
-  const propertyData = [
-    {
-      image: Images.singleFamilyThree,
-      title: "Apartment/Condo",
-      price: 350000,
-      daysAgo: 10,
-      address: "1056 Nicola Street Vancouver BC West End VWV",
-      sqft: 1200,
-      beds: 2,
-      baths: 2,
-      priceDrop: 10,
-      assessedDiff: 1,
-      realtor: "Jane Smith / Smith Realty Group",
-      mls: "R3059142",
-    },
-    {
-      image: Images.singleFamilyThree,
-      title: "Luxury Condo",
-      price: 489000,
-      daysAgo: 5,
-      address: "Davie Street Vancouver BC",
-      sqft: 980,
-      beds: 2,
-      baths: 1,
-      priceDrop: 5,
-      assessedDiff: -2,
-      realtor: "John Doe / Westview Realty",
-      mls: "R2078332",
-    },
-    {
-      image: Images.singleFamilyThree,
-      title: "Luxury Condo",
-      price: 489000,
-      daysAgo: 5,
-      address: "Davie Street Vancouver BC",
-      sqft: 980,
-      beds: 2,
-      baths: 1,
-      priceDrop: 5,
-      assessedDiff: -2,
-      realtor: "John Doe / Westview Realty",
-      mls: "R2078332",
-    },
-    {
-      image: Images.singleFamilyThree,
-      title: "Luxury Condo",
-      price: 489000,
-      daysAgo: 5,
-      address: "Davie Street Vancouver BC",
-      sqft: 980,
-      beds: 2,
-      baths: 1,
-      priceDrop: 5,
-      assessedDiff: -2,
-      realtor: "John Doe / Westview Realty",
-      mls: "R2078332",
-    },
-    {
-      image: Images.singleFamilyThree,
-      title: "Luxury Condo",
-      price: 489000,
-      daysAgo: 5,
-      address: "Davie Street Vancouver BC",
-      sqft: 980,
-      beds: 2,
-      baths: 1,
-      priceDrop: 5,
-      assessedDiff: -2,
-      realtor: "John Doe / Westview Realty",
-      mls: "R2078332",
-    },
-    {
-      image: Images.singleFamilyThree,
-      title: "Luxury Condo",
-      price: 489000,
-      daysAgo: 5,
-      address: "Davie Street Vancouver BC",
-      sqft: 980,
-      beds: 2,
-      baths: 1,
-      priceDrop: 5,
-      assessedDiff: -2,
-      realtor: "John Doe / Westview Realty",
-      mls: "R2078332",
-    },
-  ];
+  const [activePrice, setActivePrice] = useState<string>('');
+  const [activeBathRoom, setActiveBathRoom] = useState<string>('');
+  const [activeBedRoom, setActiveBedRoom] = useState<string>('');
+  const [activeProperty, setActiveProperty] = useState<string>('');
   const pillBase =
-    "px-6 py-3 bg-white rounded-full shadow appearance-none pr-10 font-medium cursor-pointer border transition w-full";
+    "px-6 py-3 bg-white rounded-full shadow-[0_0_20px_0_rgba(0,0,0,0.12)] appearance-none pr-10 font-medium cursor-pointer border transition w-full";
 
-  const pillActive = "border-blue-500 text-blue-600 ring-1 ring-blue-200";
+  const pillActive = "border-primary text-primary ring-1 ring-blue-200";
 
   const pillInactive = "border-[#30548733] text-gray-800";
 
@@ -117,7 +30,7 @@ export default function PropertiesListingPage() {
         {/* Top Filters Row */}
         <div className="flex items-center gap-4 flex-wrap mb-6 justify-between">
           {/* 🔍 CHIP SEARCH BAR (DESIGN SAME) */}
-          <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-200 w-full max-w-md">
+          <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl shadow-[0_0_20px_0_rgba(0,0,0,0.12)] border border-gray-200 w-full max-w-md">
             {isChip ? (
               <Chip
                 label={search}
@@ -152,7 +65,7 @@ export default function PropertiesListingPage() {
             </button>
           </div>
 
-          <button className="px-4 py-4 bg-[#F0F0F0] rounded-xl shadow flex items-center gap-2">
+          <button className="px-4 py-4 bg-gray rounded-xl shadow items-center gap-2 hidden">
             <BookmarkIcon sx={{ color: "#33333333" }} />
             Save Search
           </button>
@@ -162,82 +75,89 @@ export default function PropertiesListingPage() {
         <div className="flex justify-between items-center gap-4 md:flex-nowrap flex-wrap mb-6">
           <button
             onClick={() => setOpenFilters(true)}
-            className="px-6 py-3 bg-white rounded-full shadow flex items-center justify-center gap-3 border-[#30548733] cursor-pointer w-3/5"
+            className="px-6 py-3 bg-background rounded-full shadow-[0_0_20px_0_rgba(0,0,0,0.12)] flex items-center justify-center gap-3 border-[#30548733] cursor-pointer xl:w-3/5 w-full"
           >
             {/* <FiFilter size={18} className="text-blue-600" /> */}
             <FilterListIcon sx={{ color: "#305487" }} />
             <span className="font-medium">Filters</span>
           </button>
 
-          <div className="relative w-full">
+          <div
+            className={`${pillBase} ${
+              activePrice !== 'any' ? pillActive : pillInactive
+            } relative w-full xl:flex hidden text-nowrap gap-x-0.5`}
+          >
+            <span>Price:</span>
             <select
-              onChange={(e) => setActivePrice(e.target.value !== "any")}
-              className={`${pillBase} ${
-                activePrice ? pillActive : pillInactive
-              }`}
+              onChange={(e) => setActivePrice(e.target.value)}
+              className="w-full outline-0"
+              value={activePrice}
             >
-              <option value="any">Price: Any</option>
+              <option value="any">Any</option>
               <option value="low">Below 50L</option>
               <option value="high">Above 50L</option>
             </select>
-
-            <span
-              className={`absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer ${
-                activePrice ? "text-blue-600" : "text-gray-500"
-              }`}
-            >
-              ▼
-            </span>
           </div>
-          <div className="relative w-full">
+
+          <div
+            className={`${pillBase} ${
+              activeBedRoom !== '1' ? pillActive : pillInactive
+            } relative w-full xl:flex hidden text-nowrap`}
+          >
+            <span>BedRoom:</span>
             <select
-              onChange={(e) => setActiveBedBath(e.target.value !== "any")}
-              className={`${pillBase} ${
-                activeBedBath ? pillActive : pillInactive
-              }`}
+              onChange={(e) => setActiveBedRoom(e.target.value)}
+              className="w-full outline-0"
+              value={activeBedRoom}
             >
-              <option value="any">Bed/Bathroom: Any</option>
+              <option value="1">Any</option>
               <option value="2">2+</option>
               <option value="3">3+</option>
             </select>
-
-            <span
-              className={`absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer ${
-                activeBedBath ? "text-blue-600" : "text-gray-500"
-              }`}
-            >
-              ▼
-            </span>
           </div>
 
-          <div className="relative w-full">
+          <div
+            className={`${pillBase} ${
+              activeBathRoom !== '1' ? pillActive : pillInactive
+            } relative w-full xl:flex hidden text-nowrap`}
+          >
+            <span>BathRoom:</span>
             <select
-              onChange={(e) => setActiveProperty(e.target.value !== "any")}
-              className={`${pillBase} ${
-                activeProperty ? pillActive : pillInactive
-              }`}
+              onChange={(e) => setActiveBathRoom(e.target.value)}
+              className="w-full outline-0"
+              value={activeBathRoom}
             >
-              <option value="any">Property Type: Any</option>
+              <option value="1">Any</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+            </select>
+          </div>
+
+          <div
+            className={`${pillBase} ${
+              activeProperty !== 'any' ? pillActive : pillInactive
+            } relative w-full xl:flex hidden text-nowrap`}
+          >
+            <span>Property Type:</span>
+            <select
+              onChange={(e) => setActiveProperty(e.target.value)}
+              value={activeProperty}
+              className="w-full outline-0"
+            >
+              <option value="any">Any</option>
               <option value="house">House</option>
               <option value="flat">Flat</option>
             </select>
-
-            <span
-              className={`absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer ${
-                activeProperty ? "text-blue-600" : "text-gray-500"
-              }`}
-            >
-              ▼
-            </span>
           </div>
 
           <button
             onClick={() => {
-              setActivePrice(false);
-              setActiveBedBath(false);
-              setActiveProperty(false);
+              setActivePrice('any');
+              setActiveBedRoom('1');
+              setActiveBathRoom('1');
+              setActiveProperty('any');
             }}
-            className="px-6 py-3 bg-white rounded-full shadow flex items-center gap-2 border-[#30548733] cursor-pointer w-3/5"
+            className="px-6 py-3 bg-white rounded-full shadow-[0_0_20px_0_rgba(0,0,0,0.12)] items-center gap-2 border-[#30548733] cursor-pointer w-3/4 xl:flex hidden"
           >
             <FiX size={16} className="text-gray-600" />
             <span className="font-medium text-gray-600">Reset Filters</span>
@@ -245,19 +165,12 @@ export default function PropertiesListingPage() {
         </div>
 
         {/* Map + List */}
-        <div className="flex justify-between items-start mb-10 w-full">
-          <div className="xl:flex h-150 w-full xl:w-[40%] hidden">
-            {/* <Image
-              src={Images.map}
-              alt="Map"
-              width={1400}
-              height={100}
-              className="w-fit h-full object-cover"
-            /> */}
+        <div className="flex justify-between items-start mb-10 w-full ">
+          <div className="xl:flex h-[65svh] w-full xl:w-[40%] hidden">
             <PropertiesMap />
           </div>
 
-          <div className="flex flex-wrap gap-y-7 justify-between overflow-y-scroll h-150 no-scrollbar p-3 xl:w-[64%] w-full">
+          <div className="flex flex-wrap gap-y-7 justify-between overflow-y-scroll xl:h-[65svh] no-scrollbar xl:w-[64%] w-full xl:p-3">
             {propertyData.map((property, index) => (
               <PropertyCard key={index} {...property} isLogin />
             ))}

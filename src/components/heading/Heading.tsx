@@ -28,7 +28,7 @@ const getHeadingStyles = (type: IHeadingTypes) => {
     case IHeadingTypes.heading20:
       return `xl:text-xl text-lg`;
     case IHeadingTypes.heading24:
-      return `text-2xl`;
+      return `md:text-2xl text-xl`;
     case IHeadingTypes.heading48:
       return ` xl:text-5xl xl:leading-14 md:text-[32px] md:leading-10 text-2xl`;
     case IHeadingTypes.heading60:

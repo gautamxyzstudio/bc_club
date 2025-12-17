@@ -8,8 +8,8 @@ const PropertiesMap = () => {
   const mapRef = useRef<Map | null>(null);
 
   useEffect(() => {
-    mapboxgl.accessToken =
-      "pk.eyJ1IjoiYmNyZWFsZXN0YXRlIiwiYSI6ImNtajg1MGUxbDBjOXgzZnExOW52Z2I2YjIifQ.qTP3WbvlpQVV_ETiF8UVsA";
+    mapboxgl.accessToken = `${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`
+      
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current || "",

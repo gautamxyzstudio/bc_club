@@ -162,7 +162,7 @@ const Header = () => {
         {/* Mobile Menu */}
         <div onClick={onPressMenuButton} className="block lg:hidden">
           <button
-            className="group inline-flex w-12 h-12 text-primary text-center items-center justify-center rounded shadow-[0_1px_0_--theme(--color-slate-950/.04),0_1px_2px_--theme(--color-slate-950/.12),inset_0_-2px_0_--theme(--color-slate-950/.04)] hover:shadow-[0_1px_0_--theme(--color-slate-950/.04),0_4px_8px_--theme(--color-slate-950/.12),inset_0_-2px_0_--theme(--color-slate-950/.04)] transition"
+            className="group inline-flex md:w-12 md:h-12 w-9 h-9 text-primary text-center items-center justify-center rounded shadow-[0_1px_0_--theme(--color-slate-950/.04),0_1px_2px_--theme(--color-slate-950/.12),inset_0_-2px_0_--theme(--color-slate-950/.04)] hover:shadow-[0_1px_0_--theme(--color-slate-950/.04),0_4px_8px_--theme(--color-slate-950/.12),inset_0_-2px_0_--theme(--color-slate-950/.04)] transition"
             aria-pressed={showMenu}
             type="button"
           >

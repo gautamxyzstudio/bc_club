@@ -46,12 +46,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   return (
     <div
       className={`relative rounded-xl flex overflow-hidden border border-borderColor hover:border-none hover:shadow-[0_0_20px_0_rgba(0,0,0,0.12)] transition h-auto ${
-        pathname === "/properties"
-          ? "md:w-[48%] w-full "
-          : "w-full "
+        pathname === "/properties" ? "md:w-[49%] w-full " : "w-full"
       }    ${isLogin && "group"}`}
     >
-      <div className="flex flex-col gap-y-3 p-5 w-full h-auto">
+      <div className="flex flex-col gap-y-3 xl:p-5 p-4 w-full h-auto">
         <div className="relative">
           <div className="w-full h-56 overflow-clip rounded-lg">
             <Image

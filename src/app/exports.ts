@@ -25,8 +25,11 @@ const Icons = {
   accurate: "../accurate.svg",
   free: "../free.svg",
   instantResult: "../instantResult.svg",
-  arrowup:"../arrowup.svg",
-  
+  arrowup: "../arrowup.svg",
+  compare:"../compare.svg",
+  favorite:"../favorite.svg",
+  property:"../property.svg",
+  vectorMap:"../vectorMap.svg",
 };
 
 const Images = {
@@ -40,10 +43,11 @@ const Images = {
   blogimg: "/blogimg.webp",
   firsttown: "/firsttown.webp",
   secondtown: "/secondtown.webp",
-   leadership:"/leadership.webp",
-   billwalsh:"/billwalsh.webp",
-   saleimg:"/saleimg.webp",
-   leaderlesson:"/leaderlesson.webp"
+  leadership: "/leadership.webp",
+  billwalsh: "/billwalsh.webp",
+  saleimg: "/saleimg.webp",
+  leaderlesson: "/leaderlesson.webp",
+  assessment : "/assessment.webp"
 };
 
 export { Icons, Images };

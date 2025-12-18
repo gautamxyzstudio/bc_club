@@ -4,19 +4,13 @@ import React, { useEffect, useRef } from "react";
 import mapboxgl, { Map } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-type House = {
-  id: number;
-  title: string;
-  rent: string;
-  coordinates: [number, number];  
-};
-
-const rentedHouses: House[] = [
+/* ===== RENTED HOUSES DATA ===== */
+const rentedHouses = [
   {
     id: 1,
     title: "Rented House",
     rent: "$2,500 / month",
-    coordinates: [-123.1207, 49.2827],
+    coordinates: [-123.1207, 49.2827], // Vancouver Downtown
   },
   {
     id: 2,
@@ -36,7 +30,7 @@ const PropertiesMap = () => {
 
     if (!mapContainerRef.current || mapRef.current) return;
 
-    //  CREATE MAP
+    // 🗺️ CREATE MAP
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       center: [-123.1207, 49.2827],
@@ -46,7 +40,7 @@ const PropertiesMap = () => {
 
     mapRef.current = map;
 
-    //  ADD RENTED HOUSE MARKERS
+    // 🏠 ADD RENTED HOUSE MARKERS
     rentedHouses.forEach((house) => {
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
         <strong>${house.title}</strong><br/>

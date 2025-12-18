@@ -6,6 +6,7 @@ import { FiPrinter, FiShare2 } from "react-icons/fi";
 import GetInTouch from "../getInTouch/GetInTouch";
 import TotalMonthySale from "./totalMonthlySale/TotalMonthySale";
 import StatsMap from "../statsMap/StatsMap";
+import MonthlySalesReports from "../monthlySalesReports/MonthlySalesReports";
 
 const TrendStepPage = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -60,7 +61,7 @@ const TrendStepPage = () => {
         {activeTab === 1 && <MonthlySale />}
         {activeTab === 2 && <TotalMonthySale />}
         {activeTab === 3 && <StatsMap />}
-        {activeTab === 4 && <MonthlySale />}
+        {activeTab === 4 && <MonthlySalesReports />}
       </section>
       {(activeTab === 0 || activeTab === 1 || activeTab === 2) && (
         <GetInTouch />

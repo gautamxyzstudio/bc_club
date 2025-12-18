@@ -2,8 +2,7 @@
 import React, { useState } from "react";
 import { FiSearch, FiX } from "react-icons/fi";
 import { Images } from "@/src/app/exports";
-import Image from "next/image";
-import PropertyCard from "@/src/components/common/propertiesCard/PropertiesCard";
+ import PropertyCard from "@/src/components/common/propertiesCard/PropertiesCard";
 import FiltersPopup from "@/src/components/common/propertiesCard/FiltersPopup";
 import { Chip } from "@mui/material";
 import BookmarkIcon from "@mui/icons-material/Bookmark";

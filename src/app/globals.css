@@ -129,6 +129,9 @@ body::-webkit-scrollbar {
   scrollbar-width: none; /* Firefox */
 }
 
+
+ 
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

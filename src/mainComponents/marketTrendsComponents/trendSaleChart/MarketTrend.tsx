@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 
 import {
@@ -127,13 +127,13 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   );
 };
 
-const MonthlySaleChart = () => {
+const MarketTrend = () => {
   const [property, setProperty] = useState("All Residential");
   const [neighborhood, setNeighborhood] = useState("All Neighborhoods");
   const [year, setYear] = useState("Select Year");
   return (
-    <div className="xl:max-w-screen-2xl mx-auto px-6 xl:px-16 space-y-10">
-      <div className="bg-white rounded-2xl shadow p-5  gap-4 flex flex-nowrap md:flex-row flex-col">
+    <div className="space-y-10">
+      <div className="bg-white rounded-2xl shadow p-5  gap-4 flex flex-nowrap md:flex-row flex-col mt-10">
         <CustomSelect
           label="Property Type"
           options={PROPERTY_OPTIONS}
@@ -192,7 +192,7 @@ const MonthlySaleChart = () => {
               <Bar
                 yAxisId="sold"
                 dataKey="sold"
-                barSize={26}
+                barSize={30}
                 fill="#1f3a5f"
                 radius={[6, 6, 0, 0]}
               >
@@ -203,15 +203,16 @@ const MonthlySaleChart = () => {
                 yAxisId="price"
                 dataKey="price"
                 stroke="#f59e0b"
-                strokeWidth={2}
+                strokeWidth={1}
                 dot={false}
               />
 
               <Line
+                className="mb-290"
                 yAxisId="price"
                 dataKey="ma"
                 stroke="#22c55e"
-                strokeWidth={2}
+                strokeWidth={1}
                 dot={false}
               />
             </ComposedChart>
@@ -222,4 +223,4 @@ const MonthlySaleChart = () => {
   );
 };
 
-export default MonthlySaleChart;
+export default MarketTrend;

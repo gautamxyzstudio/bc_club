@@ -1,7 +1,6 @@
 "use client";
 
-import LineGradient from "@/src/components/common/lineGradient/LineGradient";
-import React, { useState } from "react";
+ import React, { useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
 
 /* ================= SELECT ================= */

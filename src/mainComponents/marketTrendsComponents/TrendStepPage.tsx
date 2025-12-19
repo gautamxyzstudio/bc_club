@@ -22,28 +22,44 @@ const TrendStepPage = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setActiveTab(1)}
-              className="px-3 py-2 rounded-lg text-xs sm:text-sm border border-borderColor text-gray-600 cursor-pointer"
+              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${
+                activeTab === 1
+                  ? "bg-[#22558b] text-white border-[#22558b]"
+                  : "border-borderColor text-gray-600"
+              }`}
             >
               Monthly Sales Chart
             </button>
 
             <button
               onClick={() => setActiveTab(2)}
-              className="px-3 py-2 rounded-lg text-xs sm:text-sm border border-borderColor text-gray-500 cursor-pointer"
+              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${
+                activeTab === 2
+                  ? "bg-[#22558b] text-white border-[#22558b]"
+                  : "border-borderColor text-gray-500"
+              }`}
             >
               Monthly Sales
             </button>
 
             <button
               onClick={() => setActiveTab(3)}
-              className="px-3 py-2 rounded-lg text-xs sm:text-sm border border-borderColor text-gray-500 cursor-pointer"
+              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${
+                activeTab === 3
+                  ? "bg-[#22558b] text-white border-[#22558b]"
+                  : "border-borderColor text-gray-500"
+              }`}
             >
               Stats Map
             </button>
 
             <button
               onClick={() => setActiveTab(4)}
-              className="px-3 py-2 rounded-lg text-xs sm:text-sm border border-borderColor text-gray-500 cursor-pointer"
+              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${
+                activeTab === 4
+                  ? "bg-[#22558b] text-white border-[#22558b]"
+                  : "border-borderColor text-gray-500"
+              }`}
             >
               Monthly Sales Reports
             </button>
@@ -57,12 +73,14 @@ const TrendStepPage = () => {
             </button>
           </div>
         </div>
+
         {activeTab === 0 && <MarketTrend />}
         {activeTab === 1 && <MonthlySale />}
         {activeTab === 2 && <TotalMonthySale />}
         {activeTab === 3 && <StatsMap />}
         {activeTab === 4 && <MonthlySalesReports />}
       </section>
+
       {(activeTab === 0 || activeTab === 1 || activeTab === 2) && (
         <GetInTouch />
       )}

@@ -87,7 +87,7 @@ const LoginPopup = ({
         <span className="text-[#000F0D] text-sm">or</span>
         <div className="flex-1 h-px bg-gray-300"></div>
       </div>
-      <div className="bg-[#F3F3F3] flex justify-center gap-2 py-3 px-[52px] rounded-md">
+      <div className="bg-[#F3F3F3] flex justify-center gap-2 py-3 px-13 rounded-md">
         <button className="flex   transition text-[#232323]">
           Continue with
         </button>

@@ -39,7 +39,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     <div className="relative">
       <button
         onClick={() => setOpen((p) => !p)}
-        className="flex items-center justify-between border border-[#E6EAEE] rounded-full px-4 py-2 text-sm bg-white min-w-40"
+        className="flex items-center justify-between border border-[#E6EAEE] rounded-full px-4 py-2 text-sm bg-background text-foreground min-w-40"
       >
         <span>{value}</span>
         <FiChevronDown
@@ -49,7 +49,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       </button>
 
       {open && (
-        <div className="absolute z-30 mt-2 w-full bg-white rounded-xl shadow">
+        <div className="absolute z-30 mt-2 w-full bg-background text-foreground rounded-xl shadow">
           {options.map((opt) => (
             <div
               key={opt}
@@ -238,13 +238,13 @@ const StatsDetail: React.FC = () => {
       <dialog
         ref={dialogRef}
         onClick={(e) => e.target === e.currentTarget && closeDialog()}
-        className="w-142.5 max-w-[95%] rounded-2xl p-5 m-auto backdrop:bg-black/70 "
+        className="w-142.5 max-w-[95%] rounded-2xl p-5 m-auto backdrop:bg-black/70 bg-background"
       >
         {selectedHouse && (
-          <div className="bg-white rounded-2xl">
+          <div className="bg-transparent rounded-2xl">
             {/* HEADER */}
             <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Lombardie</h2>
+              <h2 className="text-lg font-semibold text-foreground">Lombardie</h2>
               <CustomSelect
                 options={["North Vancouver", "Vancouver", "Burnaby"]}
                 value={region}
@@ -253,7 +253,7 @@ const StatsDetail: React.FC = () => {
             </div>
 
             {/* MONTH */}
-            <div className="bg-[#2f568d] text-white mt-3 py-3 rounded-xl flex justify-between items-center px-4">
+            <div className="bg-primary text-background mt-3 py-3 rounded-xl flex justify-between items-center px-4">
               <FiChevronLeft onClick={prevMonth} className="cursor-pointer" />
               <div className="text-center">
                 <div className="font-semibold">{currentMonthLabel}</div>
@@ -265,13 +265,13 @@ const StatsDetail: React.FC = () => {
             </div>
 
             {/* STATS TABLE */}
-            <div className="mt-3 border-[#F0F0F0] rounded-xl overflow-hidden">
+            <div className="mt-3 border-borderColor rounded-xl overflow-hidden text-foreground">
               <table className="w-full text-sm">
                 <tbody>
                   {stats.map((s, i) => (
                     <tr
                       key={i}
-                      className={i % 2 === 0 ? "bg-gray-50" : "bg-[#F0F0F0]"}
+                      className={i % 2 === 0 ? "bg-background" : "bg-gray"}
                     >
                       <td className="px-4 py-2">{s.label}</td>
                       <td className="px-4 py-2 text-right font-medium">

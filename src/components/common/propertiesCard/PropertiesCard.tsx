@@ -46,7 +46,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
 
   return (
     <Link
-      href={`/property-info/${id}`}
+      href={`${!isLogin ? "#" : `/property-info/${id}`}`}
       className={`${
         pathname === "/properties" ? "md:w-[49%] w-full " : "w-full"
       }`}
@@ -215,7 +215,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
                 customClasses="text-lightWhite"
               />
               <Description
-                content={`MLS# ${mls}`}
+                content={`MLS® ${mls}`}
                 type={IDescriptionTypes.dec14}
                 customClasses="text-lightWhite"
               />

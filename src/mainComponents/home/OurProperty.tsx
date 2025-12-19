@@ -1,9 +1,6 @@
 "use client";
-import { Images } from "@/src/app/exports";
 import CustomButton from "@/src/components/button/CustomButton";
-import PropertiesCard, {
-  PropertyCardProps,
-} from "@/src/components/common/propertiesCard/PropertiesCard";
+import PropertiesCard from "@/src/components/common/propertiesCard/PropertiesCard";
 import Heading, { IHeadingTypes } from "@/src/components/heading/Heading";
 import Link from "next/link";
 import React, { useRef, useState } from "react";
@@ -11,6 +8,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import { propertyData } from "../dummyData";
 
 const tabList = [
   "Newly Listed properties",
@@ -122,7 +120,7 @@ const OurProperty = () => {
               }}
               className="mySwiper w-full pt-5! pb-9!"
             >
-              {listings.map((item, index) => (
+              {propertyData.map((item, index) => (
                 <SwiperSlide key={index}>
                   <PropertiesCard {...item} isLogin />
                 </SwiperSlide>
@@ -160,7 +158,7 @@ const OurProperty = () => {
               }}
               className="mySwiper w-full pt-5! pb-9!"
             >
-              {listings.map((item, index) => (
+              {propertyData.map((item, index) => (
                 <SwiperSlide key={index}>
                   <PropertiesCard {...item} isLogin={false} />
                 </SwiperSlide>
@@ -198,7 +196,7 @@ const OurProperty = () => {
               }}
               className="mySwiper w-full pt-5! pb-9!"
             >
-              {listings.map((item, index) => (
+              {propertyData.map((item, index) => (
                 <SwiperSlide key={index}>
                   <PropertiesCard {...item} isLogin={false} />
                 </SwiperSlide>
@@ -212,104 +210,3 @@ const OurProperty = () => {
 };
 
 export default OurProperty;
-
-export const listings: PropertyCardProps[] = [
-  {
-    title: "Apartment/Condo",
-    price: 350000,
-    daysAgo: 10,
-    image: Images.apartment,
-    address: "1056 Nicola Street Vancouver BC West End VW",
-    sqft: "1200",
-    beds: 2,
-    baths: 2,
-    priceDrop: 10,
-    assessedDiff: -1,
-    realtor: "Jane Smith / Smith Realty Group",
-    mls: "R3059142",
-  },
-  {
-    title: "Townhouse",
-    price: 450000,
-    daysAgo: 10,
-    image: Images.townHouse,
-    address: "1056 Nicola Street Vancouver BC West End VW",
-    sqft: "1500",
-    beds: 4,
-    baths: 3,
-    priceDrop: 10,
-    assessedDiff: 5,
-    realtor: "Jane Smith / Smith Realty Group",
-    mls: "R3059999",
-  },
-  {
-    title: "Single Family Residence ",
-    price: 555000,
-    daysAgo: 10,
-    image: Images.singleFamily,
-    address: "1056 Nicola Street Vancouver BC West End VW",
-    sqft: "1200",
-    beds: 4,
-    baths: 3,
-    priceDrop: 10,
-    assessedDiff: 3,
-    realtor: "Jane Smith / Smith Realty Group",
-    mls: "R3059999",
-  },
-  {
-    title: "Townhouse",
-    price: 450000,
-    daysAgo: 10,
-    image: Images.condoTwo,
-    address: "1056 Nicola Street Vancouver BC West End VW",
-    sqft: "1500",
-    beds: 4,
-    baths: 3,
-    priceDrop: 10,
-    assessedDiff: 5,
-    realtor: "Jane Smith / Smith Realty Group",
-    mls: "R3059999",
-  },
-  {
-    title: "Apartment/Condo",
-    price: 350000,
-    daysAgo: 10,
-    image: Images.singleFamilyTwo,
-    address: "1056 Nicola Street Vancouver BC West End VW",
-    sqft: "1200",
-    beds: 2,
-    baths: 2,
-    priceDrop: 10,
-    assessedDiff: -1,
-    realtor: "Jane Smith / Smith Realty Group",
-    mls: "R3059142",
-  },
-  {
-    title: "Single Family Residence ",
-    price: 555000,
-    daysAgo: 10,
-    image: Images.singleFamilyThree,
-    address: "1056 Nicola Street Vancouver BC West End VW",
-    sqft: "1200",
-    beds: 4,
-    baths: 3,
-    priceDrop: 10,
-    assessedDiff: 3,
-    realtor: "Jane Smith / Smith Realty Group",
-    mls: "R3059999",
-  },
-  {
-    title: "Apartment/Condo",
-    price: 350000,
-    daysAgo: 10,
-    image: Images.condoTwo,
-    address: "1056 Nicola Street Vancouver BC West End VW",
-    sqft: "1200",
-    beds: 2,
-    baths: 2,
-    priceDrop: 10,
-    assessedDiff: -1,
-    realtor: "Jane Smith / Smith Realty Group",
-    mls: "R3059142",
-  },
-];

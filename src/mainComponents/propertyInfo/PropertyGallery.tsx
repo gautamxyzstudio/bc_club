@@ -18,10 +18,10 @@ export default function PropertyGallery({ images }: Props) {
   return (
     <>
       {/* Gallery Grid */}
-      <div className="flex flex-row flex-nowrap xl:gap-x-5 md:gap-x-3 w-full h-full overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-nowrap xl:gap-x-5 md:gap-x-3 gap-y-3 w-full h-full overflow-hidden">
         {/* Main Image */}
         <div
-          className="md:w-1/2 w-full xl:h-134 md:h-76.5 relative cursor-pointer rounded-2xl"
+          className="md:w-1/2 w-full xl:h-134 md:h-76.5 h-56.5 relative cursor-pointer md:rounded-2xl rounded-xl"
           onClick={() => {
             setIndex(0);
             setOpen(true);
@@ -32,7 +32,7 @@ export default function PropertyGallery({ images }: Props) {
             alt="Property image"
             width={1020}
             height={450}
-            className="object-cover rounded-2xl w-full h-full"
+            className="object-cover md:rounded-2xl rounded-xl w-full h-full"
           />
         </div>
 
@@ -44,7 +44,7 @@ export default function PropertyGallery({ images }: Props) {
             return (
               <div
                 key={i}
-                className="relative w-[48%] xl:h-65.75 md:h-37 rounded-2xl cursor-pointer"
+                className="relative w-[49%] xl:h-65.75 h-37 md:rounded-2xl rounded cursor-pointer overflow-hidden"
                 onClick={() => {
                   setIndex(i + 1);
                   setOpen(true);
@@ -55,13 +55,15 @@ export default function PropertyGallery({ images }: Props) {
                   alt={`Thumbnail ${i + 1}`}
                   width={450}
                   height={300}
-                  className="object-cover rounded-2xl w-full h-full"
+                  className="object-cover md:rounded-2xl rounded w-full h-full"
                 />
 
                 {/* +N Overlay */}
                 {isLast && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl text-white text-xl font-semibold w-full h-full">
-                    +{images.length - 4}
+                  <div className="absolute inset-0 bg-foreground/70 flex items-center justify-center w-full h-full">
+                    <span className="text-background text-xl font-bold bg-[#305487bf] rounded-lg p-5">
+                      +{images.length - 4}
+                    </span>
                   </div>
                 )}
               </div>

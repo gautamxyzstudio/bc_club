@@ -1,6 +1,6 @@
 "use client";
 
- import React, { useState } from "react";
+import React, { useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
 
 /* ================= SELECT ================= */
@@ -163,88 +163,79 @@ const TotalMonthlySale = () => {
       </div>
 
       {/* Table Card */}
-<div className="flex gap-5">
-  
- 
+      <div className="flex-row w-full flex  gap-5">
+        <div className="bg-white rounded-2xl shadow overflow-hidden w-1/2">
+          <table className="w-full text-sm ">
+            <thead className="bg-[#F9FAFB]  ">
+              <tr className="text-left text-gray-500  ">
+                <th className="px-4 py-3">Price Range $ ▲</th>
+                <th className="px-4 py-3">Solds</th>
+                <th className="px-4 py-3">Inventory</th>
+                <th className="px-4 py-3">Ratio</th>
+                <th className="px-4 py-3">New</th>
+              </tr>
+            </thead>
 
-      <div className="bg-white rounded-2xl shadow overflow-hidden w-1/2">
-        <table className="w-full text-sm ">
-          <thead className="bg-[#F9FAFB]  ">
-            <tr className="text-left text-gray-500  ">
-              <th className="px-4 py-3">Price Range $ ▲</th>
-              <th className="px-4 py-3">Solds</th>
-              <th className="px-4 py-3">Inventory</th>
-              <th className="px-4 py-3">Ratio</th>
-              <th className="px-4 py-3">New</th>
-            </tr>
-          </thead>
-         
-          <tbody>
-            {TABLE_DATA.map((row, i) => (
-              
-              <tr
-                key={i}
-                className={`  ${
-                  i % 2 === 1 ? "bg-[#F3F3F3]" : "bg-white"
-                }`}
-              >
-                <td className="px-4 py-3 font-medium">{row.range}</td>
-                <td className="px-4 py-3">{row.sold}</td>
-                <td className="px-4 py-3">{row.inventory}</td>
-                <td className="px-4 py-3">{row.ratio}</td>
-                <td className="px-4 py-3">{row.new}</td>
+            <tbody>
+              {TABLE_DATA.map((row, i) => (
+                <tr
+                  key={i}
+                  className={`  ${i % 2 === 1 ? "bg-[#F3F3F3]" : "bg-white"}`}
+                >
+                  <td className="px-4 py-3 font-medium">{row.range}</td>
+                  <td className="px-4 py-3">{row.sold}</td>
+                  <td className="px-4 py-3">{row.inventory}</td>
+                  <td className="px-4 py-3">{row.ratio}</td>
+                  <td className="px-4 py-3">{row.new}</td>
+                </tr>
+              ))}
+
+              <tr className="border-t font-semibold">
+                <td className="px-4 py-3">Total</td>
+                <td className="px-4 py-3">4</td>
+                <td className="px-4 py-3">5</td>
+                <td className="px-4 py-3">80.0%</td>
+                <td className="px-4 py-3">3</td>
               </tr>
-            ))}
-            
-            <tr className="border-t font-semibold">
-              <td className="px-4 py-3">Total</td>
-              <td className="px-4 py-3">4</td>
-              <td className="px-4 py-3">5</td>
-              <td className="px-4 py-3">80.0%</td>
-              <td className="px-4 py-3">3</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div className="bg-white rounded-2xl shadow overflow-hidden w-1/2">
-        <table className="w-full text-sm ">
-          <thead className="bg-[#F9FAFB]  ">
-            <tr className="text-left text-gray-500  ">
-              <th className="px-4 py-3">Price Range $ ▲</th>
-              <th className="px-4 py-3">Solds</th>
-              <th className="px-4 py-3">Inventory</th>
-              <th className="px-4 py-3">Ratio</th>
-              <th className="px-4 py-3">New</th>
-            </tr>
-          </thead>
-         
-          <tbody>
-            {TABLE_DATA.map((row, i) => (
-              
-              <tr
-                key={i}
-                className={`  ${
-                  i % 2 === 1 ? "bg-[#F3F3F3]" : "bg-white"
-                }`}
-              >
-                <td className="px-4 py-3 font-medium">{row.range}</td>
-                <td className="px-4 py-3">{row.sold}</td>
-                <td className="px-4 py-3">{row.inventory}</td>
-                <td className="px-4 py-3">{row.ratio}</td>
-                <td className="px-4 py-3">{row.new}</td>
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-white rounded-2xl shadow overflow-hidden w-1/2">
+          <table className="w-full text-sm ">
+            <thead className="bg-[#F9FAFB]  ">
+              <tr className="text-left text-gray-500  ">
+                <th className="px-4 py-3">Price Range $ ▲</th>
+                <th className="px-4 py-3">Solds</th>
+                <th className="px-4 py-3">Inventory</th>
+                <th className="px-4 py-3">Ratio</th>
+                <th className="px-4 py-3">New</th>
               </tr>
-            ))}
-            
-            <tr className="border-t font-semibold">
-              <td className="px-4 py-3">Total</td>
-              <td className="px-4 py-3">4</td>
-              <td className="px-4 py-3">5</td>
-              <td className="px-4 py-3">80.0%</td>
-              <td className="px-4 py-3">3</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+            </thead>
+
+            <tbody>
+              {TABLE_DATA.map((row, i) => (
+                <tr
+                  key={i}
+                  className={`  ${i % 2 === 1 ? "bg-[#F3F3F3]" : "bg-white"}`}
+                >
+                  <td className="px-4 py-3 font-medium">{row.range}</td>
+                  <td className="px-4 py-3">{row.sold}</td>
+                  <td className="px-4 py-3">{row.inventory}</td>
+                  <td className="px-4 py-3">{row.ratio}</td>
+                  <td className="px-4 py-3">{row.new}</td>
+                </tr>
+              ))}
+
+              <tr className="border-t font-semibold">
+                <td className="px-4 py-3">Total</td>
+                <td className="px-4 py-3">4</td>
+                <td className="px-4 py-3">5</td>
+                <td className="px-4 py-3">80.0%</td>
+                <td className="px-4 py-3">3</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );

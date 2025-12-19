@@ -4,7 +4,7 @@ import mapboxgl, { Map } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { FiChevronDown, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-/*  TYPES  */
+/* ================= TYPES ================= */
 interface House {
   id: number;
   title: string;
@@ -27,7 +27,7 @@ interface StatRow {
   trend: Trend;
 }
 
-/*  SELECT */
+/* ================= SELECT ================= */
 const CustomSelect: React.FC<CustomSelectProps> = ({
   options,
   value,
@@ -38,7 +38,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   return (
     <div className="relative">
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen((p) => !p)}
         className="flex items-center justify-between border border-[#E6EAEE] rounded-full px-4 py-2 text-sm bg-white min-w-40"
       >
         <span>{value}</span>
@@ -68,23 +68,63 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   );
 };
 
-/*  DATA */
+/* ================= DATA ================= */
 const rentedHouses: House[] = [
-  { id: 1, title: "Lombardie", rent: "$2,500 / month", coordinates: [-123.1207, 49.2827] },
-  { id: 2, title: "Lombardie", rent: "$2,100 / month", coordinates: [-123.0999, 49.2705] },
-  { id: 3, title: "Lombardie", rent: "$2,100 / month", coordinates: [-123.02999, 49.2735] },
-  { id: 4, title: "Lombardie", rent: "$2,100 / month", coordinates: [-123.10999, 49.2765] },
+  {
+    id: 1,
+    title: "Lombardie",
+    rent: "$2,500 / month",
+    coordinates: [-123.1207, 49.2827],
+  },
+  {
+    id: 2,
+    title: "Lombardie",
+    rent: "$2,100 / month",
+    coordinates: [-123.0999, 49.2705],
+  },
+  {
+    id: 3,
+    title: "Lombardie",
+    rent: "$2,100 / month",
+    coordinates: [-123.02999, 49.2735],
+  },
+  {
+    id: 4,
+    title: "Lombardie",
+    rent: "$2,100 / month",
+    coordinates: [-123.10999, 49.2765],
+  },
 ];
 
 const months = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const monthlyStats: Record<string, StatRow[]> = {
   "November 2025": [
-    { label: "Median Sold Price", value: "$1,850,000", change: "14.0%", trend: "down" },
-    { label: "Median Price per SqFt", value: "$602", change: "14.0%", trend: "down" },
+    {
+      label: "Median Sold Price",
+      value: "$1,850,000",
+      change: "14.0%",
+      trend: "down",
+    },
+    {
+      label: "Median Price per SqFt",
+      value: "$602",
+      change: "14.0%",
+      trend: "down",
+    },
     { label: "Sale", value: "7", change: "14.0%", trend: "down" },
     { label: "Inventory", value: "117", change: "14.0%", trend: "down" },
     { label: "New Listings", value: "29", change: "14.0%", trend: "up" },
@@ -97,7 +137,7 @@ const monthlyStats: Record<string, StatRow[]> = {
 const MIN_YEAR = 2025;
 const MAX_YEAR = 2031;
 
-/*  COMPONENT */
+/* ================= COMPONENT ================= */
 const StatsDetail: React.FC = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
@@ -109,40 +149,54 @@ const StatsDetail: React.FC = () => {
   const [year, setYear] = useState(2025);
 
   const currentMonthLabel = `${months[monthIndex]} ${year}`;
-  const stats = monthlyStats[currentMonthLabel] || monthlyStats["November 2025"];
+  const stats =
+    monthlyStats[currentMonthLabel] || monthlyStats["November 2025"];
 
-  /*  Scroll lock */
+  /* ===== Scroll Lock ===== */
   useEffect(() => {
     document.body.style.overflow = selectedHouse ? "hidden" : "";
   }, [selectedHouse]);
 
-  /*  Map */
+  /* ===== MAP (FIXED) ===== */
   useEffect(() => {
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "";
+    const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    if (!token) {
+      console.error("Mapbox token missing");
+      return;
+    }
+
     if (!mapContainerRef.current || mapRef.current) return;
-    console.log("Map init", mapContainerRef.current);
+
+    mapboxgl.accessToken = token;
 
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       center: [-123.1207, 49.2827],
       zoom: 9,
-      style: "mapbox://styles/bcrealestate/cmj8gyj7g000k01sagq9ad6bv",
+      style: "mapbox://styles/mapbox/streets-v12",  
+    });
+
+    map.on("load", () => {
+      map.resize();
+
+      rentedHouses.forEach((house) => {
+        const marker = new mapboxgl.Marker({ color: "#f59e0b" })
+          .setLngLat(house.coordinates)
+          .addTo(map);
+
+        marker.getElement().addEventListener("click", () => {
+          setSelectedHouse(house);
+          dialogRef.current?.showModal();
+        });
+      });
     });
 
     mapRef.current = map;
 
-    rentedHouses.forEach((house) => {
-      const marker = new mapboxgl.Marker({ color: "#f59e0b" })
-        .setLngLat(house.coordinates)
-        .addTo(map);
-
-      marker.getElement().addEventListener("click", () => {
-        setSelectedHouse(house);
-        dialogRef.current?.showModal();
-      });
-    });
-
-    return () => map.remove();
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
   }, []);
 
   /* ===== Month ===== */
@@ -173,15 +227,18 @@ const StatsDetail: React.FC = () => {
 
   return (
     <>
-      <div ref={mapContainerRef} style={{
-        width:'100%',
-        height:"600px"
-      }} className="w-full h-full rounded-3xl" />
+      {/* MAP */}
+      <div  
+        ref={mapContainerRef}
+        className="w-full rounded-3xl "
+        style={{ height: "550px" }}
+      />
 
+      {/* DIALOG */}
       <dialog
         ref={dialogRef}
         onClick={(e) => e.target === e.currentTarget && closeDialog()}
-        className="w-142.5 max-w-[95%] rounded-2xl p-5 m-auto backdrop:bg-black/70"
+        className="w-142.5 max-w-[95%] rounded-2xl p-5 m-auto backdrop:bg-black/70 "
       >
         {selectedHouse && (
           <div className="bg-white rounded-2xl">
@@ -210,11 +267,16 @@ const StatsDetail: React.FC = () => {
             {/* STATS TABLE */}
             <div className="mt-3 border-[#F0F0F0] rounded-xl overflow-hidden">
               <table className="w-full text-sm">
-                <tbody className="flex">
+                <tbody>
                   {stats.map((s, i) => (
-                    <tr key={i} className={i % 2 === 0 ? "bg-gray-50" : "bg-[#F0F0F0]"}>
-                      <td className="px-4 py-2 ">{s.label}</td>
-                      <td className="px-4 py-2 text-right font-medium">{s.value}</td>
+                    <tr
+                      key={i}
+                      className={i % 2 === 0 ? "bg-gray-50" : "bg-[#F0F0F0]"}
+                    >
+                      <td className="px-4 py-2">{s.label}</td>
+                      <td className="px-4 py-2 text-right font-medium">
+                        {s.value}
+                      </td>
                       <td className="px-4 py-2 text-right">
                         <span
                           className={`font-medium ${
@@ -232,7 +294,7 @@ const StatsDetail: React.FC = () => {
 
             {/* FOOTER */}
             <div className="mt-3 bg-[#F0F0F0] rounded-xl py-2 text-center text-sm text-yellow-600 font-medium cursor-pointer">
-              📊 Show detailed Charts
+               Show detailed Charts
             </div>
           </div>
         )}

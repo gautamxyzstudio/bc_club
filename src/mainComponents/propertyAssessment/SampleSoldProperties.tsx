@@ -2,8 +2,8 @@
 import React from "react";
 import { Autoplay, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { listings } from "../home/OurProperty";
 import PropertiesCard from "@/src/components/common/propertiesCard/PropertiesCard";
+import { propertyData } from "../dummyData";
 
 const SampleSoldProperties = () => {
   return (
@@ -28,7 +28,7 @@ const SampleSoldProperties = () => {
       }}
       className="mySwiper w-full xl:pt-5! pb-9!"
     >
-      {listings.map((item, index) => (
+      {propertyData.map((item, index) => (
         <SwiperSlide key={index}>
           <PropertiesCard {...item} isLogin />
         </SwiperSlide>

@@ -165,7 +165,6 @@ const MonthlySale = () => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Dynamic data based on Year selection (extendable for other filters)
   const getFilteredData = () => {
     let filtered = [...data];
 
@@ -175,7 +174,6 @@ const MonthlySale = () => {
       filtered = filtered.slice(-12 * years);
     }
 
-    // TODO: Extend filtering by Region, Property Type, Neighborhood if needed
     return filtered;
   };
 
@@ -255,7 +253,6 @@ const MonthlySale = () => {
             <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}K`} />
             <Tooltip />
 
-            
             <Bar
               dataKey="sold"
               name="Sold Count"

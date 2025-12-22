@@ -1,9 +1,8 @@
-import React from 'react'
+import GetInTouch from "@/src/mainComponents/getInTouch/GetInTouch";
+import React from "react";
 
 const page = () => {
-  return (
-    <div>Contact Us</div>
-  )
-}
+  return <GetInTouch />;
+};
 
-export default page
+export default page;

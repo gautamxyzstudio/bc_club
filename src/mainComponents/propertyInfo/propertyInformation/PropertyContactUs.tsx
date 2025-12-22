@@ -5,6 +5,7 @@ import LineGradient from "@/src/components/common/lineGradient/LineGradient";
 import { CallRegular, StarFilled } from "@fluentui/react-icons";
 import { MapPin } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 const PropertyContactUs = ({ property }: { property: any }) => {
@@ -37,10 +38,13 @@ const PropertyContactUs = ({ property }: { property: any }) => {
           />
           <div className="flex flex-col gap-y-2">
             <span className="text-base font-medium">Dan Roy</span>
-            <span className="text-base text-primary flex gap-x-1">
+            <Link
+              href={"tel:+1 485 526 258"}
+              className="text-base text-primary flex gap-x-1"
+            >
               <CallRegular className="w-6 h-6" />
               0485.526.258
-            </span>
+            </Link>
           </div>
         </div>
         <button className="px-4 py-2.5 border border-primary rounded-md text-primary text-base font-bold">

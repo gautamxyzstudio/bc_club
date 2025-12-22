@@ -176,7 +176,6 @@ export const propertyDetails = {
   numberOfApartmentUnits: { label: "No. of Apartment Units", value: 42400 },
 };
 
-
 export const propertyImages = [
   // Existing
   "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
@@ -200,4 +199,211 @@ export const propertyImages = [
   "https://images.unsplash.com/photo-1600047509782-20b8f98a2f63",
   "https://images.unsplash.com/photo-1600585152220-90363fe7e115",
   "https://images.unsplash.com/photo-1600585153780-ec9b8c8d3cde",
+];
+
+export const propertyDetailsHeaders: {
+  key: string;
+  label: string;
+  align?: "left" | "right" | "center";
+}[] = [
+  { key: "label", label: "" },
+  { key: "value", label: "", align: "right" },
+];
+export const propertyDetailsRows = [
+  {
+    data: {
+      label: "Property Type",
+      value: "Apartment/Condo",
+    },
+  },
+  {
+    data: {
+      label: "Bedrooms",
+      value: "1",
+    },
+  },
+  {
+    data: {
+      label: "Bathrooms",
+      value: "1",
+    },
+  },
+  {
+    data: {
+      label: "Asking Price",
+      value: "$594,900",
+    },
+  },
+  {
+    data: {
+      label: "Maintenance Fee",
+      value: "$410.5",
+    },
+  },
+  {
+    data: {
+      label: "Listing Date",
+      value: "2025/July/10",
+    },
+    subRows: [
+      {
+        data: {
+          label: "Days at New Price",
+          value: "93 days",
+        },
+      },
+      {
+        data: {
+          label: "Days On Market",
+          value: "153 days",
+        },
+      },
+      {
+        data: {
+          label: "Cumulative Days On Market",
+          value: "123 days",
+        },
+      },
+    ],
+  },
+  {
+    data: {
+      label: "Previously Sold Date",
+      value: "2015/Feb/24",
+    },
+  },
+  {
+    data: {
+      label: "Floor Area",
+      value: "629 sqft",
+    },
+    subRows: [
+      {
+        data: {
+          label: "Price per SqFt",
+          value: "$946",
+        },
+      },
+      {
+        data: {
+          label: "Maint. Fee per SqFt",
+          value: "$0.65",
+        },
+      },
+    ],
+  },
+  {
+    data: {
+      label: "Age",
+      value: "82 years (1943)",
+    },
+  },
+  {
+    data: {
+      label: "Property Taxes",
+      value: "$1,787",
+    },
+  },
+  {
+    data: {
+      label: "Ownership Interest",
+      value: "Freehold Strata",
+    },
+  },
+  {
+    data: {
+      label: "PID",
+      value: "003-263-932",
+    },
+  },
+  {
+    data: {
+      label: "Seller’s Agent",
+      value: "$5,823",
+    },
+  },
+  {
+    data: {
+      label: "Storeys (Finished)",
+      value: "4",
+    },
+  },
+  {
+    data: {
+      label: "Basement Info",
+      value: "None",
+    },
+  },
+  {
+    data: {
+      label: "Seller’s Agent",
+      value: "Century 21 Purcell Realty Ltd",
+    },
+  },
+  {
+    data: {
+      label: "Roof",
+      value: "Asphalt Shingle",
+    },
+  },
+  {
+    data: {
+      label: "Heating",
+      value: "Baseboard heaters, Electric",
+    },
+  },
+  {
+    data: {
+      label: "Water Supply",
+      value: "Community Water User Utility",
+    },
+  },
+];
+
+export const roomHeaders: {
+  key: string;
+  label: string;
+  align?: "left" | "right" | "center";
+}[] = [
+  { key: "room", label: "Room" },
+  { key: "level", label: "Level", align: "center" },
+  { key: "dimensions", label: "Dimensions", align: "right" },
+];
+
+export const roomRows = [
+  {
+    data: {
+      room: "Living Room",
+      level: "Main",
+      dimensions: "15'5 × 13'8",
+    },
+  },
+  {
+    data: {
+      room: "Kitchen",
+      level: "Main",
+      dimensions: "12'0 × 10'5",
+    },
+  },
+  {
+    data: {
+      room: "Bedroom 1",
+      level: "Upper",
+      dimensions: "14'2 × 12'0",
+    },
+  },
+  {
+    data: {
+      room: "Bedroom 2",
+      level: "Upper",
+      dimensions: "13'0 × 11'0",
+    },
+  },
+  {
+    data: {
+      room: "Bathroom",
+      level: "Main",
+      dimensions: "8'0 × 6'5",
+    },
+  },
 ];

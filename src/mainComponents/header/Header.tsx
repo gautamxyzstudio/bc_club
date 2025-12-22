@@ -20,7 +20,7 @@ import NewPassword from "../auth/NewPassword";
 import { usePathname } from "next/navigation";
 
 export const menulist = [
-  { title: "About Us", href: "/about-us" },
+  { title: "Evaluation", href: "/home-estimation" },
   { title: "Market Trends", href: "/market-trends" },
   { title: "Properties", href: "/properties" },
   { title: "Contact Us", href: "/contact-us" },

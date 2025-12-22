@@ -9,6 +9,13 @@ import LineGradient from "@/src/components/common/lineGradient/LineGradient";
 import Image from "next/image";
 import { Icons } from "@/src/app/exports";
 import Link from "next/link";
+import DynamicTable from "@/src/components/common/dynamicTable/DynamicTable";
+import {
+  propertyDetailsHeaders,
+  propertyDetailsRows,
+  roomHeaders,
+  roomRows,
+} from "../../dummyData";
 
 const PropertyInformation = ({ property }: { property: any }) => {
   const featureslist = [
@@ -121,8 +128,41 @@ Nulla sodales justo erat, vel ultrices elit lacinia vel. Suspendisse vehicula, t
               className="w-full rounded-xl h-98.75"
             ></iframe>
           </div>
-          <div id="estimate" className="scroll-mt-20">
-            <h2 className="text-2xl font-bold">Estimate</h2>
+          {/* Property Details */}
+          <DynamicTable
+            title="Property Details"
+            headers={propertyDetailsHeaders}
+            rows={propertyDetailsRows}
+          />
+          {/* Room Information */}
+          <DynamicTable
+            title="Room Information"
+            headers={roomHeaders}
+            rows={roomRows}
+          />
+          <div
+            id="estimate"
+            className="scroll-mt-20 p-5 rounded-xl bg-gray flex flex-col gap-y-4"
+          >
+            <h2 className="xl:text-2xl text-lg xl:font-bold font-semibold">
+              Pricing Estimate
+            </h2>
+            <LineGradient customClasses="" />
+            {/* Pricing content can be added here */}
+            <div className="flex flex-row md:flex-nowrap flex-wrap justify-between w-full xl:gap-x-6 gap-x-5 gap-y-4">
+              <div className="bg-background px-4 py-5 flex items-center justify-between rounded-xl w-full">
+                <span className="text-sm">Offer Value Estimate</span>
+                <span className="text-primary font-bold text-xl xl:text-2xl">
+                  $605,000
+                </span>
+              </div>
+              <div className="bg-background px-4 py-5 flex items-center justify-between rounded-xl w-full">
+                <span className="text-sm">Offer Rent Estimate</span>
+                <span className="text-primary font-bold text-xl xl:text-2xl">
+                  $2,390
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

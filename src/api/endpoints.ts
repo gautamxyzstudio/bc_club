@@ -52,4 +52,14 @@ export const Endpoints = {
     `${BASE_URL}/api/real-estate-board/add-favorite/${id}`,
   removeRealEstateFavorite: (id: string) =>
     `${BASE_URL}/api/real-estate-board/remove-favorite/${id}`,
+  updateRealEstateListing: (id: string) =>
+    `${BASE_URL}/api/real-estate-boards/${id}`,
+
+  // Forecloser Properties
+  getForecloserProperties: `${BASE_URL}/api/forecloser-properties`,
+  getForecloserPropertiesAlt: `${BASE_URL}/api/forecloser-properties`,
+  copyToForecloserList: (docId: string) =>
+    `${BASE_URL}/api/forecloser-properties/copy-from-real-estate/${docId}`,
+  deleteForecloserProperty: (id: string) =>
+    `${BASE_URL}/api/forecloser-properties/${id}`,
 };

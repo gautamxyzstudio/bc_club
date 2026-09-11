@@ -16,6 +16,8 @@ import { login } from "@/src/api/auth/authApi";
 import { useAuthContext } from "./AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { isAdminUser } from "@/src/utilities/authUtils";
 
 interface LoginModalProps {
   open: boolean;
@@ -32,6 +34,7 @@ const LoginPopup = ({
   onOpenForgot,
   openReactiveAccount,
 }: LoginModalProps) => {
+  const router = useRouter();
   const { loginUser, setResetEmail } = useAuthContext();
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -72,6 +75,10 @@ const LoginPopup = ({
       toast.success("Login successful!");
       onClose();
       reset();
+
+      if (isAdminUser(response.user)) {
+        router.push("/admin/dashboard/active");
+      }
     } catch (error: any) {
       const message =
         error?.response?.data?.error?.message ||
@@ -135,6 +142,9 @@ const LoginPopup = ({
         loginUser(data.user, data.jwt, true);
         onClose();
         toast.success("Login successful!");
+        if (isAdminUser(data.user)) {
+          router.push("/admin/dashboard/active");
+        }
       } else {
         toast.error("Something went wrong");
       }

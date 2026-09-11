@@ -9,10 +9,18 @@ import QuickLink from "./QuickLink";
 import { getCurrentYear } from "@/src/utilities/utilities";
 import NewsLetter from "./NewsLetter";
 import { usePathname } from "next/navigation";
+import { useAuthContext } from "../auth/AuthContext";
+import { isAdminUser } from "@/src/utilities/authUtils";
 
 const Footer = () => {
   const pathName = usePathname();
+  const { isLoggedIn, username } = useAuthContext();
   const currentYear = getCurrentYear();
+
+  // When authenticated user or on admin routes, footer is not visible
+  if (pathName?.startsWith("/admin") || (isLoggedIn && isAdminUser(username))) {
+    return null;
+  }
   const socialMediaLink = [
     {
       icon: Icons.facebook,

@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation";
 import { Heart, LogOut } from "lucide-react";
 import LineGradient from "@/src/components/common/lineGradient/LineGradient";
 import RippleButton from "@/src/components/button/RippleButton";
+import { isAdminUser } from "@/src/utilities/authUtils";
 
 export const menulist = [
   { title: "Evaluation", href: "/home-estimation" },
@@ -79,6 +80,37 @@ const Header = () => {
 
   // Get active pathname
   const pathname = usePathname();
+
+  // When authenticated user or on admin routes, header is not visible
+  if (pathname?.startsWith("/admin") || (isLoggedIn && isAdminUser(username))) {
+    if (!pathname?.startsWith("/admin") && isLoggedIn && isAdminUser(username)) {
+      return (
+        <div className="fixed top-0 left-0 right-0 z-[9999] bg-slate-900 text-white px-4 py-2 text-xs flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>
+              Logged in as <strong>{username?.fullName || "Admin"}</strong>
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin/dashboard/active"
+              className="font-bold text-blue-400 hover:underline"
+            >
+              Go to Admin Dashboard →
+            </Link>
+            <button
+              onClick={logoutUser}
+              className="text-rose-400 hover:underline font-semibold"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  }
 
   return (
     <AnimatePresence>
@@ -160,14 +192,31 @@ const Header = () => {
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                 </div>
-                <span className="text-primary font-bold uppercase">
+                <span className="text-primary font-bold uppercase flex items-center gap-1.5">
                   {username && username?.fullName}
+                  {isAdminUser(username) && (
+                    <span className="text-[10px] bg-primary text-white px-1.5 py-0.5 rounded font-medium tracking-wide">
+                      ADMIN
+                    </span>
+                  )}
                 </span>
               </div>
               <div
                 tabIndex={-1}
                 className="dropdown-content menu bg-white rounded-box z-1 px-4 py-3 shadow-sm gap-y-2 w-fit text-nowrap"
               >
+                {isAdminUser(username) && (
+                  <>
+                    <Link
+                      href={"/admin/dashboard/active"}
+                      className="flex items-center gap-2 w-full cursor-pointer group text-primary font-bold hover:bg-background rounded-lg p-1 transition-colors duration-300 ease-in-out"
+                    >
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Admin Dashboard
+                    </Link>
+                    <LineGradient />
+                  </>
+                )}
                 <Link
                   href={"/wishlist"}
                   className="flex items-center gap-1 w-full cursor-pointer group text-secondary-text hover:text-primary hover:bg-background hover:font-medium  rounded-lg transition-colors duration-300 ease-in-out"

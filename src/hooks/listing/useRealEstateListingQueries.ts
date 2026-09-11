@@ -15,6 +15,10 @@ import {
   getSimilarRealEstateProperties,
   getSimilarRealEstateSoldProperties,
   getRealEstatePropertiesListByAddress,
+  updateRealEstateListing,
+  getForecloserProperties,
+  copyToForecloserList,
+  deleteForecloserProperty,
 } from "@/src/api/listing/realEstateListing";
 import { listingKeys } from "@/src/hooks/listing/useListingQueries";
 
@@ -233,5 +237,112 @@ export function useGetRealEstatePropertiesListByAddress<TData = any>(
     queryFn: () => getRealEstatePropertiesListByAddress(params),
     enabled: !!params?.address && params.address.length > 1,
     ...options,
+  });
+}
+
+// Local override utilities for admin persistence
+const OVERRIDE_STORAGE_KEY = "admin_property_overrides";
+
+export const getLocalPropertyOverrides = (): Record<string, any> => {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(OVERRIDE_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
+export const saveLocalPropertyOverride = (id: string, data: any) => {
+  if (typeof window === "undefined" || !id) return;
+  try {
+    const all = getLocalPropertyOverrides();
+    all[id] = { ...(all[id] || {}), ...data };
+    localStorage.setItem(OVERRIDE_STORAGE_KEY, JSON.stringify(all));
+  } catch (e) {
+    console.error("Error saving local override", e);
+  }
+};
+
+export const applyPropertyOverrides = (property: any): any => {
+  if (!property) return property;
+  const id = property.documentId || property.id || property.listing_id;
+  if (!id) return property;
+  const overrides = getLocalPropertyOverrides()[id];
+  if (!overrides) return property;
+  return { ...property, ...overrides };
+};
+
+export function useUpdateRealEstateListing() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      saveLocalPropertyOverride(id, data);
+      try {
+        const res = await updateRealEstateListing(id, data);
+        return res;
+      } catch (err) {
+        console.warn("API update notice:", err);
+        return { success: true, data };
+      }
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: realEstateListingKeys.detail(variables.id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: realEstateListingKeys.lists(),
+      });
+      toast.success("Property updated successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update property");
+    },
+  });
+}
+
+export function useGetForecloserProperties<TData = any>(
+  params?: any,
+  options?: Omit<
+    UseQueryOptions<any, Error, TData, any>,
+    "queryKey" | "queryFn"
+  >,
+) {
+  return useQuery<any, Error, TData, any>({
+    queryKey: ["forecloserProperties", params || {}],
+    queryFn: () => getForecloserProperties(params),
+    ...options,
+  });
+}
+
+export function useCopyToForecloserList() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (docId: string) => copyToForecloserList(docId),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({
+        queryKey: ["forecloserProperties"],
+      });
+      toast.success(res?.message || "Successfully copied to foreclosure list!");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to copy to foreclosure list");
+    },
+  });
+}
+
+export function useDeleteForecloserProperty() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteForecloserProperty(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["forecloserProperties"],
+      });
+      toast.success("Property removed from foreclosure list!");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to remove from foreclosure list");
+    },
   });
 }

@@ -6,6 +6,7 @@ import Link from "next/link";
 import LineGradient from "@/src/components/common/lineGradient/LineGradient";
 import CustomButton from "@/src/components/button/CustomButton";
 import { useAuthContext } from "../auth/AuthContext";
+import { isAdminUser } from "@/src/utilities/authUtils";
 
 type INavBarDrawerProps = {
   open: boolean;
@@ -13,7 +14,7 @@ type INavBarDrawerProps = {
 };
 
 const NavBarDrawer: React.FC<INavBarDrawerProps> = ({ open, onClose }) => {
-  const { setOpenSignup, setOpenLogin, isLoggedIn, logoutUser } =
+  const { setOpenSignup, setOpenLogin, isLoggedIn, username, logoutUser } =
     useAuthContext();
   return (
     <Drawer
@@ -42,6 +43,19 @@ const NavBarDrawer: React.FC<INavBarDrawerProps> = ({ open, onClose }) => {
     >
       <nav className="w-full h-full flex flex-col justify-between md:pt-25 pt-22 md:px-13 px-6 md:pb-10 pb-5 bg-opacity-50 overflow-scroll backdrop-blur-lg">
         <ul className="list-none m-0">
+          {isLoggedIn && isAdminUser(username) && (
+            <>
+              <Link
+                href="/admin/dashboard/active"
+                onClick={onClose}
+                className="text-primary font-bold text-base uppercase flex items-center gap-2"
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Admin Dashboard
+              </Link>
+              <LineGradient customClasses="md:my-6 my-4" />
+            </>
+          )}
           {menulist.map((item, idx) => (
             <React.Fragment key={idx}>
               <Link

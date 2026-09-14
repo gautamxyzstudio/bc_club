@@ -17,6 +17,7 @@ import {
   getRealEstatePropertiesListByAddress,
   updateRealEstateListing,
   getForecloserProperties,
+  getForecloserPropertyById,
   copyToForecloserList,
   deleteForecloserProperty,
 } from "@/src/api/listing/realEstateListing";
@@ -311,6 +312,21 @@ export function useGetForecloserProperties<TData = any>(
   return useQuery<any, Error, TData, any>({
     queryKey: ["forecloserProperties", params || {}],
     queryFn: () => getForecloserProperties(params),
+    ...options,
+  });
+}
+
+export function useGetForecloserPropertyById<TData = any>(
+  id: string,
+  options?: Omit<
+    UseQueryOptions<any, Error, TData, any>,
+    "queryKey" | "queryFn"
+  >,
+) {
+  return useQuery<any, Error, TData, any>({
+    queryKey: ["forecloserProperty", id],
+    queryFn: () => getForecloserPropertyById(id),
+    enabled: !!id,
     ...options,
   });
 }

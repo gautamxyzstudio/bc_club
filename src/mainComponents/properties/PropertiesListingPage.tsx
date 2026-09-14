@@ -22,7 +22,7 @@ import { useListingStore } from "@/src/store/useListingStore";
 import { useGetMe } from "@/src/hooks/listing/useListingQueries";
 import { getOfficeName } from "@/src/utilities/utilities";
 import { useSearchParams } from "next/navigation";
-import { useGetRealEstateListings } from "@/src/hooks/listing/useRealEstateListingQueries";
+import { useGetForecloserProperties, useGetRealEstateListings } from "@/src/hooks/listing/useRealEstateListingQueries";
 
 export default function PropertiesListingPage() {
   const { data: me } = useGetMe();
@@ -319,8 +319,25 @@ export default function PropertiesListingPage() {
       enabled: isForSale,
     });
 
-  const queryData = isForSale ? queryDataActive : queryDataNormal;
-  const loading = isForSale ? isLoadingActive : isLoadingNormal;
+  const { data: queryDataForeClose, isLoading: isLoadingForeClose } =
+    useGetForecloserProperties(params, {
+      select,
+      enabled: status === "forecloser" || status === "forcecloser",
+    });
+
+  console.log("queryDataForeClose", queryDataForeClose);
+
+  const queryData = isForSale
+    ? queryDataActive
+    : status === "forecloser" || status === "forcecloser"
+    ? queryDataForeClose
+    : queryDataNormal;
+  const loading =
+    isForSale
+      ? isLoadingActive
+      : status === "forecloser" || status === "forcecloser"
+      ? isLoadingForeClose
+      : isLoadingNormal;
 
   const data = queryData?.properties || [];
 

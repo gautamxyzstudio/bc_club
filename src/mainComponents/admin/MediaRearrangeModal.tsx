@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import {
   X,
@@ -15,14 +15,21 @@ import {
   GripVertical,
   RotateCcw,
   Check,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
-import { useUpdateRealEstateListing } from "@/src/hooks/listing/useRealEstateListingQueries";
+import {
+  useUpdateRealEstateListing,
+  useGetRealEstateListingById,
+  applyPropertyOverrides,
+} from "@/src/hooks/listing/useRealEstateListingQueries";
 import { toast } from "react-toastify";
 
 interface MediaRearrangeModalProps {
   open: boolean;
   onClose: () => void;
-  property: any;
+  property?: any;
+  documentId?: string;
   onSuccess?: () => void;
 }
 
@@ -30,35 +37,156 @@ export default function MediaRearrangeModal({
   open,
   onClose,
   property,
+  documentId,
   onSuccess,
 }: MediaRearrangeModalProps) {
   const updateMutation = useUpdateRealEstateListing();
+
+  // Resolve target document ID from prop or property object
+  const docId = useMemo(() => {
+    return (
+      documentId ||
+      (typeof property === "string"
+        ? property
+        : property?.documentId ||
+          property?.real_estate_board?.documentId ||
+          property?.realEstateDocId ||
+          property?.id)
+    );
+  }, [documentId, property]);
+
+  // Fetch full details by documentId
+  const {
+    data: fetchedData,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useGetRealEstateListingById((docId as string) || "", {
+    select: (res: any) => {
+      const raw = res?.data || res;
+      if (raw?.attributes) {
+        return {
+          id: raw.id,
+          documentId: raw.documentId || raw.id,
+          ...raw.attributes,
+        };
+      }
+      return raw;
+    },
+    enabled: open && !!docId,
+  });
+
+  // Active property with local overrides applied
+  const currentProperty = useMemo(() => {
+    const base =
+      fetchedData || (typeof property === "object" ? property : null);
+    return applyPropertyOverrides(base);
+  }, [fetchedData, property]);
 
   // Array of image URLs
   const [imageList, setImageList] = useState<string[]>([]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [newImageUrl, setNewImageUrl] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
+  const [lastPopulatedDocId, setLastPopulatedDocId] = useState<string | null>(null);
+
+  const extractImages = (prop: any): string[] => {
+    if (!prop) return [];
+    const extracted: string[] = [];
+    if (Array.isArray(prop.media_url)) {
+      extracted.push(...prop.media_url);
+    } else if (typeof prop.media_url === "string") {
+      extracted.push(prop.media_url);
+    } else if (Array.isArray(prop.media)) {
+      prop.media.forEach((m: any) => {
+        const u = m?.MediaURL || m?.url || m?.src;
+        if (u) extracted.push(u);
+      });
+    }
+    return extracted;
+  };
 
   useEffect(() => {
-    if (property) {
-      const extracted: string[] = [];
-      if (Array.isArray(property.media_url)) {
-        extracted.push(...property.media_url);
-      } else if (typeof property.media_url === "string") {
-        extracted.push(property.media_url);
-      } else if (Array.isArray(property.media)) {
-        property.media.forEach((m: any) => {
-          const u = m?.MediaURL || m?.url || m?.src;
-          if (u) extracted.push(u);
-        });
-      }
+    if (!open) {
+      setHasChanges(false);
+      setLastPopulatedDocId(null);
+      return;
+    }
+
+    if (currentProperty && (!hasChanges || lastPopulatedDocId !== docId)) {
+      const extracted = extractImages(currentProperty);
       setImageList(extracted);
       setHasChanges(false);
+      setLastPopulatedDocId(docId || null);
     }
-  }, [property]);
+  }, [open, docId, currentProperty, hasChanges, lastPopulatedDocId]);
 
-  if (!open || !property) return null;
+  if (!open) return null;
+
+  // Loading state when initial property data is not yet available
+  if (!currentProperty && isLoading) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+        <div className="relative w-full max-w-md bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center justify-center text-center space-y-4 border border-gray-100">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          <div>
+            <h3 className="text-base font-bold text-gray-900">
+              Loading Media
+            </h3>
+            <p className="text-xs text-gray-500 mt-1">
+              Fetching photos for Document ID:{" "}
+              <span className="font-mono font-semibold text-gray-700">
+                {docId || "..."}
+              </span>
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition cursor-pointer"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state when no property could be loaded
+  if (!currentProperty && error) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+        <div className="relative w-full max-w-md bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center justify-center text-center space-y-4 border border-gray-100">
+          <AlertCircle className="w-10 h-10 text-rose-500" />
+          <div>
+            <h3 className="text-base font-bold text-gray-900">
+              Failed to Load Media
+            </h3>
+            <p className="text-xs text-rose-600 mt-1">
+              {error?.message || "Could not fetch media by documentId."}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => refetch()}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-primary2 rounded-lg transition cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Retry
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentProperty) return null;
 
   // Move item in array helper
   const moveItem = (fromIndex: number, toIndex: number) => {
@@ -114,25 +242,19 @@ export default function MediaRearrangeModal({
 
   // Reset to original
   const handleReset = () => {
-    const extracted: string[] = [];
-    if (Array.isArray(property.media_url)) {
-      extracted.push(...property.media_url);
-    } else if (typeof property.media_url === "string") {
-      extracted.push(property.media_url);
-    } else if (Array.isArray(property.media)) {
-      property.media.forEach((m: any) => {
-        const u = m?.MediaURL || m?.url || m?.src;
-        if (u) extracted.push(u);
-      });
-    }
+    const extracted = extractImages(currentProperty);
     setImageList(extracted);
     setHasChanges(false);
   };
 
   // Save updated order to backend
   const handleSave = async () => {
-    const id = property.documentId || property.id || property.listing_id;
-    if (!id) return;
+    const targetId =
+      docId ||
+      currentProperty.documentId ||
+      currentProperty.id ||
+      currentProperty.listing_id;
+    if (!targetId) return;
 
     // Create updated media array representation
     const updatedMedia = imageList.map((url, idx) => ({
@@ -147,7 +269,7 @@ export default function MediaRearrangeModal({
     };
 
     try {
-      await updateMutation.mutateAsync({ id: String(id), data: payload });
+      await updateMutation.mutateAsync({ id: String(targetId), data: payload });
       setHasChanges(false);
       if (onSuccess) onSuccess();
       onClose();
@@ -166,15 +288,28 @@ export default function MediaRearrangeModal({
               <ImageIcon className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Rearrange Media Images</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-gray-900">
+                  Rearrange Media Images
+                </h2>
+                {isFetching && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Syncing Media...
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-gray-500">
-                Drag cards or use arrow buttons to change order. Photo #1 will be the primary Cover Photo.
+                Document ID:{" "}
+                <span className="font-mono font-semibold text-gray-700">
+                  {currentProperty.documentId || docId}
+                </span>{" "}
+                • Drag cards or use arrow buttons to change order. Photo #1 is the primary Cover Photo.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
+            className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -195,7 +330,7 @@ export default function MediaRearrangeModal({
             <button
               onClick={handleReset}
               disabled={!hasChanges}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-lg transition disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-lg transition disabled:opacity-40 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Reset Order
@@ -212,7 +347,7 @@ export default function MediaRearrangeModal({
               />
               <button
                 type="submit"
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-primary hover:bg-primary2 rounded-lg transition"
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-primary hover:bg-primary2 rounded-lg transition cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add Image
@@ -226,8 +361,12 @@ export default function MediaRearrangeModal({
           {imageList.length === 0 ? (
             <div className="text-center py-16 text-gray-400">
               <ImageIcon className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-              <p className="font-semibold text-gray-600">No images available for this property</p>
-              <p className="text-xs text-gray-400 mt-1">Use the URL input above to add property photos.</p>
+              <p className="font-semibold text-gray-600">
+                No images available for this property
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Use the URL input above to add property photos.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -244,7 +383,11 @@ export default function MediaRearrangeModal({
                       isCover
                         ? "border-amber-400 ring-2 ring-amber-300/40 shadow-sm"
                         : "border-gray-200 hover:border-gray-300 hover:shadow-md"
-                    } ${draggedIndex === index ? "opacity-40 scale-95 border-dashed border-primary" : ""}`}
+                    } ${
+                      draggedIndex === index
+                        ? "opacity-40 scale-95 border-dashed border-primary"
+                        : ""
+                    }`}
                   >
                     {/* Image Thumbnail */}
                     <div className="relative aspect-4/3 w-full bg-gray-100 overflow-hidden cursor-grab active:cursor-grabbing">
@@ -285,7 +428,7 @@ export default function MediaRearrangeModal({
                           onClick={() => moveItem(index, index - 1)}
                           disabled={index === 0}
                           title="Move Left"
-                          className="p-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-primary transition disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-primary transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                         >
                           <ArrowLeft className="w-3.5 h-3.5" />
                         </button>
@@ -294,7 +437,7 @@ export default function MediaRearrangeModal({
                           onClick={() => moveItem(index, index + 1)}
                           disabled={index === imageList.length - 1}
                           title="Move Right"
-                          className="p-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-primary transition disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-primary transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                         >
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
@@ -306,7 +449,7 @@ export default function MediaRearrangeModal({
                           type="button"
                           onClick={() => handleMakeCover(index)}
                           title="Set as Cover Photo"
-                          className="px-2 py-1 text-[11px] font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/70 rounded-lg transition flex items-center gap-1"
+                          className="px-2 py-1 text-[11px] font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/70 rounded-lg transition flex items-center gap-1 cursor-pointer"
                         >
                           <Star className="w-3 h-3" />
                           Set Cover
@@ -318,7 +461,7 @@ export default function MediaRearrangeModal({
                         type="button"
                         onClick={() => handleDeleteImage(index)}
                         title="Delete photo"
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -343,15 +486,18 @@ export default function MediaRearrangeModal({
               type="button"
               onClick={onClose}
               disabled={updateMutation.isPending}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSave}
-              disabled={updateMutation.isPending || (!hasChanges && imageList.length === 0)}
-              className="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary2 rounded-xl shadow-xs transition disabled:opacity-50"
+              disabled={
+                updateMutation.isPending ||
+                (!hasChanges && imageList.length === 0)
+              }
+              className="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary2 rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer"
             >
               {updateMutation.isPending ? (
                 <>

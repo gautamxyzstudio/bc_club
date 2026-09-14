@@ -56,7 +56,7 @@ export default function AdminPropertiesDashboard({
   const [searchTerm, setSearchTerm] = useState("");
   const [propertyType, setPropertyType] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("grid");
 
   // Selected property for modals
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
@@ -277,7 +277,7 @@ export default function AdminPropertiesDashboard({
     <div className="space-y-6">
       {/* Route Switcher Tabs Banner */}
       <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xs border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
+        <div className="md:w-[53%]">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs uppercase font-bold tracking-wider text-primary px-2.5 py-0.5 rounded-md bg-primary/10">
               Admin Portal
@@ -538,7 +538,7 @@ export default function AdminPropertiesDashboard({
                   <th className="py-3.5 px-4">Property</th>
                   <th className="py-3.5 px-4">Listing ID</th>
                   <th className="py-3.5 px-4">Price</th>
-                  <th className="py-3.5 px-4">Specs</th>
+                  {/* <th className="py-3.5 px-4">Specs</th> */}
                   <th className="py-3.5 px-4">Status</th>
                   <th className="py-3.5 px-4">{isForeclosureTab ? "Foreclosure Status" : "Foreclosure"}</th>
                   <th className="py-3.5 px-4 text-right">Actions</th>
@@ -594,13 +594,13 @@ export default function AdminPropertiesDashboard({
                       </td>
 
                       {/* Specs */}
-                      <td className="py-3.5 px-4 text-xs text-gray-600 whitespace-nowrap">
+                      {/* <td className="py-3.5 px-4 text-xs text-gray-600 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <span>{item.bedrooms ?? 0}b</span> •
                           <span>{item.bathrooms ?? 0}ba</span> •
                           <span>{item.Living_area ? `${item.Living_area} sqft` : "-"}</span>
                         </div>
-                      </td>
+                      </td> */}
 
                       {/* Status */}
                       <td className="py-3.5 px-4">
@@ -621,7 +621,8 @@ export default function AdminPropertiesDashboard({
 
                       {/* Foreclosure Column */}
                       <td className="py-3.5 px-4 text-xs font-medium whitespace-nowrap">
-                        {isForeclosureTab ? (
+                        {
+                        isForeclosureTab ? (
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-amber-800 bg-amber-50 border border-amber-200/80 font-semibold text-xs">
                               <Gavel className="w-3.5 h-3.5 text-amber-600" />
@@ -640,7 +641,8 @@ export default function AdminPropertiesDashboard({
                               )}
                             </button>
                           </div>
-                        ) : isItemInForeclosure(item) ? (
+                        ) : 
+                        isItemInForeclosure(item) ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-emerald-800 bg-emerald-50 border border-emerald-200/80 font-semibold text-xs">
                             <Check className="w-3.5 h-3.5 text-emerald-600" />
                             In Foreclosure
@@ -650,17 +652,17 @@ export default function AdminPropertiesDashboard({
                             onClick={() => handleCopyForecloser(item)}
                             disabled={copyMutation.isPending && copyingDocId === (item.documentId || item.id)}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-secondary hover:opacity-90 shadow-xs transition disabled:opacity-50 cursor-pointer"
-                            title="Copy to forecloser list"
+                            title="Add as Forecloser"
                           >
                             {copyMutation.isPending && copyingDocId === (item.documentId || item.id) ? (
                               <>
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                Copying...
+                                Adding...
                               </>
                             ) : (
                               <>
                                 <Copy className="w-3.5 h-3.5" />
-                                Copy to forecloser list
+                                Add as Forecloser
                               </>
                             )}
                           </button>
@@ -706,6 +708,13 @@ export default function AdminPropertiesDashboard({
           {listings.map((item: any) => {
             const cover = getPrimaryImage(item);
             const count = getImageCount(item);
+            const rawListingId =
+              item.listing_id ||
+              item.mls_number ||
+              (item.documentId ? item.documentId.slice(0, 8) : "-");
+            const mlsNumber = String(rawListingId).startsWith("MLS")
+              ? rawListingId
+              : `MLS® ${rawListingId}`;
             return (
               <div
                 key={item.documentId || item.id || item.listing_id}
@@ -735,22 +744,27 @@ export default function AdminPropertiesDashboard({
                       {isForeclosureTab ? "Foreclosure" : item.standard_status || item.status || "Active"}
                     </span>
                   </div>
-                  <button
+                  {/* <button
                     onClick={() => handleOpenRearrange(item)}
                     className="absolute bottom-2.5 right-2.5 bg-black/70 hover:bg-primary text-white text-xs px-2 py-1 rounded-lg backdrop-blur-xs flex items-center gap-1 transition"
                     title="Rearrange Photos"
                   >
                     <ImageIcon className="w-3.5 h-3.5" />
                     {count}
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Card Content */}
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                   <div>
-                    <h3 className="text-xl font-extrabold text-primary">
-                      ${Number(item.price || 0).toLocaleString()}
-                    </h3>
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-xl font-extrabold text-primary">
+                        ${Number(item.price || 0).toLocaleString()}
+                      </h3>
+                      <span className="text-[11px] font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md font-mono shrink-0">
+                        {mlsNumber}
+                      </span>
+                    </div>
                     <p className="font-bold text-gray-800 text-sm truncate mt-0.5">
                       {item.address || "No address specified"}
                     </p>
@@ -767,7 +781,7 @@ export default function AdminPropertiesDashboard({
                       <Bath className="w-3.5 h-3.5 text-primary" /> {item.bathrooms ?? 0}ba
                     </div>
                     <div className="flex items-center gap-1 truncate">
-                      <Maximize className="w-3.5 h-3.5 text-primary" /> {item.Living_area || "-"}
+                      <Maximize className="w-3.5 h-3.5 text-primary" /> {item.Living_area || "-"}sqft
                     </div>
                   </div>
 
@@ -830,12 +844,12 @@ export default function AdminPropertiesDashboard({
                         {copyMutation.isPending && copyingDocId === (item.documentId || item.id) ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            Copying...
+                            Adding...
                           </>
                         ) : (
                           <>
                             <Copy className="w-3.5 h-3.5" />
-                            Copy to forecloser list
+                            Add to Foreclosure
                           </>
                         )}
                       </button>
@@ -888,6 +902,7 @@ export default function AdminPropertiesDashboard({
             open={viewModalOpen}
             onClose={() => setViewModalOpen(false)}
             property={selectedProperty}
+            documentId={selectedProperty?.documentId || selectedProperty?.id}
             onOpenEdit={() => handleOpenEdit(selectedProperty)}
             onOpenRearrange={() => handleOpenRearrange(selectedProperty)}
           />
@@ -896,6 +911,7 @@ export default function AdminPropertiesDashboard({
             open={editModalOpen}
             onClose={() => setEditModalOpen(false)}
             property={selectedProperty}
+            documentId={selectedProperty?.documentId || selectedProperty?.id}
             onSuccess={() => refetch()}
           />
 
@@ -903,6 +919,7 @@ export default function AdminPropertiesDashboard({
             open={rearrangeModalOpen}
             onClose={() => setRearrangeModalOpen(false)}
             property={selectedProperty}
+            documentId={selectedProperty?.documentId || selectedProperty?.id}
             onSuccess={() => refetch()}
           />
         </>

@@ -23,7 +23,55 @@ export async function getListingById(id: string): Promise<any> {
     return res.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data?.error?.message || "API error");
+      const is404 =
+        error.response?.status === 404 ||
+        error.response?.data?.error?.status === 404 ||
+        error.response?.data?.error?.message?.toLowerCase().includes("not found") ||
+        error.message?.includes("404");
+
+      if (is404) {
+        try {
+          const token = Cookies.get("token");
+          const headers: Record<string, string> = {};
+          if (token) headers["Authorization"] = `Bearer ${token}`;
+
+          const forecloserRes = await axios.get(
+            Endpoints.getForecloserPropertiesById(id),
+            { headers }
+          );
+          const raw = forecloserRes.data;
+          const item = raw?.data || raw;
+          if (item?.real_estate_board) {
+            const merged = { ...item.real_estate_board, ...item };
+            return raw?.data ? { ...raw, data: merged } : merged;
+          }
+          return raw;
+        } catch (forecloserErr) {
+          if (axios.isAxiosError(forecloserErr)) {
+            const err: any = new Error(
+              forecloserErr.response?.data?.error?.message ||
+                forecloserErr.response?.data?.message ||
+                forecloserErr.message ||
+                "Record not found"
+            );
+            err.status = forecloserErr.response?.status || 404;
+            err.statusCode = forecloserErr.response?.status || 404;
+            err.response = forecloserErr.response;
+            throw err;
+          }
+        }
+      }
+
+      const err: any = new Error(
+        error.response?.data?.error?.message ||
+          error.response?.data?.message ||
+          error.message ||
+          "API error"
+      );
+      err.status = error.response?.status;
+      err.statusCode = error.response?.status;
+      err.response = error.response;
+      throw err;
     }
     throw new Error("An unexpected error occurred");
   }
@@ -219,7 +267,7 @@ export async function getForecloserProperties(params?: any): Promise<any> {
     return res.data;
   } catch (error) {
     try {
-      const fallbackUrl = Endpoints.getForecloserPropertiesAlt;
+      const fallbackUrl = Endpoints.getForecloserProperties;
       const resFallback = await axios.get(fallbackUrl, { params, headers });
       return resFallback.data;
     } catch {
@@ -228,6 +276,35 @@ export async function getForecloserProperties(params?: any): Promise<any> {
           error.response?.data?.error?.message ||
           error.response?.data?.message ||
           "Failed to fetch forecloser properties"
+        );
+      }
+      throw new Error("An unexpected error occurred");
+    }
+  }
+}
+
+// Get Forecloser Property By Id
+export async function getForecloserPropertyById(id: string): Promise<any> {
+  const token = Cookies.get("token");
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  try {
+    const res = await axios.get(Endpoints.getForecloserPropertiesById(id), {
+      headers,
+    });
+    return res.data;
+  } catch (error) {
+    try {
+      const fallbackUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/forecloser-properties/${id}`;
+      const resFallback = await axios.get(fallbackUrl, { headers });
+      return resFallback.data;
+    } catch {
+      if (axios.isAxiosError(error)) {
+        throw new Error(
+          error.response?.data?.error?.message ||
+          error.response?.data?.message ||
+          "Failed to fetch forecloser property"
         );
       }
       throw new Error("An unexpected error occurred");

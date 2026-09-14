@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import {
   X,
   MapPin,
   DollarSign,
   Home,
-  Calendar,
   Layers,
   FileText,
   ImageIcon,
@@ -19,12 +18,20 @@ import {
   Check,
   Copy,
   ExternalLink,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
+import {
+  useGetRealEstateListingById,
+  applyPropertyOverrides,
+} from "@/src/hooks/listing/useRealEstateListingQueries";
 
 interface PropertyViewModalProps {
   open: boolean;
   onClose: () => void;
-  property: any;
+  property?: any;
+  documentId?: string;
   onOpenEdit?: () => void;
   onOpenRearrange?: () => void;
 }
@@ -33,6 +40,7 @@ export default function PropertyViewModal({
   open,
   onClose,
   property,
+  documentId,
   onOpenEdit,
   onOpenRearrange,
 }: PropertyViewModalProps) {
@@ -41,26 +49,131 @@ export default function PropertyViewModal({
   >("overview");
   const [copiedRaw, setCopiedRaw] = useState(false);
 
-  if (!open || !property) return null;
+  // Determine target document ID from prop or property object
+  const docId = useMemo(() => {
+    return (
+      documentId ||
+      (typeof property === "string"
+        ? property
+        : property?.documentId ||
+          property?.real_estate_board?.documentId ||
+          property?.realEstateDocId ||
+          property?.id)
+    );
+  }, [documentId, property]);
 
-  // Normalize image list
+  // Fetch full details by documentId
+  const {
+    data: fetchedData,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useGetRealEstateListingById((docId as string) || "", {
+    select: (res: any) => {
+      const raw = res?.data || res;
+      if (raw?.attributes) {
+        return {
+          id: raw.id,
+          documentId: raw.documentId || raw.id,
+          ...raw.attributes,
+        };
+      }
+      return raw;
+    },
+    enabled: open && !!docId,
+  });
+
+  // Resolve active property with local overrides applied
+  const activeProperty = useMemo(() => {
+    const base =
+      fetchedData || (typeof property === "object" ? property : null);
+    return applyPropertyOverrides(base);
+  }, [fetchedData, property]);
+
+  if (!open) return null;
+
+  // Loading state when initial property data is not yet available
+  if (!activeProperty && isLoading) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+        <div className="relative w-full max-w-md bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center justify-center text-center space-y-4 border border-gray-100">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          <div>
+            <h3 className="text-base font-bold text-gray-900">
+              Loading Property Details
+            </h3>
+            <p className="text-xs text-gray-500 mt-1">
+              Fetching details for Document ID:{" "}
+              <span className="font-mono font-semibold text-gray-700">
+                {docId || "..."}
+              </span>
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state when no property could be found or loaded
+  if (!activeProperty && error) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+        <div className="relative w-full max-w-md bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center justify-center text-center space-y-4 border border-gray-100">
+          <AlertCircle className="w-10 h-10 text-rose-500" />
+          <div>
+            <h3 className="text-base font-bold text-gray-900">
+              Failed to Load Property Details
+            </h3>
+            <p className="text-xs text-rose-600 mt-1">
+              {error?.message || "Could not fetch details by documentId."}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => refetch()}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-primary2 rounded-lg transition"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Retry
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!activeProperty) return null;
+
+  // Normalize image list from activeProperty
   const images: string[] = [];
-  if (Array.isArray(property.media_url)) {
-    images.push(...property.media_url);
-  } else if (typeof property.media_url === "string") {
-    images.push(property.media_url);
-  } else if (Array.isArray(property.media)) {
-    property.media.forEach((m: any) => {
+  if (Array.isArray(activeProperty.media_url)) {
+    images.push(...activeProperty.media_url);
+  } else if (typeof activeProperty.media_url === "string") {
+    images.push(activeProperty.media_url);
+  } else if (Array.isArray(activeProperty.media)) {
+    activeProperty.media.forEach((m: any) => {
       const url = m?.MediaURL || m?.url || m?.src;
       if (url) images.push(url);
     });
   }
 
-  const primaryImage =
-    images[0] || "/apartment.webp";
+  const primaryImage = images[0] || "/apartment.webp";
 
   const handleCopyRaw = () => {
-    navigator.clipboard.writeText(JSON.stringify(property, null, 2));
+    navigator.clipboard.writeText(JSON.stringify(activeProperty, null, 2));
     setCopiedRaw(true);
     setTimeout(() => setCopiedRaw(false), 2000);
   };
@@ -76,34 +189,44 @@ export default function PropertyViewModal({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 md:p-8 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100">
+      <div className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <span
-              className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
-                property.standard_status === "Active" || property.status === "forSale"
+              className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider shrink-0 ${
+                activeProperty.standard_status === "Active" ||
+                activeProperty.status === "forSale"
                   ? "bg-emerald-100 text-emerald-800"
-                  : property.standard_status === "Sold" || property.status === "sold"
+                  : activeProperty.standard_status === "Sold" ||
+                    activeProperty.status === "sold"
                   ? "bg-purple-100 text-purple-800"
                   : "bg-rose-100 text-rose-800"
               }`}
             >
-              {property.standard_status || property.status || "Active"}
+              {activeProperty.standard_status ||
+                activeProperty.status ||
+                "Active"}
             </span>
-            <h2 className="text-lg font-bold text-gray-900 truncate max-w-md">
-              {property.address || `Listing #${property.listing_id || property.documentId}`}
+            <h2 className="text-lg font-bold text-gray-900 truncate">
+              {activeProperty.address ||
+                `Listing #${activeProperty.listing_id || activeProperty.documentId || docId}`}
             </h2>
+            {isFetching && (
+              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full shrink-0">
+                <Loader2 className="w-3 h-3 animate-spin" /> Syncing...
+              </span>
+            )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {onOpenRearrange && (
               <button
                 onClick={() => {
                   onClose();
                   onOpenRearrange();
                 }}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition cursor-pointer"
               >
                 <ImageIcon className="w-3.5 h-3.5" />
                 Rearrange Media
@@ -115,14 +238,14 @@ export default function PropertyViewModal({
                   onClose();
                   onOpenEdit();
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary hover:bg-primary2 rounded-lg transition"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary hover:bg-primary2 rounded-lg transition cursor-pointer"
               >
                 Edit Property
               </button>
             )}
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
+              className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -130,7 +253,7 @@ export default function PropertyViewModal({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-1 px-6 border-b border-gray-100 bg-white overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-1 px-6 border-b border-gray-100 bg-white overflow-x-auto scrollbar-none min-h-[46px]">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -138,7 +261,7 @@ export default function PropertyViewModal({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 py-3 px-3.5 text-sm font-medium border-b-2 transition whitespace-nowrap ${
+                className={`flex items-center gap-2 py-3 px-3.5 text-sm font-medium border-b-2 transition whitespace-nowrap cursor-pointer ${
                   isActive
                     ? "border-primary text-primary font-semibold"
                     : "border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-200"
@@ -152,7 +275,7 @@ export default function PropertyViewModal({
         </div>
 
         {/* Modal Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="w-full h-full overflow-y-auto p-6 space-y-6">
           {/* TAB 1: OVERVIEW */}
           {activeTab === "overview" && (
             <div className="space-y-6">
@@ -175,19 +298,22 @@ export default function PropertyViewModal({
                 <div className="md:col-span-2 flex flex-col justify-between space-y-4">
                   <div>
                     <span className="text-xs uppercase tracking-wider font-semibold text-gray-500">
-                      {property.property_sub_type || "Residential"} • {property.structure_type || "Townhouse"}
+                      {activeProperty.property_sub_type || "Residential"} •{" "}
+                      {activeProperty.structure_type || "Townhouse"}
                     </span>
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-primary mt-1">
-                      ${Number(property.price || 0).toLocaleString()}
+                      ${Number(activeProperty.price || 0).toLocaleString()}
                     </h1>
-                    {property.old_price && Number(property.old_price) > 0 && (
-                      <p className="text-xs text-gray-500 line-through">
-                        Original: ${Number(property.old_price).toLocaleString()}
-                      </p>
-                    )}
+                    {activeProperty.old_price &&
+                      Number(activeProperty.old_price) > 0 && (
+                        <p className="text-xs text-gray-500 line-through">
+                          Original: $
+                          {Number(activeProperty.old_price).toLocaleString()}
+                        </p>
+                      )}
                     <p className="flex items-center gap-1.5 text-gray-700 text-sm mt-2">
                       <MapPin className="w-4 h-4 text-primary shrink-0" />
-                      {property.address || "Address not provided"}
+                      {activeProperty.address || "Address not provided"}
                     </p>
                   </div>
 
@@ -196,20 +322,26 @@ export default function PropertyViewModal({
                       <span className="text-xs text-gray-500 flex items-center gap-1">
                         <Bed className="w-3.5 h-3.5 text-primary" /> Beds
                       </span>
-                      <p className="text-lg font-bold text-gray-800">{property.bedrooms ?? "-"}</p>
+                      <p className="text-lg font-bold text-gray-800">
+                        {activeProperty.bedrooms ?? "-"}
+                      </p>
                     </div>
                     <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-xs">
                       <span className="text-xs text-gray-500 flex items-center gap-1">
                         <Bath className="w-3.5 h-3.5 text-primary" /> Baths
                       </span>
-                      <p className="text-lg font-bold text-gray-800">{property.bathrooms ?? "-"}</p>
+                      <p className="text-lg font-bold text-gray-800">
+                        {activeProperty.bathrooms ?? "-"}
+                      </p>
                     </div>
                     <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-xs">
                       <span className="text-xs text-gray-500 flex items-center gap-1">
                         <Maximize className="w-3.5 h-3.5 text-primary" /> Living Area
                       </span>
                       <p className="text-lg font-bold text-gray-800">
-                        {property.Living_area ? `${property.Living_area} sqft` : "-"}
+                        {activeProperty.Living_area
+                          ? `${activeProperty.Living_area} sqft`
+                          : "-"}
                       </p>
                     </div>
                   </div>
@@ -223,8 +355,8 @@ export default function PropertyViewModal({
                   Public Remarks
                 </h3>
                 <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-                  {property.public_remarks ||
-                    property.raw_data?.PublicRemarks ||
+                  {activeProperty.public_remarks ||
+                    activeProperty.raw_data?.PublicRemarks ||
                     "No description provided for this listing."}
                 </p>
               </div>
@@ -233,27 +365,39 @@ export default function PropertyViewModal({
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-gray-50/70 rounded-xl border border-gray-100">
                   <span className="text-xs text-gray-500 font-medium">Listing ID</span>
-                  <p className="text-sm font-semibold text-gray-900">{property.listing_id || "-"}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {activeProperty.listing_id || "-"}
+                  </p>
                 </div>
                 <div className="p-4 bg-gray-50/70 rounded-xl border border-gray-100">
                   <span className="text-xs text-gray-500 font-medium">Document ID</span>
-                  <p className="text-xs font-mono font-semibold text-gray-700 truncate">{property.documentId || "-"}</p>
+                  <p className="text-xs font-mono font-semibold text-gray-700 truncate">
+                    {activeProperty.documentId || docId || "-"}
+                  </p>
                 </div>
                 <div className="p-4 bg-gray-50/70 rounded-xl border border-gray-100">
                   <span className="text-xs text-gray-500 font-medium">Office Name</span>
-                  <p className="text-sm font-semibold text-gray-900 truncate">{property.office_name || "-"}</p>
+                  <p className="text-sm font-semibold text-gray-900 truncate">
+                    {activeProperty.office_name || "-"}
+                  </p>
                 </div>
                 <div className="p-4 bg-gray-50/70 rounded-xl border border-gray-100">
                   <span className="text-xs text-gray-500 font-medium">City / Municipality</span>
-                  <p className="text-sm font-semibold text-gray-900">{property.city || "-"}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {activeProperty.city || "-"}
+                  </p>
                 </div>
                 <div className="p-4 bg-gray-50/70 rounded-xl border border-gray-100">
                   <span className="text-xs text-gray-500 font-medium">Postal Code</span>
-                  <p className="text-sm font-semibold text-gray-900">{property.postal_code || "-"}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {activeProperty.postal_code || "-"}
+                  </p>
                 </div>
                 <div className="p-4 bg-gray-50/70 rounded-xl border border-gray-100">
                   <span className="text-xs text-gray-500 font-medium">Province / State</span>
-                  <p className="text-sm font-semibold text-gray-900">{property.state || "British Columbia"}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {activeProperty.state || "British Columbia"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -263,22 +407,69 @@ export default function PropertyViewModal({
           {activeTab === "specs" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {[
-                { label: "Bedrooms", value: property.bedrooms ?? "-" },
-                { label: "Bathrooms", value: property.bathrooms ?? "-" },
-                { label: "Living Area", value: property.Living_area ? `${property.Living_area} ${property.living_area_units || "sqft"}` : "-" },
-                { label: "Lot Size Area", value: property.lot_size_area ? `${property.lot_size_area} ${property.lot_size_units || "sqft"}` : "-" },
-                { label: "Lot Dimensions", value: property.lot_size_dimensions || property.raw_data?.LotSizeDimensions || "-" },
-                { label: "Year Built", value: property.raw_data?.YearBuilt || "-" },
-                { label: "Property Sub Type", value: property.property_sub_type || "-" },
-                { label: "Structure Type", value: property.structure_type || "-" },
-                { label: "Common Interest", value: property.raw_data?.CommonInterest || "-" },
-                { label: "Zoning", value: property.raw_data?.Zoning || property.raw_data?.ZoningDescription || "-" },
-                { label: "Stories / Levels", value: property.raw_data?.Stories || "-" },
-                { label: "Parking Total", value: property.raw_data?.ParkingTotal || "-" },
+                { label: "Bedrooms", value: activeProperty.bedrooms ?? "-" },
+                { label: "Bathrooms", value: activeProperty.bathrooms ?? "-" },
+                {
+                  label: "Living Area",
+                  value: activeProperty.Living_area
+                    ? `${activeProperty.Living_area} ${activeProperty.living_area_units || "sqft"}`
+                    : "-",
+                },
+                {
+                  label: "Lot Size Area",
+                  value: activeProperty.lot_size_area
+                    ? `${activeProperty.lot_size_area} ${activeProperty.lot_size_units || "sqft"}`
+                    : "-",
+                },
+                {
+                  label: "Lot Dimensions",
+                  value:
+                    activeProperty.lot_size_dimensions ||
+                    activeProperty.raw_data?.LotSizeDimensions ||
+                    "-",
+                },
+                {
+                  label: "Year Built",
+                  value: activeProperty.raw_data?.YearBuilt || "-",
+                },
+                {
+                  label: "Property Sub Type",
+                  value: activeProperty.property_sub_type || "-",
+                },
+                {
+                  label: "Structure Type",
+                  value: activeProperty.structure_type || "-",
+                },
+                {
+                  label: "Common Interest",
+                  value: activeProperty.raw_data?.CommonInterest || "-",
+                },
+                {
+                  label: "Zoning",
+                  value:
+                    activeProperty.raw_data?.Zoning ||
+                    activeProperty.raw_data?.ZoningDescription ||
+                    "-",
+                },
+                {
+                  label: "Stories / Levels",
+                  value: activeProperty.raw_data?.Stories || "-",
+                },
+                {
+                  label: "Parking Total",
+                  value: activeProperty.raw_data?.ParkingTotal || "-",
+                },
               ].map((item, idx) => (
-                <div key={idx} className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-gray-50 transition">
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{item.label}</p>
-                  <p className="text-base font-bold text-gray-900 mt-1">{item.value}</p>
+                <div
+                  key={idx}
+                  className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-gray-50 transition"
+                >
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                    {item.label}
+                  </p>
+                  <p className="text-base font-bold text-gray-900 mt-1">
+                    {item.value}
+                  </p>
                 </div>
               ))}
             </div>
@@ -288,19 +479,75 @@ export default function PropertyViewModal({
           {activeTab === "financials" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {[
-                { label: "Asking Price", value: property.price ? `$${Number(property.price).toLocaleString()}` : "-" },
-                { label: "Old / Original Price", value: property.old_price && Number(property.old_price) > 0 ? `$${Number(property.old_price).toLocaleString()}` : "-" },
-                { label: "Price Per Sq Ft", value: property.pricePerSft ? `$${Number(property.pricePerSft).toFixed(2)}` : "-" },
-                { label: "Maintenance Fee", value: property.fee || property.raw_data?.AssociationFee ? `$${property.fee || property.raw_data?.AssociationFee}` : "-" },
-                { label: "Fee Frequency", value: property.raw_data?.AssociationFeeFrequency || "Monthly" },
-                { label: "Annual Property Tax", value: property.annual_tax ? `$${Number(property.annual_tax).toLocaleString()}` : "-" },
-                { label: "Tax Year", value: property.raw_data?.TaxYear || "-" },
-                { label: "Listed Date", value: property.OriginalEntryTimestamp ? new Date(property.OriginalEntryTimestamp).toLocaleDateString() : "-" },
-                { label: "Last Modified", value: property.ModificationTimestamp ? new Date(property.ModificationTimestamp).toLocaleDateString() : "-" },
+                {
+                  label: "Asking Price",
+                  value: activeProperty.price
+                    ? `$${Number(activeProperty.price).toLocaleString()}`
+                    : "-",
+                },
+                {
+                  label: "Old / Original Price",
+                  value:
+                    activeProperty.old_price &&
+                    Number(activeProperty.old_price) > 0
+                      ? `$${Number(activeProperty.old_price).toLocaleString()}`
+                      : "-",
+                },
+                {
+                  label: "Price Per Sq Ft",
+                  value: activeProperty.pricePerSft
+                    ? `$${Number(activeProperty.pricePerSft).toFixed(2)}`
+                    : "-",
+                },
+                {
+                  label: "Maintenance Fee",
+                  value:
+                    activeProperty.fee || activeProperty.raw_data?.AssociationFee
+                      ? `$${activeProperty.fee || activeProperty.raw_data?.AssociationFee}`
+                      : "-",
+                },
+                {
+                  label: "Fee Frequency",
+                  value:
+                    activeProperty.raw_data?.AssociationFeeFrequency || "Monthly",
+                },
+                {
+                  label: "Annual Property Tax",
+                  value: activeProperty.annual_tax
+                    ? `$${Number(activeProperty.annual_tax).toLocaleString()}`
+                    : "-",
+                },
+                {
+                  label: "Tax Year",
+                  value: activeProperty.raw_data?.TaxYear || "-",
+                },
+                {
+                  label: "Listed Date",
+                  value: activeProperty.OriginalEntryTimestamp
+                    ? new Date(
+                        activeProperty.OriginalEntryTimestamp
+                      ).toLocaleDateString()
+                    : "-",
+                },
+                {
+                  label: "Last Modified",
+                  value: activeProperty.ModificationTimestamp
+                    ? new Date(
+                        activeProperty.ModificationTimestamp
+                      ).toLocaleDateString()
+                    : "-",
+                },
               ].map((item, idx) => (
-                <div key={idx} className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-gray-50 transition">
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{item.label}</p>
-                  <p className="text-base font-bold text-gray-900 mt-1">{item.value}</p>
+                <div
+                  key={idx}
+                  className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-gray-50 transition"
+                >
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                    {item.label}
+                  </p>
+                  <p className="text-base font-bold text-gray-900 mt-1">
+                    {item.value}
+                  </p>
                 </div>
               ))}
             </div>
@@ -310,18 +557,65 @@ export default function PropertyViewModal({
           {activeTab === "features" && (
             <div className="space-y-4">
               {[
-                { label: "Appliances", value: Array.isArray(property.raw_data?.Appliances) ? property.raw_data.Appliances.join(", ") : property.raw_data?.Appliances || "-" },
-                { label: "Heating", value: Array.isArray(property.raw_data?.Heating) ? property.raw_data.Heating.join(", ") : property.raw_data?.Heating || "-" },
-                { label: "Cooling", value: Array.isArray(property.raw_data?.Cooling) ? property.raw_data.Cooling.join(", ") : property.raw_data?.Cooling || "-" },
-                { label: "View", value: Array.isArray(property.raw_data?.View) ? property.raw_data.View.join(", ") : property.raw_data?.View || "-" },
-                { label: "Basement", value: Array.isArray(property.raw_data?.Basement) ? property.raw_data.Basement.join(", ") : property.raw_data?.Basement || "-" },
-                { label: "Flooring", value: Array.isArray(property.raw_data?.Flooring) ? property.raw_data.Flooring.join(", ") : property.raw_data?.Flooring || "-" },
-                { label: "Sewer", value: Array.isArray(property.raw_data?.Sewer) ? property.raw_data.Sewer.join(", ") : property.raw_data?.Sewer || "-" },
-                { label: "Water Source", value: Array.isArray(property.raw_data?.WaterSource) ? property.raw_data.WaterSource.join(", ") : property.raw_data?.WaterSource || "-" },
+                {
+                  label: "Appliances",
+                  value: Array.isArray(activeProperty.raw_data?.Appliances)
+                    ? activeProperty.raw_data.Appliances.join(", ")
+                    : activeProperty.raw_data?.Appliances || "-",
+                },
+                {
+                  label: "Heating",
+                  value: Array.isArray(activeProperty.raw_data?.Heating)
+                    ? activeProperty.raw_data.Heating.join(", ")
+                    : activeProperty.raw_data?.Heating || "-",
+                },
+                {
+                  label: "Cooling",
+                  value: Array.isArray(activeProperty.raw_data?.Cooling)
+                    ? activeProperty.raw_data.Cooling.join(", ")
+                    : activeProperty.raw_data?.Cooling || "-",
+                },
+                {
+                  label: "View",
+                  value: Array.isArray(activeProperty.raw_data?.View)
+                    ? activeProperty.raw_data.View.join(", ")
+                    : activeProperty.raw_data?.View || "-",
+                },
+                {
+                  label: "Basement",
+                  value: Array.isArray(activeProperty.raw_data?.Basement)
+                    ? activeProperty.raw_data.Basement.join(", ")
+                    : activeProperty.raw_data?.Basement || "-",
+                },
+                {
+                  label: "Flooring",
+                  value: Array.isArray(activeProperty.raw_data?.Flooring)
+                    ? activeProperty.raw_data.Flooring.join(", ")
+                    : activeProperty.raw_data?.Flooring || "-",
+                },
+                {
+                  label: "Sewer",
+                  value: Array.isArray(activeProperty.raw_data?.Sewer)
+                    ? activeProperty.raw_data.Sewer.join(", ")
+                    : activeProperty.raw_data?.Sewer || "-",
+                },
+                {
+                  label: "Water Source",
+                  value: Array.isArray(activeProperty.raw_data?.WaterSource)
+                    ? activeProperty.raw_data.WaterSource.join(", ")
+                    : activeProperty.raw_data?.WaterSource || "-",
+                },
               ].map((feat, idx) => (
-                <div key={idx} className="p-4 rounded-xl border border-gray-100 bg-gray-50/50">
-                  <p className="text-xs text-gray-500 font-semibold uppercase">{feat.label}</p>
-                  <p className="text-sm font-medium text-gray-800 mt-1">{feat.value}</p>
+                <div
+                  key={idx}
+                  className="p-4 rounded-xl border border-gray-100 bg-gray-50/50"
+                >
+                  <p className="text-xs text-gray-500 font-semibold uppercase">
+                    {feat.label}
+                  </p>
+                  <p className="text-sm font-medium text-gray-800 mt-1">
+                    {feat.value}
+                  </p>
                 </div>
               ))}
             </div>
@@ -332,7 +626,10 @@ export default function PropertyViewModal({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-600">
-                  Total Images: <span className="font-bold text-gray-900">{images.length}</span>
+                  Total Images:{" "}
+                  <span className="font-bold text-gray-900">
+                    {images.length}
+                  </span>
                 </p>
                 {onOpenRearrange && (
                   <button
@@ -340,7 +637,7 @@ export default function PropertyViewModal({
                       onClose();
                       onOpenRearrange();
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary hover:bg-primary2 rounded-lg transition"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary hover:bg-primary2 rounded-lg transition cursor-pointer"
                   >
                     <ImageIcon className="w-3.5 h-3.5" />
                     Open Image Rearranger
@@ -349,7 +646,9 @@ export default function PropertyViewModal({
               </div>
 
               {images.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">No images available for this property.</div>
+                <div className="text-center py-12 text-gray-400">
+                  No images available for this property.
+                </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {images.map((url, idx) => (
@@ -387,10 +686,12 @@ export default function PropertyViewModal({
           {activeTab === "raw" && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500">Inspect full backend payload and schema:</span>
+                <span className="text-xs text-gray-500">
+                  Inspect full backend payload and schema (fetched by documentId):
+                </span>
                 <button
                   onClick={handleCopyRaw}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition cursor-pointer"
                 >
                   {copiedRaw ? (
                     <>
@@ -406,7 +707,7 @@ export default function PropertyViewModal({
                 </button>
               </div>
               <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl text-xs font-mono overflow-auto max-h-96 leading-relaxed">
-                {JSON.stringify(property, null, 2)}
+                {JSON.stringify(activeProperty?.raw_data, null, 2)}
               </pre>
             </div>
           )}
@@ -416,7 +717,7 @@ export default function PropertyViewModal({
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition cursor-pointer"
           >
             Close
           </button>

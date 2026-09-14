@@ -584,11 +584,12 @@ export default function FiltersPopup({
             { k: "forSale", l: "For Sale", i: Images.forSale },
             { k: "sold", l: "Sold", i: Images.sold },
             { k: "expired", l: "Expired", i: Images.expired },
+            { k: "forecloser", l: "Forecloser", i: Images.foreCloser },
           ].map((s) => (
             <button
               key={s.k}
               onClick={() => {
-                if ((s.k === "sold" || s.k === "expired") && !isLoggedIn) {
+                if ((s.k === "sold" || s.k === "expired" || s.k === "forecloser") && !isLoggedIn) {
                   setOpenLogin(true);
                   return;
                 }

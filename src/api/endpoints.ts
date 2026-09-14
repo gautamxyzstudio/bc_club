@@ -63,4 +63,10 @@ export const Endpoints = {
     `${BASE_URL}/api/forecloser-properties/copy-from-real-estate/${docId}`,
   deleteForecloserProperty: (id: string) =>
     `${BASE_URL}/api/forecloser-properties/${id}`,
+  getSimilarForecloserProperties: (id: string) =>
+    `${BASE_URL}/api/forecloser-properties/${id}/similar?radiusKm=90&limit=20`,
+  getSimilarForecloserSoldProperties: (id: string) =>
+    `${BASE_URL}/api/forecloser-properties/${id}/similar-sold?radiusKm=90&limit=20`,
+  getNearbyForecloserPlaces: (id: string) =>
+    `${BASE_URL}/api/forecloser-properties/${id}/neighborhood?radius=9000&limit=6`,
 };

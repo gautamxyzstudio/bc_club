@@ -8,8 +8,15 @@ import PoweredBy from "@/src/components/common/poweredby/PoweredBy";
 import { useAuthContext } from "../auth/AuthContext";
 import ChartSignInOverlay from "@/src/components/common/charts/ChartSignInOverlay";
 import { useGetSoldMarketSummary } from "@/src/hooks/listing/useListingQueries";
+import { useGetBridgeCities } from "@/src/hooks/listing/useRealEstateListingQueries";
 
 const HomePropertiesSold = () => {
+  const { data: bridgeCitiesRes } = useGetBridgeCities();
+  const citiesList: string[] =
+    bridgeCitiesRes?.data && bridgeCitiesRes.data.length > 0
+      ? bridgeCitiesRes.data
+      : cities;
+
   const [location, setLocation] = useState<string>("Surrey");
   const { isLoggedIn, setOpenLogin } = useAuthContext();
 
@@ -140,7 +147,7 @@ const HomePropertiesSold = () => {
             }}
             className="shadow-[0_0_20px_0_rgba(0,0,0,0.12)]"
           >
-            {cities.map((city) => (
+            {citiesList.map((city) => (
               <MenuItem key={city} value={city}>
                 {city}
               </MenuItem>

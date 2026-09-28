@@ -54,6 +54,7 @@ export const Endpoints = {
     `${BASE_URL}/api/real-estate-board/remove-favorite/${id}`,
   updateRealEstateListing: (id: string) =>
     `${BASE_URL}/api/real-estate-boards/${id}`,
+  getBridgeCities: `${BASE_URL}/api/real-estate-boards/bridge-cities`,
 
   // Forecloser Properties
   getForecloserProperties: `${BASE_URL}/api/forecloser-properties`,

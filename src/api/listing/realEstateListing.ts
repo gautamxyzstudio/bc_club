@@ -519,3 +519,20 @@ export async function deleteForecloserProperty(idOrDocId: string): Promise<any> 
     throw new Error("An unexpected error occurred while deleting foreclosure property");
   }
 }
+
+// Get Bridge Cities
+export async function getBridgeCities(): Promise<{ count: number; data: string[] }> {
+  try {
+    const res = await axios.get(Endpoints.getBridgeCities);
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
+        "Failed to fetch bridge cities"
+      );
+    }
+    throw new Error("An unexpected error occurred while fetching bridge cities");
+  }
+}

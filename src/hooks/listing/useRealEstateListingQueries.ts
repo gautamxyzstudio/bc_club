@@ -20,6 +20,7 @@ import {
   getForecloserPropertyById,
   copyToForecloserList,
   deleteForecloserProperty,
+  getBridgeCities,
 } from "@/src/api/listing/realEstateListing";
 import { listingKeys } from "@/src/hooks/listing/useListingQueries";
 
@@ -366,3 +367,18 @@ export function useDeleteForecloserProperty() {
     },
   });
 }
+
+export function useGetBridgeCities<TData = any>(
+  options?: Omit<
+    UseQueryOptions<any, Error, TData, any>,
+    "queryKey" | "queryFn"
+  >,
+) {
+  return useQuery<any, Error, TData, any>({
+    queryKey: ["bridgeCities"],
+    queryFn: () => getBridgeCities(),
+    staleTime: 1000 * 60 * 60, // 1 hour cache
+    ...options,
+  });
+}
+

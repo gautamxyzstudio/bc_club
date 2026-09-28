@@ -10,8 +10,15 @@ import SalesReportedRecharts from "@/src/components/charts/SalesReportedRecharts
 import MedianAverageDaysRecharts from "@/src/components/charts/MedianAverageDaysRecharts";
 import MedianAveragePriceRecharts from "@/src/components/charts/MedianAveragePriceRecharts";
 import { useAuthContext } from "../auth/AuthContext";
+import { useGetBridgeCities } from "@/src/hooks/listing/useRealEstateListingQueries";
 
 const HomeSellingTrends = () => {
+  const { data: bridgeCitiesRes } = useGetBridgeCities();
+  const citiesList: string[] =
+    bridgeCitiesRes?.data && bridgeCitiesRes.data.length > 0
+      ? bridgeCitiesRes.data
+      : cities;
+
   const [location, setLocation] = useState<string>("Surrey");
   const { isLoggedIn } = useAuthContext();
 
@@ -66,7 +73,7 @@ const HomeSellingTrends = () => {
               }}
               className="shadow-[0_0_20px_0_rgba(0,0,0,0.12)]"
             >
-              {cities.map((city) => (
+              {citiesList.map((city) => (
                 <MenuItem key={city} value={city}>
                   {city}
                 </MenuItem>

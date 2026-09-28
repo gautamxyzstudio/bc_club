@@ -59,7 +59,8 @@ export const Endpoints = {
   getForecloserProperties: `${BASE_URL}/api/forecloser-properties`,
   getForecloserPropertiesById: (id: string) =>
     `${BASE_URL}/api/forecloser-properties/${id}`,
-  copyToForecloserList: (docId: string) =>
+  copyToForecloserList: `${BASE_URL}/api/forecloser-properties/copy-from-real-estate`,
+  copyToForecloserListById: (docId: string) =>
     `${BASE_URL}/api/forecloser-properties/copy-from-real-estate/${docId}`,
   deleteForecloserProperty: (id: string) =>
     `${BASE_URL}/api/forecloser-properties/${id}`,

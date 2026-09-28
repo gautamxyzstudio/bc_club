@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -29,6 +29,7 @@ import {
   Loader2,
   Gavel,
   Trash2,
+  X,
 } from "lucide-react";
 import {
   useGetRealEstateListings,
@@ -56,13 +57,22 @@ export default function AdminPropertiesDashboard({
   const [searchTerm, setSearchTerm] = useState("");
   const [propertyType, setPropertyType] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  const [viewMode, setViewMode] = useState<"table" | "grid">("grid");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
   // Selected property for modals
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [rearrangeModalOpen, setRearrangeModalOpen] = useState(false);
+
+  // Multi-selection state for batch actions
+  const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
+  const [isBatchProcessing, setIsBatchProcessing] = useState(false);
+
+  // Reset selections when tab or filters/pagination change
+  useEffect(() => {
+    setSelectedDocIds([]);
+  }, [currentStatus, searchTerm, propertyType, sortBy, page]);
 
   // Status mapping for API params
   const apiStatusParam = useMemo(() => {
@@ -206,6 +216,102 @@ export default function AdminPropertiesDashboard({
     return false;
   };
 
+  const getItemId = (item: any): string => {
+    if (isForeclosureTab) {
+      return item.forecloserDocId || item.documentId || String(item.id || "");
+    }
+    return item.documentId || String(item.id || "");
+  };
+
+  // Selectable properties on current page
+  const selectablePageListings = useMemo(() => {
+    if (isForeclosureTab) {
+      return listings.filter((item: any) => Boolean(getItemId(item)));
+    }
+    return listings.filter((item: any) => {
+      const id = getItemId(item);
+      return id && !isItemInForeclosure(item);
+    });
+  }, [listings, isForeclosureTab, forecloserIdentifiers]);
+
+  const selectablePageDocIds = useMemo(() => {
+    return selectablePageListings.map(getItemId).filter(Boolean);
+  }, [selectablePageListings, isForeclosureTab]);
+
+  const isAllPageSelected =
+    selectablePageDocIds.length > 0 &&
+    selectablePageDocIds.every((id) => selectedDocIds.includes(id));
+
+  const isSomePageSelected =
+    selectablePageDocIds.some((id) => selectedDocIds.includes(id)) &&
+    !isAllPageSelected;
+
+  const toggleSelectProperty = (id: string) => {
+    if (!id) return;
+    setSelectedDocIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAllPage = () => {
+    if (isAllPageSelected) {
+      setSelectedDocIds((prev) =>
+        prev.filter((id) => !selectablePageDocIds.includes(id))
+      );
+    } else {
+      setSelectedDocIds((prev) => {
+        const combined = new Set([...prev, ...selectablePageDocIds]);
+        return Array.from(combined);
+      });
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedDocIds([]);
+  };
+
+  // Batch move to foreclosure
+  const handleBatchCopyForecloser = async () => {
+    if (selectedDocIds.length === 0) return;
+    try {
+      setIsBatchProcessing(true);
+      await copyMutation.mutateAsync(selectedDocIds);
+      setSelectedDocIds([]);
+      refetchForecloser();
+      if (!isForeclosureTab) {
+        refetchRealEstate();
+      }
+    } catch {
+      // Handled by toast in mutation
+    } finally {
+      setIsBatchProcessing(false);
+    }
+  };
+
+  // Batch delete from foreclosure
+  const handleBatchDeleteForecloser = async () => {
+    if (selectedDocIds.length === 0) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to remove ${selectedDocIds.length} properties from the foreclosure list?`
+      )
+    ) {
+      return;
+    }
+    try {
+      setIsBatchProcessing(true);
+      for (const id of selectedDocIds) {
+        await deleteMutation.mutateAsync(id);
+      }
+      setSelectedDocIds([]);
+      refetchForecloser();
+    } catch {
+      // Handled by toast in mutation
+    } finally {
+      setIsBatchProcessing(false);
+    }
+  };
+
   const handleCopyForecloser = async (item: any) => {
     const docId = item?.documentId || item?.id;
     if (!docId) return;
@@ -235,7 +341,6 @@ export default function AdminPropertiesDashboard({
       }
     }
   };
-
 
   // Handler to open modals
   const handleOpenView = (prop: any) => {
@@ -274,7 +379,7 @@ export default function AdminPropertiesDashboard({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12">
       {/* Route Switcher Tabs Banner */}
       <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xs border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="md:w-[53%]">
@@ -290,13 +395,13 @@ export default function AdminPropertiesDashboard({
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             {currentStatus === "active" &&
-              "Manage active properties on market, update details, and rearrange listing photos."}
+              "Manage active properties on market, select single or multiple properties to forward to foreclosure."}
             {currentStatus === "sold" &&
-              "Inspect closed and sold properties, update transaction metadata, and review archives."}
+              "Inspect closed and sold properties, update transaction metadata, or forward to foreclosure."}
             {currentStatus === "expired" &&
-              "View expired listings, update details, or prepare reactivation with updated media."}
+              "View expired listings, update details, or forward to foreclosure list."}
             {currentStatus === "foreclosure" &&
-              "Manage distressed and foreclosed properties copied from the real estate board, update details, and manage media."}
+              "Manage distressed and foreclosed properties copied from the real estate board."}
           </p>
         </div>
 
@@ -415,7 +520,7 @@ export default function AdminPropertiesDashboard({
       </div>
 
       {/* Filter & Controls Toolbar */}
-      <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-xs space-y-4">
+      <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-xs space-y-3">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
@@ -441,7 +546,7 @@ export default function AdminPropertiesDashboard({
                 setPropertyType(e.target.value);
                 setPage(1);
               }}
-              className="px-3 py-2 text-xs font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-gray-700"
+              className="px-3 py-2 text-xs font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-gray-700 cursor-pointer"
             >
               <option value="all">All Property Types</option>
               <option value="Single Family">Single Family</option>
@@ -458,7 +563,7 @@ export default function AdminPropertiesDashboard({
                 setSortBy(e.target.value);
                 setPage(1);
               }}
-              className="px-3 py-2 text-xs font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-gray-700"
+              className="px-3 py-2 text-xs font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-gray-700 cursor-pointer"
             >
               <option value="newest">Newest Listed</option>
               <option value="oldest">Oldest Listed</option>
@@ -470,7 +575,7 @@ export default function AdminPropertiesDashboard({
             <div className="flex items-center bg-gray-100 p-1 rounded-xl">
               <button
                 onClick={() => setViewMode("table")}
-                className={`p-1.5 rounded-lg transition ${
+                className={`p-1.5 rounded-lg transition cursor-pointer ${
                   viewMode === "table" ? "bg-white text-primary shadow-xs" : "text-gray-500 hover:text-gray-800"
                 }`}
                 title="Table View"
@@ -479,7 +584,7 @@ export default function AdminPropertiesDashboard({
               </button>
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-lg transition ${
+                className={`p-1.5 rounded-lg transition cursor-pointer ${
                   viewMode === "grid" ? "bg-white text-primary shadow-xs" : "text-gray-500 hover:text-gray-800"
                 }`}
                 title="Grid View"
@@ -492,13 +597,89 @@ export default function AdminPropertiesDashboard({
             <button
               onClick={() => refetch()}
               disabled={isFetching}
-              className="p-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-primary transition disabled:opacity-50"
+              className="p-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-primary transition disabled:opacity-50 cursor-pointer"
               title="Refresh Listings"
             >
               <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin text-primary" : ""}`} />
             </button>
           </div>
         </div>
+
+        {/* Quick Bulk Selection Toolbar Strip */}
+        {selectablePageDocIds.length > 0 && (
+          <div className="pt-2.5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2.5 text-xs bg-slate-50/50 -mx-4 -mb-4 px-4 py-2.5 rounded-b-2xl">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={toggleSelectAllPage}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:border-primary text-gray-700 font-semibold transition cursor-pointer shadow-2xs"
+              >
+                <span className={`w-4 h-4 rounded-md border flex items-center justify-center transition ${isAllPageSelected ? "bg-primary border-primary text-white" : "border-gray-400 bg-white"}`}>
+                  {isAllPageSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                </span>
+                {isAllPageSelected ? "Deselect All on Page" : `Select All on Page (${selectablePageDocIds.length})`}
+              </button>
+
+              {selectedDocIds.length > 0 && (
+                <span className="text-gray-600 font-medium">
+                  <strong className="text-primary font-bold text-sm">{selectedDocIds.length}</strong> {selectedDocIds.length === 1 ? "property" : "properties"} selected
+                </span>
+              )}
+            </div>
+
+            {selectedDocIds.length > 0 && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={clearSelection}
+                  className="px-2 py-1 text-xs text-gray-500 hover:text-gray-800 font-medium transition cursor-pointer hover:underline"
+                >
+                  Clear Selection
+                </button>
+
+                {!isForeclosureTab ? (
+                  <button
+                    type="button"
+                    onClick={handleBatchCopyForecloser}
+                    disabled={isBatchProcessing}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-secondary hover:opacity-90 transition shadow-xs disabled:opacity-50 cursor-pointer"
+                  >
+                    {isBatchProcessing ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Moving to Foreclosure...
+                      </>
+                    ) : (
+                      <>
+                        <Gavel className="w-3.5 h-3.5" />
+                        Move Selected ({selectedDocIds.length}) to Foreclosure
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleBatchDeleteForecloser}
+                    disabled={isBatchProcessing}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition shadow-xs disabled:opacity-50 cursor-pointer"
+                  >
+                    {isBatchProcessing ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Removing...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Remove Selected ({selectedDocIds.length})
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Main Content Area */}
@@ -515,7 +696,7 @@ export default function AdminPropertiesDashboard({
           <p className="text-xs text-gray-500 mt-1 mb-4">An error occurred while communicating with the server.</p>
           <button
             onClick={() => refetch()}
-            className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary2 transition"
+            className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary2 transition cursor-pointer"
           >
             Retry
           </button>
@@ -535,10 +716,34 @@ export default function AdminPropertiesDashboard({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/75 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                  {/* Select All Checkbox Column */}
+                  <th className="py-3.5 pl-4 pr-2 w-12 text-center">
+                    <button
+                      type="button"
+                      onClick={toggleSelectAllPage}
+                      disabled={selectablePageDocIds.length === 0}
+                      className={`w-5 h-5 rounded-md border flex items-center justify-center transition mx-auto cursor-pointer ${
+                        isAllPageSelected
+                          ? "bg-primary border-primary text-white shadow-xs"
+                          : isSomePageSelected
+                          ? "bg-primary/20 border-primary text-primary"
+                          : "border-gray-300 bg-white hover:border-primary"
+                      } ${selectablePageDocIds.length === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
+                      title={
+                        selectablePageDocIds.length === 0
+                          ? "No selectable properties on this page"
+                          : isAllPageSelected
+                          ? "Deselect all on this page"
+                          : "Select all on this page"
+                      }
+                    >
+                      {isAllPageSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      {isSomePageSelected && <span className="w-2.5 h-0.5 bg-primary rounded-full" />}
+                    </button>
+                  </th>
                   <th className="py-3.5 px-4">Property</th>
                   <th className="py-3.5 px-4">Listing ID</th>
                   <th className="py-3.5 px-4">Price</th>
-                  {/* <th className="py-3.5 px-4">Specs</th> */}
                   <th className="py-3.5 px-4">Status</th>
                   <th className="py-3.5 px-4">{isForeclosureTab ? "Foreclosure Status" : "Foreclosure"}</th>
                   <th className="py-3.5 px-4 text-right">Actions</th>
@@ -547,12 +752,48 @@ export default function AdminPropertiesDashboard({
               <tbody className="divide-y divide-gray-100 text-sm">
                 {listings.map((item: any) => {
                   const cover = getPrimaryImage(item);
-                  const count = getImageCount(item);
+                  const itemDocId = getItemId(item);
+                  const inForeclosure = isItemInForeclosure(item);
+                  const isSelected = selectedDocIds.includes(itemDocId);
+
                   return (
                     <tr
-                      key={item.documentId || item.id || item.listing_id}
-                      className="hover:bg-blue-50/30 transition-colors group"
+                      key={itemDocId || item.listing_id}
+                      className={`transition-colors group ${
+                        isSelected
+                          ? "bg-amber-50/70 hover:bg-amber-50/90"
+                          : "hover:bg-blue-50/30"
+                      }`}
                     >
+                      {/* Row Selection Checkbox */}
+                      <td className="py-3.5 pl-4 pr-2 w-12 text-center">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (inForeclosure && !isForeclosureTab) return;
+                            toggleSelectProperty(itemDocId);
+                          }}
+                          disabled={inForeclosure && !isForeclosureTab}
+                          className={`w-5 h-5 rounded-md border flex items-center justify-center transition mx-auto cursor-pointer ${
+                            isSelected
+                              ? "bg-amber-500 border-amber-500 text-white shadow-xs ring-2 ring-amber-500/20"
+                              : inForeclosure && !isForeclosureTab
+                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                              : "border-gray-300 bg-white hover:border-amber-400 hover:bg-amber-50/40"
+                          }`}
+                          title={
+                            inForeclosure && !isForeclosureTab
+                              ? "Already in foreclosure"
+                              : isSelected
+                              ? "Deselect property"
+                              : "Select property for foreclosure"
+                          }
+                        >
+                          {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        </button>
+                      </td>
+
                       {/* Property Address & Thumbnail */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
@@ -593,15 +834,6 @@ export default function AdminPropertiesDashboard({
                         )}
                       </td>
 
-                      {/* Specs */}
-                      {/* <td className="py-3.5 px-4 text-xs text-gray-600 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span>{item.bedrooms ?? 0}b</span> •
-                          <span>{item.bathrooms ?? 0}ba</span> •
-                          <span>{item.Living_area ? `${item.Living_area} sqft` : "-"}</span>
-                        </div>
-                      </td> */}
-
                       {/* Status */}
                       <td className="py-3.5 px-4">
                         <span
@@ -621,8 +853,7 @@ export default function AdminPropertiesDashboard({
 
                       {/* Foreclosure Column */}
                       <td className="py-3.5 px-4 text-xs font-medium whitespace-nowrap">
-                        {
-                        isForeclosureTab ? (
+                        {isForeclosureTab ? (
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-amber-800 bg-amber-50 border border-amber-200/80 font-semibold text-xs">
                               <Gavel className="w-3.5 h-3.5 text-amber-600" />
@@ -641,8 +872,7 @@ export default function AdminPropertiesDashboard({
                               )}
                             </button>
                           </div>
-                        ) : 
-                        isItemInForeclosure(item) ? (
+                        ) : inForeclosure ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-emerald-800 bg-emerald-50 border border-emerald-200/80 font-semibold text-xs">
                             <Check className="w-3.5 h-3.5 text-emerald-600" />
                             In Foreclosure
@@ -674,21 +904,21 @@ export default function AdminPropertiesDashboard({
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleOpenView(item)}
-                            className="p-1.5 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition"
+                            className="p-1.5 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition cursor-pointer"
                             title="View All Fields"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleOpenEdit(item)}
-                            className="p-1.5 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition"
+                            className="p-1.5 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition cursor-pointer"
                             title="Edit Property Data"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleOpenRearrange(item)}
-                            className="p-1.5 text-gray-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition"
+                            className="p-1.5 text-gray-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition cursor-pointer"
                             title="Rearrange Photos"
                           >
                             <ImageIcon className="w-4 h-4" />
@@ -707,7 +937,10 @@ export default function AdminPropertiesDashboard({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {listings.map((item: any) => {
             const cover = getPrimaryImage(item);
-            const count = getImageCount(item);
+            const itemDocId = getItemId(item);
+            const inForeclosure = isItemInForeclosure(item);
+            const isSelected = selectedDocIds.includes(itemDocId);
+
             const rawListingId =
               item.listing_id ||
               item.mls_number ||
@@ -715,10 +948,15 @@ export default function AdminPropertiesDashboard({
             const mlsNumber = String(rawListingId).startsWith("MLS")
               ? rawListingId
               : `MLS® ${rawListingId}`;
+
             return (
               <div
-                key={item.documentId || item.id || item.listing_id}
-                className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-xs hover:shadow-md transition duration-300 flex flex-col group"
+                key={itemDocId || item.listing_id}
+                className={`bg-white rounded-2xl border overflow-hidden shadow-xs hover:shadow-md transition duration-300 flex flex-col group relative ${
+                  isSelected
+                    ? "border-amber-400 ring-2 ring-amber-400/30 bg-amber-50/10"
+                    : "border-gray-100"
+                }`}
               >
                 {/* Thumbnail */}
                 <div className="relative aspect-16/10 w-full bg-gray-100 overflow-hidden">
@@ -729,7 +967,9 @@ export default function AdminPropertiesDashboard({
                     className="object-cover group-hover:scale-105 transition duration-500"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
-                  <div className="absolute top-2.5 left-2.5">
+
+                  {/* Status Badge */}
+                  <div className="absolute top-2.5 left-2.5 z-10">
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide shadow-xs ${
                         isForeclosureTab
@@ -744,14 +984,39 @@ export default function AdminPropertiesDashboard({
                       {isForeclosureTab ? "Foreclosure" : item.standard_status || item.status || "Active"}
                     </span>
                   </div>
-                  {/* <button
-                    onClick={() => handleOpenRearrange(item)}
-                    className="absolute bottom-2.5 right-2.5 bg-black/70 hover:bg-primary text-white text-xs px-2 py-1 rounded-lg backdrop-blur-xs flex items-center gap-1 transition"
-                    title="Rearrange Photos"
-                  >
-                    <ImageIcon className="w-3.5 h-3.5" />
-                    {count}
-                  </button> */}
+
+                  {/* Card Multi-select Checkbox */}
+                  <div className="absolute top-2.5 right-2.5 z-10">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (inForeclosure && !isForeclosureTab) return;
+                        toggleSelectProperty(itemDocId);
+                      }}
+                      disabled={inForeclosure && !isForeclosureTab}
+                      className={`flex items-center justify-center w-7 h-7 rounded-lg transition shadow-md backdrop-blur-md cursor-pointer ${
+                        isSelected
+                          ? "bg-amber-500 text-white ring-2 ring-white"
+                          : inForeclosure && !isForeclosureTab
+                          ? "bg-gray-900/40 text-gray-400 cursor-not-allowed opacity-40"
+                          : "bg-black/60 hover:bg-black/80 text-white border border-white/20"
+                      }`}
+                      title={
+                        inForeclosure && !isForeclosureTab
+                          ? "Already in foreclosure"
+                          : isSelected
+                          ? "Deselect property"
+                          : "Select property for foreclosure"
+                      }
+                    >
+                      {isSelected ? (
+                        <Check className="w-4 h-4 stroke-[3]" />
+                      ) : (
+                        <div className="w-3.5 h-3.5 border-2 border-white/90 rounded-xs" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Card Content */}
@@ -789,19 +1054,19 @@ export default function AdminPropertiesDashboard({
                   <div className="flex items-center justify-between pt-1 gap-2">
                     <button
                       onClick={() => handleOpenView(item)}
-                      className="flex-1 py-1.5 px-2 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition flex items-center justify-center gap-1"
+                      className="flex-1 py-1.5 px-2 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition flex items-center justify-center gap-1 cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5" /> View
                     </button>
                     <button
                       onClick={() => handleOpenEdit(item)}
-                      className="flex-1 py-1.5 px-2 text-xs font-semibold text-white bg-primary hover:bg-primary2 rounded-lg transition flex items-center justify-center gap-1"
+                      className="flex-1 py-1.5 px-2 text-xs font-semibold text-white bg-primary hover:bg-primary2 rounded-lg transition flex items-center justify-center gap-1 cursor-pointer"
                     >
                       <Edit className="w-3.5 h-3.5" /> Edit
                     </button>
                     <button
                       onClick={() => handleOpenRearrange(item)}
-                      className="p-1.5 text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition border border-amber-200/50"
+                      className="p-1.5 text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition border border-amber-200/50 cursor-pointer"
                       title="Rearrange Photos"
                     >
                       <ImageIcon className="w-3.5 h-3.5" />
@@ -829,7 +1094,7 @@ export default function AdminPropertiesDashboard({
                           </>
                         )}
                       </button>
-                    ) : isItemInForeclosure(item) ? (
+                    ) : inForeclosure ? (
                       <div className="w-full py-1.5 px-2 rounded-lg text-emerald-800 bg-emerald-50 border border-emerald-200/80 font-semibold text-xs flex items-center justify-center gap-1.5">
                         <Check className="w-3.5 h-3.5 text-emerald-600" />
                         In Foreclosure
@@ -862,6 +1127,73 @@ export default function AdminPropertiesDashboard({
         </div>
       )}
 
+      {/* Floating Batch Actions Bar at Bottom */}
+      {selectedDocIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-2xl w-[92%] sm:w-auto bg-gray-900/95 text-white backdrop-blur-md px-5 py-3.5 rounded-2xl shadow-2xl border border-gray-700/60 flex flex-wrap items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs border border-amber-500/30">
+              {selectedDocIds.length}
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white leading-tight">
+                {selectedDocIds.length} {selectedDocIds.length === 1 ? "Property" : "Properties"} Selected
+              </p>
+              <p className="text-[11px] text-gray-400">
+                {isForeclosureTab ? "Foreclosure List" : `${currentStatus} listings`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={clearSelection}
+              disabled={isBatchProcessing}
+              className="px-3 py-1.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition cursor-pointer"
+            >
+              Deselect
+            </button>
+
+            {isForeclosureTab ? (
+              <button
+                onClick={handleBatchDeleteForecloser}
+                disabled={isBatchProcessing}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold shadow-lg transition flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+              >
+                {isBatchProcessing ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Removing...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Remove Selected ({selectedDocIds.length})
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleBatchCopyForecloser}
+                disabled={isBatchProcessing}
+                className="px-4 py-2 bg-secondary hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-lg transition flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+              >
+                {isBatchProcessing ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Moving to Foreclosure...
+                  </>
+                ) : (
+                  <>
+                    <Gavel className="w-3.5 h-3.5" />
+                    Move {selectedDocIds.length} to Foreclosure
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Pagination Controls */}
       {totalPages > 1 && (
         <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -874,7 +1206,7 @@ export default function AdminPropertiesDashboard({
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition disabled:opacity-40 flex items-center gap-1"
+              className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition disabled:opacity-40 flex items-center gap-1 cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" /> Previous
             </button>
@@ -887,7 +1219,7 @@ export default function AdminPropertiesDashboard({
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition disabled:opacity-40 flex items-center gap-1"
+              className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition disabled:opacity-40 flex items-center gap-1 cursor-pointer"
             >
               Next <ChevronRight className="w-4 h-4" />
             </button>

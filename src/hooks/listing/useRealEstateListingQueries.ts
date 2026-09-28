@@ -334,12 +334,16 @@ export function useGetForecloserPropertyById<TData = any>(
 export function useCopyToForecloserList() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (docId: string) => copyToForecloserList(docId),
+    mutationFn: (idOrIds: string | string[]) => copyToForecloserList(idOrIds),
     onSuccess: (res) => {
       queryClient.invalidateQueries({
         queryKey: ["forecloserProperties"],
       });
-      toast.success(res?.message || "Successfully copied to foreclosure list!");
+      if (res?.message) {
+        toast.success(res.message);
+      } else {
+        toast.success("Successfully copied to foreclosure list!");
+      }
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to copy to foreclosure list");

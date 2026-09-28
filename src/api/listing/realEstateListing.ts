@@ -456,36 +456,43 @@ export async function getForecloserPropertyById(id: string): Promise<any> {
   }
 }
 
-// Copy Property To Forecloser List
-export async function copyToForecloserList(docId: string): Promise<any> {
+// Copy Property To Forecloser List (Single or Batch)
+export async function copyToForecloserList(
+  idOrIds: string | string[]
+): Promise<any> {
   const token = Cookies.get("token");
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
+  const isArray = Array.isArray(idOrIds);
+  const payload = isArray
+    ? { documentIds: idOrIds }
+    : { documentId: idOrIds };
+
+  const endpointUrl = typeof Endpoints.copyToForecloserList === "string"
+    ? Endpoints.copyToForecloserList
+    : `${process.env.NEXT_PUBLIC_BASE_URL}/api/forecloser-properties/copy-from-real-estate`;
+
   try {
     const res = await axios.post(
-      Endpoints.copyToForecloserList(docId),
-      {},
+      endpointUrl,
+      payload,
       { headers }
     );
     return res.data;
   } catch (error) {
-    try {
-      const fallbackUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/forecloser-properties/copy-from-real-estate/${docId}`;
-      const resFallback = await axios.post(fallbackUrl, {}, { headers });
-      return resFallback.data;
-    } catch {
-      if (axios.isAxiosError(error)) {
-        throw new Error(
-          error.response?.data?.error?.message ||
-          error.response?.data?.message ||
-          "Failed to copy property to forecloser list"
-        );
-      }
-      throw new Error("An unexpected error occurred while copying to forecloser list");
+    if (axios.isAxiosError(error)) {
+      const responseData = error.response?.data;
+      const errorMsg =
+        responseData?.message ||
+        responseData?.error?.message ||
+        error.message ||
+        "Failed to copy property to foreclosure list";
+      throw new Error(errorMsg);
     }
+    throw new Error("An unexpected error occurred while copying to foreclosure list");
   }
 }
 

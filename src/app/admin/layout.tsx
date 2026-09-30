@@ -20,6 +20,7 @@ import {
   Sparkles,
   Gavel,
   BookOpen,
+  Users,
 } from "lucide-react";
 import { useAuthContext } from "@/src/mainComponents/auth/AuthContext";
 import { isAdminUser } from "@/src/utilities/authUtils";
@@ -79,6 +80,14 @@ export default function AdminLayout({
       badge: "Posts",
       badgeColor: "bg-teal-100 text-teal-800",
       activeColor: "text-teal-700 bg-teal-50",
+    },
+    {
+      label: "Users",
+      href: "/admin/dashboard/users",
+      icon: Users,
+      badge: "Accounts",
+      badgeColor: "bg-indigo-100 text-indigo-800",
+      activeColor: "text-indigo-700 bg-indigo-50",
     },
   ];
 

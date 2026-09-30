@@ -79,4 +79,12 @@ export const Endpoints = {
   updateBlogBySlug: (slug: string) => `${BASE_URL}/api/blogs/${slug}`,
   deleteBlogBySlug: (slug: string) => `${BASE_URL}/api/blogs/${slug}`,
   uploadMedia: `${BASE_URL}/api/upload`,
+
+  // User Management Endpoints
+  getUsers: `${BASE_URL}/api/users`,
+  getUserById: (id: string | number) => `${BASE_URL}/api/users/${id}`,
+  createUser: `${BASE_URL}/api/users`,
+  updateUser: (id: string | number) => `${BASE_URL}/api/users/${id}`,
+  deleteUser: (id: string | number) => `${BASE_URL}/api/users/${id}`,
+  getUserRoles: `${BASE_URL}/api/users-permissions/roles`,
 };

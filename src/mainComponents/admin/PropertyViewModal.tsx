@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import {
   X,
@@ -48,6 +48,17 @@ export default function PropertyViewModal({
     "overview" | "specs" | "financials" | "features" | "media" | "raw"
   >("overview");
   const [copiedRaw, setCopiedRaw] = useState(false);
+
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (open) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [open]);
 
   // Determine target document ID from prop or property object
   const docId = useMemo(() => {

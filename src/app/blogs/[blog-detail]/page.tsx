@@ -1,272 +1,313 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
+
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Icons, Images } from "../../exports";
 import BlogCard from "@/src/components/common/blogCard/BlogCard";
 import GetInTouch from "@/src/mainComponents/getInTouch/GetInTouch";
-import { useState } from "react";
+import { useGetBlogBySlug, useGetBlogs } from "@/src/hooks/blogs/useBlogQueries";
+import { getBlogImageUrl, decodeHtmlEntities } from "@/src/api/blogs/blogsApi";
 
-const tocItems = [
-  { label: "Exploring Generative AI in Content Creation", id: "generative-ai" },
-  { label: "Steering Clear of Common AI Writing Pitfalls", id: "ai-pitfalls" },
-  {
-    label: "Understanding ChatGPT Capabilities - Define Your Style",
-    id: "chatgpt-style",
-  },
-  {
-    label: "Creating Quality AI-powered Blogs that Stand Out",
-    id: "quality-ai-blogs",
-  },
-  { label: "Conclusion: Embracing AI in Blog Creation", id: "conclusion" },
-];
+export default function Page() {
+  const params = useParams();
+  const slug = (params?.["blog-detail"] || params?.slug || "") as string;
 
-export default function page() {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const handleScroll = (id: string, index: number) => {
+  // Fetch blog by slug with loading state
+  const { data: blogResponse, isLoading } = useGetBlogBySlug(slug, {
+    enabled: !!slug,
+  });
+
+  // Fetch all blogs for "Recently Blogs"
+  const { data: allBlogsResponse } = useGetBlogs();
+
+  const blog = useMemo(() => {
+    if (!blogResponse) return null;
+    const data = blogResponse.data || blogResponse;
+    if (data?.attributes) {
+      return {
+        id: data.id,
+        documentId: data.documentId || data.id,
+        ...data.attributes,
+      };
+    }
+    return data;
+  }, [blogResponse]);
+
+  const recentBlogs = useMemo(() => {
+    if (!allBlogsResponse) return [];
+    const data = allBlogsResponse.data || allBlogsResponse;
+    if (!Array.isArray(data)) return [];
+
+    return data
+      .map((item: any) => {
+        if (item.attributes) {
+          return {
+            id: item.id,
+            documentId: item.documentId || item.id,
+            ...item.attributes,
+          };
+        }
+        return item;
+      })
+      .filter((item: any) => item.slug !== slug)
+      .sort((a: any, b: any) => {
+        const dateA = new Date(a.date || a.createdAt || 0).getTime();
+        const dateB = new Date(b.date || b.createdAt || 0).getTime();
+        return dateB - dateA;
+      })
+      .slice(0, 3);
+  }, [allBlogsResponse, slug]);
+
+  const renderedContent = useMemo(() => {
+    if (!blog?.blogContent) return null;
+    return decodeHtmlEntities(blog.blogContent);
+  }, [blog?.blogContent]);
+
+  // Extract headings from HTML for TOC
+  const tocItems = useMemo(() => {
+    if (!renderedContent) return [];
+    const items: { label: string; id: string }[] = [];
+    const regex = /<h[23][^>]*>(.*?)<\/h[23]>/gi;
+    let match;
+    let count = 0;
+
+    while ((match = regex.exec(renderedContent)) !== null) {
+      count++;
+      const text = match[1].replace(/<[^>]*>/g, "").trim();
+      if (text) {
+        items.push({
+          label: text,
+          id: `heading-${count}`,
+        });
+      }
+    }
+
+    return items;
+  }, [renderedContent]);
+
+  const handleScroll = (id: string, index: number, label?: string) => {
     setActiveIndex(index);
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+    if (typeof document !== "undefined") {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      if (label) {
+        const headings = Array.from(document.querySelectorAll("h2, h3"));
+        const target = headings.find((h) => h.textContent?.trim() === label);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
     }
   };
 
-  return (
-    <>
-      <section className=" py-25 ">
-        <div className="xl:max-w-screen-2xl mx-auto px-6 xl:px-16">
-          {/* ===== BREADCRUMB ===== */}
-          <div className=" mt-7 p-4">
-            <div className="inline-flex items-center gap-2 bg-[#F2F2F2] px-4 py-2 rounded-lg text-sm">
-              <span className="text-gray-700 cursor-pointer hover:text-[#F4A51C]">
-                Home
-              </span>
-              <span className="text-gray-400">›</span>
+  const handleShareFacebook = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          window.location.href
+        )}`,
+        "_blank"
+      );
+    }
+  };
 
-              <span className="text-gray-700 cursor-pointer hover:text-[#F4A51C]">
-                Blog
-              </span>
-              <span className="text-gray-400">›</span>
+  const handleShareTwitter = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+          window.location.href
+        )}&text=${encodeURIComponent(blog?.blogTitle || "BC Real Estate Blog")}`,
+        "_blank"
+      );
+    }
+  };
 
-              <span className="text-gray-700 cursor-pointer hover:text-[#F4A51C]">
-                Blog writing
-              </span>
-              <span className="text-gray-400">›</span>
+  const handleShareLinkedIn = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+          window.location.href
+        )}`,
+        "_blank"
+      );
+    }
+  };
 
-              <span className="text-[#F4A51C] font-medium">You are here</span>
+  // ================= LOADING SKELETON STATE =================
+  if (isLoading) {
+    return (
+      <>
+        <section className="pt-24 sm:pt-28 pb-12 sm:pb-16">
+          <div className="xl:max-w-screen-2xl mx-auto px-6 xl:px-16 animate-pulse">
+            {/* Breadcrumb Skeleton */}
+            <div className="mt-2 mb-6">
+              <div className="h-8 w-60 bg-gray-200 rounded-xl"></div>
+            </div>
+
+            {/* Title Skeleton */}
+            <div className="h-10 bg-gray-200 rounded-xl w-3/4 max-w-3xl mb-6"></div>
+
+            <div className="flex flex-row items-start flex-nowrap gap-5">
+              {/* Left column */}
+              <div className="flex flex-col xl:w-[70%] w-full">
+                {/* Image Skeleton */}
+                <div className="relative w-full aspect-[16/9] rounded-2xl bg-gray-200 mb-8 flex items-center justify-center">
+                  <div className="w-10 h-10 border-4 border-gray-300 border-t-[#F4A51C] rounded-full animate-spin"></div>
+                </div>
+
+                {/* Content Skeletons */}
+                <div className="space-y-4">
+                  <div className="h-7 bg-gray-200 rounded-lg w-1/3 mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-11/12"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+
+                  <div className="h-7 bg-gray-200 rounded-lg w-1/4 mt-8 mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                </div>
+              </div>
+
+              {/* Right sidebar Skeleton */}
+              <aside className="bg-white rounded-2xl p-4 xl:w-[30%] w-full xl:block hidden border border-gray-100 shadow-xs">
+                <div className="bg-amber-100/60 rounded-xl p-4 mb-6 space-y-3">
+                  <div className="h-4 bg-amber-200 rounded w-2/3"></div>
+                  <div className="flex gap-3">
+                    <div className="w-9 h-8 rounded-lg bg-amber-200"></div>
+                    <div className="w-9 h-8 rounded-lg bg-amber-200"></div>
+                    <div className="w-9 h-8 rounded-lg bg-amber-200"></div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              </aside>
             </div>
           </div>
-          <div className="flex flex-col ">
+        </section>
+        <GetInTouch />
+      </>
+    );
+  }
+
+  // ================= NOT FOUND STATE =================
+  if (!isLoading && !blog && slug !== "blog-detail") {
+    return (
+      <>
+        <section className="pt-32 pb-24 text-center min-h-[60vh] flex items-center justify-center">
+          <div className="max-w-md mx-auto px-6">
+            <div className="w-16 h-16 bg-amber-50 text-[#F4A51C] rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-200">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Blog Not Found</h2>
+            <p className="text-gray-500 mb-6">
+              The article you are looking for does not exist or has been removed.
+            </p>
+            <Link
+              href="/blogs"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+            >
+              ← Back to All Blogs
+            </Link>
+          </div>
+        </section>
+        <GetInTouch />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <section className="pt-24 sm:pt-28 pb-12 sm:pb-16">
+        <div className="xl:max-w-screen-2xl mx-auto px-6 xl:px-16">
+          {/* ===== BREADCRUMB ===== */}
+          <div className="mt-2 mb-6">
+            <nav
+              aria-label="Breadcrumb"
+              className="inline-flex items-center flex-wrap gap-2 bg-[#F2F2F2] px-4 py-2 rounded-xl text-xs sm:text-sm font-medium border border-gray-200/60 shadow-xs"
+            >
+              <Link
+                href="/"
+                className="text-gray-600 hover:text-[#F4A51C] transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span>Home</span>
+              </Link>
+              <span className="text-gray-400">/</span>
+
+              <Link
+                href="/blogs"
+                className="text-gray-600 hover:text-[#F4A51C] transition-colors"
+              >
+                Blogs
+              </Link>
+              <span className="text-gray-400">/</span>
+
+              <span className="text-[#F4A51C] font-semibold truncate max-w-[200px] sm:max-w-md md:max-w-xl">
+                {blog?.blogTitle || "Article"}
+              </span>
+            </nav>
+          </div>
+
+          <div className="flex flex-col">
             {/* ================= LEFT CONTENT ================= */}
             {/* Title */}
-            <h1 className="text-3xl font-bold text-[#2E2E2E] mb-6">
-              Smart Property Investment In 2025
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2E2E2E] mb-6">
+              {blog?.blogTitle || "Smart Property Investment In 2025"}
             </h1>
 
-            <div className="flex flex-row items-start flex-nowrap gap-5 ">
-              <div className="flex flex-col xl:w-[70%] w-full ">
+            <div className="flex flex-row items-start flex-nowrap gap-5">
+              <div className="flex flex-col xl:w-[70%] w-full">
                 {/* Featured Image */}
-                <div className="relative w-full h-60 sm:h-80 md:h-96 lg:h-105 rounded-xl overflow-hidden mb-8">
+                <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-8 bg-slate-50 flex items-center justify-center border border-gray-100 shadow-xs">
                   <Image
-                    title={"image title"}
-                    src={Images.blogimg}
-                    alt="Blog image"
+                    title={blog?.blogTitle || "Blog image"}
+                    src={
+                      blog
+                        ? getBlogImageUrl(blog.blogImage)
+                        : Images.blogimg
+                    }
+                    alt={blog?.blogTitle || "Blog image"}
                     fill
-                    className="object-cover"
+                    priority
+                    sizes="(max-width: 1280px) 100vw, 70vw"
+                    className="object-contain"
                   />
                 </div>
 
                 {/* Content */}
-                <div className="space-y-6 text-gray-600 text-sm leading-relaxed">
-                  <h2
-                    id="generative-ai"
-                    className="text-2xl text-black font-bold"
-                  >
-                    Exploring Generative AI in Content Creation
-                  </h2>
-
-                  <p>
-                    Hello there! As a marketing manager in the SaaS industry,
-                    you might be looking for innovative ways to engage your
-                    audience. I bet generative AI has crossed your mind as an
-                    option for creating content. Well, let me share from my
-                    firsthand experience.
-                  </p>
-
-                  <p>
-                    Google encourages high-quality blogs regardless of whether
-                    they re written by humans or created using artificial
-                    intelligence like ChatGPT. Here&apos;s what matters:
-                    producing original material with expertise and
-                    trustworthiness based on Google E-E-A-T principles.
-                  </p>
-
-                  <p>
-                    This means focusing more on people-first writing rather than
-                    primarily employing AI tools to manipulate search rankings.
-                    There comes a time when many experienced professionals want
-                    to communicate their insights but get stuck due to limited
-                    writing skills – that’s where Generative AI can step in.
-                  </p>
-
-                  <p>
-                    So, together, we’re going explore how this technology could
-                    help us deliver valuable content without sounding robotic or
-                    defaulting into mere regurgitations of existing materials .
-                    Hang tight - it’ll be a fun learning journey!
-                  </p>
-
-                  <h2
-                    id="ai-pitfalls"
-                    className="text-2xl text-black font-bold"
-                  >
-                    Steering Clear of Common AI Writing Pitfalls
-                  </h2>
-
-                  <p>
-                    Jumping headfirst into using AI, like ChatGPT, without a
-                    content strategy can lead to some unfortunate results. One
-                    common pitfall I&apos;ve seen is people opting for quantity
-                    over quality - they churn out blogs, but each one feels
-                    robotic and soulless, reading just like countless others on
-                    the internet.
-                  </p>
-
-                  <p>
-                    Another fault line lies in creating reproductions rather
-                    than delivering unique perspectives that offer value to
-                    readers; it often happens if you let an AI tool write your
-                    full blog unrestrained! Trust me on this – Ask any
-                    experienced marketer or writer about their takeaways from
-                    using generative AI tools. They&apos;ll all agree that
-                    adding a human touch and following specific guidelines are
-                    key when implementing these tech pieces.
-                  </p>
-
-                  <p>
-                    Remember, our goal here isn’t merely satisfying search
-                    engines but, more importantly, knowledge-hungry humans
-                    seeking reliable information online. So keep your
-                    audience&apos;s needs at heart while leveraging technology’s
-                    assistance!
-                  </p>
-                  <h2
-                    id="chatgpt-style"
-                    className="text-2xl text-black font-bold"
-                  >
-                    Understanding ChatGPT Capabilities - Define Your Style
-                  </h2>
-
-                  <p>
-                    Welcome to the intriguing world of ChatGPT! Its ability and
-                    potential can truly be mind-boggling. I have learned from
-                    experience how capable it is in dealing with diverse content
-                    generation tasks, only that its text sounded slightly
-                    unnatural&#34; in accordance with TechTarget. However, fear
-                    not – there are ways around this!
-                  </p>
-
-                  <p>
-                    One strategic move I&rsquo;ve seen work wonders is defining
-                    your unique writing style first before handing over the
-                    reins to AI; you treat it like a canvas whereupon our vision
-                    opens up. If we clearly instruct who we&rsquo;re targeting
-                    or what tone resonates more effectively, generative AI tools
-                    such as ChatGPT will comply remarkably well.
-                  </p>
-                  <p>
-                    In framing guidelines, remember to keep audience interests
-                    at heart while adopting technology’s benefits for efficient
-                    output – trust me on this because neglecting these aspects
-                    could backfire by generating unappealing robotic-like reads.
-                  </p>
-                  <p>
-                    Ultimately, aiming towards reader-focused driven creativity
-                    illuminated under authentically humanized narratives holds
-                    priority above all else when crafting blogs using
-                    auto-generation toolkits!
-                  </p>
-
-                  <h2
-                    id="quality-ai-blogs"
-                    className="text-2xl text-black font-bold"
-                  >
-                    Understand Your ReaCreating Quality AI-powered Blogs that
-                    Stand Outders{" "}
-                  </h2>
-                  <p>
-                    Creating brilliant AI-powered blogs is a fun blending of
-                    logic with just the right dose of creativity. From defining
-                    your target audience to tuning in ChatGPT&rsquo;s language
-                    style, every step counts towards creating content that’s not
-                    only SEO-friendly but also enjoyable and valuable for
-                    readers.
-                  </p>
-                  <p>
-                    One tactic I’ve found useful is maintaining originality in
-                    message essence, with unique perspectives infusing life
-                    beyond words onto pages!
-                  </p>
-                  <p>
-                    Incorporating trusted references while optimizing blog posts
-                    intelligently (rather than keyword stuffing) can
-                    significantly aid quality enhancements. Remember, it
-                    isn&rsquo;t about writing for Google here, so avoid tunnel
-                    vision focusing solely on algorithm-driven success rate,
-                    aiming at heart-touching human connections, building loyal
-                    reader bases, and sharing knowledge benefiting others!
-                  </p>
-
-                  <h2 id="conclusion" className="text-2xl text-black font-bold">
-                    Conclusion: Embracing AI in Blog Creation
-                  </h2>
-                  <p>
-                    As we wrap up, let’s remember the heart of blog creation is
-                    serving our readers. Whether a post was drafted by experts
-                    or AI like ChatGPT doesn&rsquo;t matter to Google algorithms
-                    as long it&rsquo;s meaningful and high-quality. Through this
-                    valuable learning curve together, I hope you’ve seen how
-                    well-implemented strategies can guide generative tools in
-                    delivering content mirroring human quality. Yes! It often
-                    involves some trial & error phases, but trust me –
-                    persistence practiced alongside continuous improvements
-                    results in rewarding feats! Additionally, perhaps most
-                    importantly, proofreading every piece before publishing
-                    hugely influences audience perceptions, establishing
-                    professional credibility. Why? Well, even minor oversights
-                    could potentially undermine reader experiences, turning away
-                    prospective subscribers; hence, maintain meticulous
-                    checkpoints for flawless publications! So here goes my
-                    fellow SaaS marketing managers: Embrace technology
-                    enhancement aids responsibly, always keeping end-user
-                    perspectives focal while constantly striving towards better
-                    communication standards, offering insightful, pleasing read
-                    across widespread digital platforms!
-                  </p>
-                  <p>
-                    Let&rsquo;s be clear: ChatGPT wrote this article and
-                    generated the hero image. It combined my personal
-                    experience, knowledge, and research. From the initial notes
-                    to finish, it took just 37 minutes.
-                  </p>
-                  <p>
-                    Even though it was made by AI, no detection tools could
-                    tell. The only thing used was OpenAI&rsquo;s Chat API, no
-                    other external tools.
-                  </p>
-                  <p>
-                    It shows how AI can help in making content interesting and
-                    relevant. It&rsquo;s a new chapter in how we create and
-                    share information.
-                  </p>
-                </div>
+                {renderedContent ? (
+                  <div
+                    className="space-y-6 text-gray-600 text-sm sm:text-base leading-relaxed [&_h2]:text-2xl [&_h2]:text-black [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:text-black [&_h3]:font-bold [&_h3]:mt-4 [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_img]:rounded-xl [&_img]:my-4 [&_a]:text-[#22558B] [&_a]:underline"
+                    dangerouslySetInnerHTML={{ __html: renderedContent }}
+                  />
+                ) : (
+                  <div className="text-gray-500 py-8 italic">
+                    No content available for this blog post.
+                  </div>
+                )}
               </div>
 
               {/* ================= RIGHT SIDEBAR ================= */}
-              <aside className="bg-white rounded-2xl p-4 h-fit sticky top-0 self-start xl:w-[30%] w-full xl:block hidden  ">
+              <aside className="bg-white rounded-2xl p-4 h-fit sticky top-28 self-start xl:w-[30%] w-full xl:block hidden border border-gray-100 shadow-xs">
                 {/* Share box */}
                 <div className="bg-[#EEA500] rounded-xl p-4 mb-6">
                   <p className="text-white text-sm mb-3 font-medium">
@@ -274,97 +315,138 @@ export default function page() {
                   </p>
 
                   <div className="flex gap-3">
-                    <Image
-                      title="image title"
-                      src={Icons.facebookicon}
-                      alt=""
-                      width={35}
-                      height={30}
-                    />
-                    <Image
-                      title="image title"
-                      src={Icons.twittericon}
-                      alt=""
-                      width={35}
-                      height={30}
-                    />
-                    <Image
-                      title="image title"
-                      src={Icons.linkedin}
-                      alt=""
-                      width={35}
-                      height={30}
-                    />
+                    <button
+                      type="button"
+                      onClick={handleShareFacebook}
+                      className="cursor-pointer transition hover:opacity-80"
+                      title="Share on Facebook"
+                    >
+                      <Image
+                        title="Facebook"
+                        src={Icons.facebookicon}
+                        alt="Facebook"
+                        width={35}
+                        height={30}
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleShareTwitter}
+                      className="cursor-pointer transition hover:opacity-80"
+                      title="Share on Twitter"
+                    >
+                      <Image
+                        title="Twitter"
+                        src={Icons.twittericon}
+                        alt="Twitter"
+                        width={35}
+                        height={30}
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleShareLinkedIn}
+                      className="cursor-pointer transition hover:opacity-80"
+                      title="Share on LinkedIn"
+                    >
+                      <Image
+                        title="LinkedIn"
+                        src={Icons.linkedin}
+                        alt="LinkedIn"
+                        width={35}
+                        height={30}
+                      />
+                    </button>
                   </div>
                 </div>
 
                 {/* In this article */}
-                <h3 className="text-[24px] font-bold text-[#2E2E2E] mb-4">
-                  In this article
-                </h3>
+                {tocItems.length > 0 && (
+                  <>
+                    <h3 className="text-[20px] font-bold text-[#2E2E2E] mb-4">
+                      In this article
+                    </h3>
 
-                <ul className="space-y-3">
-                  {tocItems.map((item, index) => (
-                    <li
-                      key={item.id}
-                      onClick={() => handleScroll(item.id, index)}
-                      className="cursor-pointer relative pl-4"
-                    >
-                      <span
-                        className={`absolute left-0 top-0 h-full w-0.75 rounded-full transition-colors ${
-                          activeIndex === index
-                            ? "bg-[#22558B]"
-                            : "bg-transparent"
-                        }`}
-                      />
+                    <ul className="space-y-3">
+                      {tocItems.map((item, index) => (
+                        <li
+                          key={item.id || index}
+                          onClick={() => handleScroll(item.id, index, item.label)}
+                          className="cursor-pointer relative pl-4"
+                        >
+                          <span
+                            className={`absolute left-0 top-0 h-full w-0.75 rounded-full transition-colors ${
+                              activeIndex === index
+                                ? "bg-[#22558B]"
+                                : "bg-transparent"
+                            }`}
+                          />
 
-                      <span
-                        className={`text-sm leading-6 block transition-colors ${
-                          activeIndex === index
-                            ? "text-[#22558B] font-medium"
-                            : "text-gray-600"
-                        }`}
-                      >
-                        {item.label}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                          <span
+                            className={`text-sm leading-6 block transition-colors ${
+                              activeIndex === index
+                                ? "text-[#22558B] font-medium"
+                                : "text-gray-600 hover:text-gray-900"
+                            }`}
+                          >
+                            {item.label}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </aside>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="bg-[#F0F0F0] xl:max-w-screen-2xl mx-auto p-6 sm:p-10 lg:p-16">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold pb-6">
-          Recently Blogs
+      {/* ================= RECENT BLOGS ================= */}
+      <div className="bg-[#F0F0F0] xl:max-w-screen-2xl mx-auto p-5 sm:p-7 lg:p-8 rounded-3xl mb-16 md:mb-24">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-5 text-[#2E2E2E]">
+          Recent Blogs
         </h2>
 
-        <div className="flex flex-wrap gap-5">
-          <div className="w-full sm:w-[calc(50%-10px)] lg:w-[calc(32%-15px)]">
-            <BlogCard
-              title="Bill Walsh leadership lessons"
-              image={Images.leadership}
-              description="Like to know the secrets of transforming a 2-14 team into a 3x Super Bowl winning Dynasty?"
-            />
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {recentBlogs.length > 0 ? (
+            recentBlogs.map((item: any) => (
+              <div key={item.id || item.slug} className="w-full">
+                <BlogCard
+                  title={item.blogTitle}
+                  image={getBlogImageUrl(item.blogImage)}
+                  description={item.blogDescription || ""}
+                  href={`/blogs/${item.slug}`}
+                />
+              </div>
+            ))
+          ) : (
+            <>
+              <div className="w-full">
+                <BlogCard
+                  title="Bill Walsh leadership lessons"
+                  image={Images.leadership}
+                  description="Like to know the secrets of transforming a 2-14 team into a 3x Super Bowl winning Dynasty?"
+                />
+              </div>
 
-          <div className="w-full sm:w-[calc(50%-10px)] lg:w-[calc(32%-15px)]">
-            <BlogCard
-              title="Bill Walsh leadership lessons"
-              image={Images.billwalsh}
-              description="Like to know the secrets of transforming a 2-14 team into a 3x Super Bowl winning Dynasty?"
-            />
-          </div>
+              <div className="w-full">
+                <BlogCard
+                  title="Bill Walsh leadership lessons"
+                  image={Images.billwalsh}
+                  description="Like to know the secrets of transforming a 2-14 team into a 3x Super Bowl winning Dynasty?"
+                />
+              </div>
 
-          <div className="w-full sm:w-[calc(50%-10px)] lg:w-[calc(32%-15px)]">
-            <BlogCard
-              title="Bill Walsh leadership lessons"
-              image={Images.saleimg}
-              description="Like to know the secrets of transforming a 2-14 team into a 3x Super Bowl winning Dynasty?"
-            />
-          </div>
+              <div className="w-full">
+                <BlogCard
+                  title="Bill Walsh leadership lessons"
+                  image={Images.saleimg}
+                  description="Like to know the secrets of transforming a 2-14 team into a 3x Super Bowl winning Dynasty?"
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
 

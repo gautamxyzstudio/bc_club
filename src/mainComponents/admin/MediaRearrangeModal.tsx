@@ -55,6 +55,17 @@ export default function MediaRearrangeModal({
     );
   }, [documentId, property]);
 
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (open) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [open]);
+
   // Fetch full details by documentId
   const {
     data: fetchedData,

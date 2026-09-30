@@ -391,3 +391,18 @@ body::-webkit-scrollbar {
 .animate-text-glow:hover {
   animation: text-glow 2s ease-in-out infinite;
 }
+
+/* Global scrollbar hiding utilities */
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.scrollbar-none,
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

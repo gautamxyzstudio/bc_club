@@ -124,10 +124,14 @@ export default function AdminPropertiesDashboard({
     staleTime: 30000,
   });
 
-  const isLoading = isForeclosureTab ? isForecloserLoading : isRealEstateLoading;
+  const isLoading = isForeclosureTab
+    ? isForecloserLoading
+    : isRealEstateLoading;
   const isError = isForeclosureTab ? isForecloserError : isRealEstateError;
   const refetch = isForeclosureTab ? refetchForecloser : refetchRealEstate;
-  const isFetching = isForeclosureTab ? isForecloserFetching : isRealEstateFetching;
+  const isFetching = isForeclosureTab
+    ? isForecloserFetching
+    : isRealEstateFetching;
 
   // Foreclosure copy mutation & delete mutation
   const copyMutation = useCopyToForecloserList();
@@ -142,7 +146,11 @@ export default function AdminPropertiesDashboard({
       if (!Array.isArray(rawList)) return [];
       let result = rawList.map((item: any) => {
         const base = item.real_estate_board
-          ? { ...item.real_estate_board, ...item, forecloserDocId: item.documentId || item.id }
+          ? {
+              ...item.real_estate_board,
+              ...item,
+              forecloserDocId: item.documentId || item.id,
+            }
           : { ...item, forecloserDocId: item.documentId || item.id };
         return applyPropertyOverrides(base);
       });
@@ -153,14 +161,15 @@ export default function AdminPropertiesDashboard({
           (item: any) =>
             item.address?.toLowerCase().includes(q) ||
             item.city?.toLowerCase().includes(q) ||
-            item.listing_id?.toLowerCase().includes(q)
+            item.listing_id?.toLowerCase().includes(q),
         );
       }
       if (propertyType !== "all") {
         result = result.filter(
           (item: any) =>
-            item.property_sub_type?.toLowerCase() === propertyType.toLowerCase() ||
-            item.structure_type?.toLowerCase() === propertyType.toLowerCase()
+            item.property_sub_type?.toLowerCase() ===
+              propertyType.toLowerCase() ||
+            item.structure_type?.toLowerCase() === propertyType.toLowerCase(),
         );
       }
       if (sortBy === "price_asc") {
@@ -173,7 +182,14 @@ export default function AdminPropertiesDashboard({
 
     const rawList = realEstateData?.data || [];
     return rawList.map((item: any) => applyPropertyOverrides(item));
-  }, [isForeclosureTab, forecloserData, realEstateData, searchTerm, propertyType, sortBy]);
+  }, [
+    isForeclosureTab,
+    forecloserData,
+    realEstateData,
+    searchTerm,
+    propertyType,
+    sortBy,
+  ]);
 
   // Paginated slice for foreclosure tab
   const listings = useMemo(() => {
@@ -186,7 +202,9 @@ export default function AdminPropertiesDashboard({
 
   const totalListings = isForeclosureTab
     ? allListings.length
-    : (realEstateData?.meta?.pagination?.total || realEstateData?.count || allListings.length);
+    : realEstateData?.meta?.pagination?.total ||
+      realEstateData?.count ||
+      allListings.length;
   const totalPages = Math.max(1, Math.ceil(totalListings / pageSize));
 
   // Set of docIds/identifiers already in foreclosure
@@ -198,7 +216,8 @@ export default function AdminPropertiesDashboard({
         if (f?.documentId) set.add(String(f.documentId));
         if (f?.id) set.add(String(f.id));
         if (f?.attributes?.documentId) set.add(String(f.attributes.documentId));
-        if (f?.real_estate_board?.documentId) set.add(String(f.real_estate_board.documentId));
+        if (f?.real_estate_board?.documentId)
+          set.add(String(f.real_estate_board.documentId));
         if (f?.real_estate_board?.id) set.add(String(f.real_estate_board.id));
         if (f?.realEstateDocumentId) set.add(String(f.realEstateDocumentId));
         if (f?.listing_id) set.add(String(f.listing_id));
@@ -210,9 +229,11 @@ export default function AdminPropertiesDashboard({
 
   const isItemInForeclosure = (item: any) => {
     if (!item) return false;
-    if (item.documentId && forecloserIdentifiers.has(String(item.documentId))) return true;
+    if (item.documentId && forecloserIdentifiers.has(String(item.documentId)))
+      return true;
     if (item.id && forecloserIdentifiers.has(String(item.id))) return true;
-    if (item.listing_id && forecloserIdentifiers.has(String(item.listing_id))) return true;
+    if (item.listing_id && forecloserIdentifiers.has(String(item.listing_id)))
+      return true;
     return false;
   };
 
@@ -249,14 +270,14 @@ export default function AdminPropertiesDashboard({
   const toggleSelectProperty = (id: string) => {
     if (!id) return;
     setSelectedDocIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
   const toggleSelectAllPage = () => {
     if (isAllPageSelected) {
       setSelectedDocIds((prev) =>
-        prev.filter((id) => !selectablePageDocIds.includes(id))
+        prev.filter((id) => !selectablePageDocIds.includes(id)),
       );
     } else {
       setSelectedDocIds((prev) => {
@@ -293,7 +314,7 @@ export default function AdminPropertiesDashboard({
     if (selectedDocIds.length === 0) return;
     if (
       !window.confirm(
-        `Are you sure you want to remove ${selectedDocIds.length} properties from the foreclosure list?`
+        `Are you sure you want to remove ${selectedDocIds.length} properties from the foreclosure list?`,
       )
     ) {
       return;
@@ -329,7 +350,11 @@ export default function AdminPropertiesDashboard({
   const handleDeleteForecloser = async (item: any) => {
     const idToDelete = item.forecloserDocId || item.documentId || item.id;
     if (!idToDelete) return;
-    if (window.confirm("Are you sure you want to remove this property from the foreclosure list?")) {
+    if (
+      window.confirm(
+        "Are you sure you want to remove this property from the foreclosure list?",
+      )
+    ) {
       try {
         setDeletingDocId(idToDelete);
         await deleteMutation.mutateAsync(idToDelete);
@@ -366,7 +391,9 @@ export default function AdminPropertiesDashboard({
       return listing.media_url;
     }
     if (Array.isArray(listing?.media) && listing.media[0]) {
-      return listing.media[0]?.MediaURL || listing.media[0]?.url || "/apartment.webp";
+      return (
+        listing.media[0]?.MediaURL || listing.media[0]?.url || "/apartment.webp"
+      );
     }
     return "/apartment.webp";
   };
@@ -391,7 +418,8 @@ export default function AdminPropertiesDashboard({
             <span className="text-xs text-gray-500">Property Management</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 capitalize">
-            {currentStatus === "foreclosure" ? "Foreclosure" : currentStatus} Properties
+            {currentStatus === "foreclosure" ? "Foreclosure" : currentStatus}{" "}
+            Properties
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             {currentStatus === "active" &&
@@ -459,25 +487,39 @@ export default function AdminPropertiesDashboard({
         <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Total in {currentStatus === "foreclosure" ? "Foreclosure" : currentStatus}
+              Total in{" "}
+              {currentStatus === "foreclosure" ? "Foreclosure" : currentStatus}
             </p>
             <h3 className="text-2xl font-black text-gray-900 mt-1">
               {isLoading ? "..." : totalListings.toLocaleString()}
             </h3>
-            <span className="text-xs text-emerald-600 font-medium mt-1 inline-block">Real-time sync</span>
+            <span className="text-xs text-emerald-600 font-medium mt-1 inline-block">
+              Real-time sync
+            </span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-            {currentStatus === "foreclosure" ? <Gavel className="w-6 h-6 text-amber-600" /> : <Building className="w-6 h-6" />}
+            {currentStatus === "foreclosure" ? (
+              <Gavel className="w-6 h-6 text-amber-600" />
+            ) : (
+              <Building className="w-6 h-6" />
+            )}
           </div>
         </div>
 
         <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Active Listings</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Active Listings
+            </p>
             <h3 className="text-2xl font-black text-emerald-600 mt-1">
-              {currentStatus === "active" ? totalListings.toLocaleString() : "View Route"}
+              {currentStatus === "active"
+                ? totalListings.toLocaleString()
+                : "View Route"}
             </h3>
-            <Link href="/admin/dashboard/active" className="text-xs text-primary font-medium hover:underline mt-1 inline-block">
+            <Link
+              href="/admin/dashboard/active"
+              className="text-xs text-primary font-medium hover:underline mt-1 inline-block"
+            >
               Switch to Active →
             </Link>
           </div>
@@ -488,11 +530,18 @@ export default function AdminPropertiesDashboard({
 
         <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sold Listings</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Sold Listings
+            </p>
             <h3 className="text-2xl font-black text-purple-600 mt-1">
-              {currentStatus === "sold" ? totalListings.toLocaleString() : "View Route"}
+              {currentStatus === "sold"
+                ? totalListings.toLocaleString()
+                : "View Route"}
             </h3>
-            <Link href="/admin/dashboard/sold" className="text-xs text-primary font-medium hover:underline mt-1 inline-block">
+            <Link
+              href="/admin/dashboard/sold"
+              className="text-xs text-primary font-medium hover:underline mt-1 inline-block"
+            >
               Switch to Sold →
             </Link>
           </div>
@@ -503,13 +552,23 @@ export default function AdminPropertiesDashboard({
 
         <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Foreclosure List</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Foreclosure List
+            </p>
             <h3 className="text-2xl font-black text-amber-600 mt-1">
               {currentStatus === "foreclosure"
                 ? totalListings.toLocaleString()
-                : (forecloserData?.data?.length ?? (Array.isArray(forecloserData) ? forecloserData.length : "...")).toString()}
+                : (
+                    forecloserData?.data?.length ??
+                    (Array.isArray(forecloserData)
+                      ? forecloserData.length
+                      : "...")
+                  ).toString()}
             </h3>
-            <Link href="/admin/dashboard/foreclosure" className="text-xs text-primary font-medium hover:underline mt-1 inline-block">
+            <Link
+              href="/admin/dashboard/foreclosure"
+              className="text-xs text-primary font-medium hover:underline mt-1 inline-block"
+            >
               Switch to Foreclosure →
             </Link>
           </div>
@@ -576,7 +635,9 @@ export default function AdminPropertiesDashboard({
               <button
                 onClick={() => setViewMode("table")}
                 className={`p-1.5 rounded-lg transition cursor-pointer ${
-                  viewMode === "table" ? "bg-white text-primary shadow-xs" : "text-gray-500 hover:text-gray-800"
+                  viewMode === "table"
+                    ? "bg-white text-primary shadow-xs"
+                    : "text-gray-500 hover:text-gray-800"
                 }`}
                 title="Table View"
               >
@@ -585,7 +646,9 @@ export default function AdminPropertiesDashboard({
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-1.5 rounded-lg transition cursor-pointer ${
-                  viewMode === "grid" ? "bg-white text-primary shadow-xs" : "text-gray-500 hover:text-gray-800"
+                  viewMode === "grid"
+                    ? "bg-white text-primary shadow-xs"
+                    : "text-gray-500 hover:text-gray-800"
                 }`}
                 title="Grid View"
               >
@@ -600,7 +663,9 @@ export default function AdminPropertiesDashboard({
               className="p-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-primary transition disabled:opacity-50 cursor-pointer"
               title="Refresh Listings"
             >
-              <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin text-primary" : ""}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${isFetching ? "animate-spin text-primary" : ""}`}
+              />
             </button>
           </div>
         </div>
@@ -614,15 +679,25 @@ export default function AdminPropertiesDashboard({
                 onClick={toggleSelectAllPage}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:border-primary text-gray-700 font-semibold transition cursor-pointer shadow-2xs"
               >
-                <span className={`w-4 h-4 rounded-md border flex items-center justify-center transition ${isAllPageSelected ? "bg-primary border-primary text-white" : "border-gray-400 bg-white"}`}>
-                  {isAllPageSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                <span
+                  className={`w-4 h-4 rounded-md border flex items-center justify-center transition ${isAllPageSelected ? "bg-primary border-primary text-white" : "border-gray-400 bg-white"}`}
+                >
+                  {isAllPageSelected && (
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  )}
                 </span>
-                {isAllPageSelected ? "Deselect All on Page" : `Select All on Page (${selectablePageDocIds.length})`}
+                {isAllPageSelected
+                  ? "Deselect All on Page"
+                  : `Select All on Page (${selectablePageDocIds.length})`}
               </button>
 
               {selectedDocIds.length > 0 && (
                 <span className="text-gray-600 font-medium">
-                  <strong className="text-primary font-bold text-sm">{selectedDocIds.length}</strong> {selectedDocIds.length === 1 ? "property" : "properties"} selected
+                  <strong className="text-primary font-bold text-sm">
+                    {selectedDocIds.length}
+                  </strong>{" "}
+                  {selectedDocIds.length === 1 ? "property" : "properties"}{" "}
+                  selected
                 </span>
               )}
             </div>
@@ -686,14 +761,20 @@ export default function AdminPropertiesDashboard({
       {isLoading ? (
         <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-xs">
           <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm font-semibold text-gray-700">Loading {currentStatus} listings...</p>
-          <p className="text-xs text-gray-400 mt-1">Retrieving verified properties and media data.</p>
+          <p className="text-sm font-semibold text-gray-700">
+            Loading {currentStatus} listings...
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            Retrieving verified properties and media data.
+          </p>
         </div>
       ) : isError ? (
         <div className="bg-white rounded-2xl border border-rose-100 p-10 text-center shadow-xs text-rose-600">
           <AlertCircle className="w-10 h-10 mx-auto mb-2 text-rose-500" />
           <p className="font-bold text-base">Failed to load listings</p>
-          <p className="text-xs text-gray-500 mt-1 mb-4">An error occurred while communicating with the server.</p>
+          <p className="text-xs text-gray-500 mt-1 mb-4">
+            An error occurred while communicating with the server.
+          </p>
           <button
             onClick={() => refetch()}
             className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary2 transition cursor-pointer"
@@ -704,7 +785,9 @@ export default function AdminPropertiesDashboard({
       ) : listings.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center shadow-xs">
           <Building className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-          <h3 className="text-base font-bold text-gray-800">No {currentStatus} properties found</h3>
+          <h3 className="text-base font-bold text-gray-800">
+            No {currentStatus} properties found
+          </h3>
           <p className="text-xs text-gray-400 mt-1">
             Try adjusting your search keywords, filters, or property category.
           </p>
@@ -726,26 +809,32 @@ export default function AdminPropertiesDashboard({
                         isAllPageSelected
                           ? "bg-primary border-primary text-white shadow-xs"
                           : isSomePageSelected
-                          ? "bg-primary/20 border-primary text-primary"
-                          : "border-gray-300 bg-white hover:border-primary"
+                            ? "bg-primary/20 border-primary text-primary"
+                            : "border-gray-300 bg-white hover:border-primary"
                       } ${selectablePageDocIds.length === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
                       title={
                         selectablePageDocIds.length === 0
                           ? "No selectable properties on this page"
                           : isAllPageSelected
-                          ? "Deselect all on this page"
-                          : "Select all on this page"
+                            ? "Deselect all on this page"
+                            : "Select all on this page"
                       }
                     >
-                      {isAllPageSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                      {isSomePageSelected && <span className="w-2.5 h-0.5 bg-primary rounded-full" />}
+                      {isAllPageSelected && (
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      )}
+                      {isSomePageSelected && (
+                        <span className="w-2.5 h-0.5 bg-primary rounded-full" />
+                      )}
                     </button>
                   </th>
                   <th className="py-3.5 px-4">Property</th>
                   <th className="py-3.5 px-4">Listing ID</th>
                   <th className="py-3.5 px-4">Price</th>
                   <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4">{isForeclosureTab ? "Foreclosure Status" : "Foreclosure"}</th>
+                  <th className="py-3.5 px-4">
+                    {isForeclosureTab ? "Foreclosure Status" : "Foreclosure"}
+                  </th>
                   <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -779,18 +868,20 @@ export default function AdminPropertiesDashboard({
                             isSelected
                               ? "bg-amber-500 border-amber-500 text-white shadow-xs ring-2 ring-amber-500/20"
                               : inForeclosure && !isForeclosureTab
-                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-                              : "border-gray-300 bg-white hover:border-amber-400 hover:bg-amber-50/40"
+                                ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                                : "border-gray-300 bg-white hover:border-amber-400 hover:bg-amber-50/40"
                           }`}
                           title={
                             inForeclosure && !isForeclosureTab
                               ? "Already in foreclosure"
                               : isSelected
-                              ? "Deselect property"
-                              : "Select property for foreclosure"
+                                ? "Deselect property"
+                                : "Select property for foreclosure"
                           }
                         >
-                          {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          {isSelected && (
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          )}
                         </button>
                       </td>
 
@@ -811,7 +902,10 @@ export default function AdminPropertiesDashboard({
                               {item.address || "Address not specified"}
                             </p>
                             <p className="text-xs text-gray-500 truncate">
-                              {item.city || "BC"} • {item.property_sub_type || item.structure_type || "Residential"}
+                              {item.city || "BC"} •{" "}
+                              {item.property_sub_type ||
+                                item.structure_type ||
+                                "Residential"}
                             </p>
                           </div>
                         </div>
@@ -840,14 +934,18 @@ export default function AdminPropertiesDashboard({
                           className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide ${
                             isForeclosureTab
                               ? "bg-amber-100 text-amber-800"
-                              : item.standard_status === "Active" || item.status === "forSale"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : item.standard_status === "Sold" || item.status === "sold"
-                              ? "bg-purple-100 text-purple-800"
-                              : "bg-rose-100 text-rose-800"
+                              : item.standard_status === "Active" ||
+                                  item.status === "forSale"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : item.standard_status === "Sold" ||
+                                    item.status === "sold"
+                                  ? "bg-purple-100 text-purple-800"
+                                  : "bg-rose-100 text-rose-800"
                           }`}
                         >
-                          {isForeclosureTab ? "Foreclosure" : item.standard_status || item.status || "Active"}
+                          {isForeclosureTab
+                            ? "Foreclosure"
+                            : item.standard_status || item.status || "Active"}
                         </span>
                       </td>
 
@@ -861,11 +959,21 @@ export default function AdminPropertiesDashboard({
                             </span>
                             <button
                               onClick={() => handleDeleteForecloser(item)}
-                              disabled={deleteMutation.isPending && deletingDocId === (item.forecloserDocId || item.documentId || item.id)}
+                              disabled={
+                                deleteMutation.isPending &&
+                                deletingDocId ===
+                                  (item.forecloserDocId ||
+                                    item.documentId ||
+                                    item.id)
+                              }
                               className="p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition cursor-pointer"
                               title="Remove from foreclosure list"
                             >
-                              {deleteMutation.isPending && deletingDocId === (item.forecloserDocId || item.documentId || item.id) ? (
+                              {deleteMutation.isPending &&
+                              deletingDocId ===
+                                (item.forecloserDocId ||
+                                  item.documentId ||
+                                  item.id) ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
                               ) : (
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -880,11 +988,15 @@ export default function AdminPropertiesDashboard({
                         ) : (
                           <button
                             onClick={() => handleCopyForecloser(item)}
-                            disabled={copyMutation.isPending && copyingDocId === (item.documentId || item.id)}
+                            disabled={
+                              copyMutation.isPending &&
+                              copyingDocId === (item.documentId || item.id)
+                            }
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-secondary hover:opacity-90 shadow-xs transition disabled:opacity-50 cursor-pointer"
                             title="Add as Forecloser"
                           >
-                            {copyMutation.isPending && copyingDocId === (item.documentId || item.id) ? (
+                            {copyMutation.isPending &&
+                            copyingDocId === (item.documentId || item.id) ? (
                               <>
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                 Adding...
@@ -974,14 +1086,18 @@ export default function AdminPropertiesDashboard({
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide shadow-xs ${
                         isForeclosureTab
                           ? "bg-amber-500 text-white"
-                          : item.standard_status === "Active" || item.status === "forSale"
-                          ? "bg-emerald-500 text-white"
-                          : item.standard_status === "Sold" || item.status === "sold"
-                          ? "bg-purple-600 text-white"
-                          : "bg-rose-500 text-white"
+                          : item.standard_status === "Active" ||
+                              item.status === "forSale"
+                            ? "bg-emerald-500 text-white"
+                            : item.standard_status === "Sold" ||
+                                item.status === "sold"
+                              ? "bg-purple-600 text-white"
+                              : "bg-rose-500 text-white"
                       }`}
                     >
-                      {isForeclosureTab ? "Foreclosure" : item.standard_status || item.status || "Active"}
+                      {isForeclosureTab
+                        ? "Foreclosure"
+                        : item.standard_status || item.status || "Active"}
                     </span>
                   </div>
 
@@ -999,15 +1115,15 @@ export default function AdminPropertiesDashboard({
                         isSelected
                           ? "bg-amber-500 text-white ring-2 ring-white"
                           : inForeclosure && !isForeclosureTab
-                          ? "bg-gray-900/40 text-gray-400 cursor-not-allowed opacity-40"
-                          : "bg-black/60 hover:bg-black/80 text-white border border-white/20"
+                            ? "bg-gray-900/40 text-gray-400 cursor-not-allowed opacity-40"
+                            : "bg-black/60 hover:bg-black/80 text-white border border-white/20"
                       }`}
                       title={
                         inForeclosure && !isForeclosureTab
                           ? "Already in foreclosure"
                           : isSelected
-                          ? "Deselect property"
-                          : "Select property for foreclosure"
+                            ? "Deselect property"
+                            : "Select property for foreclosure"
                       }
                     >
                       {isSelected ? (
@@ -1034,19 +1150,23 @@ export default function AdminPropertiesDashboard({
                       {item.address || "No address specified"}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {item.city || "BC"} • {item.property_sub_type || "Residential"}
+                      {item.city || "BC"} •{" "}
+                      {item.property_sub_type || "Residential"}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 py-2 border-y border-gray-100 text-xs text-gray-600">
                     <div className="flex items-center gap-1">
-                      <Bed className="w-3.5 h-3.5 text-primary" /> {item.bedrooms ?? 0}b
+                      <Bed className="w-3.5 h-3.5 text-primary" />{" "}
+                      {item.bedrooms ?? 0}b
                     </div>
                     <div className="flex items-center gap-1">
-                      <Bath className="w-3.5 h-3.5 text-primary" /> {item.bathrooms ?? 0}ba
+                      <Bath className="w-3.5 h-3.5 text-primary" />{" "}
+                      {item.bathrooms ?? 0}ba
                     </div>
                     <div className="flex items-center gap-1 truncate">
-                      <Maximize className="w-3.5 h-3.5 text-primary" /> {item.Living_area || "-"}sqft
+                      <Maximize className="w-3.5 h-3.5 text-primary" />{" "}
+                      {item.Living_area || "-"}sqft
                     </div>
                   </div>
 
@@ -1078,11 +1198,19 @@ export default function AdminPropertiesDashboard({
                     {isForeclosureTab ? (
                       <button
                         onClick={() => handleDeleteForecloser(item)}
-                        disabled={deleteMutation.isPending && deletingDocId === (item.forecloserDocId || item.documentId || item.id)}
+                        disabled={
+                          deleteMutation.isPending &&
+                          deletingDocId ===
+                            (item.forecloserDocId || item.documentId || item.id)
+                        }
                         className="w-full py-1.5 px-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 rounded-lg transition flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 cursor-pointer"
                         title="Remove from foreclosure list"
                       >
-                        {deleteMutation.isPending && deletingDocId === (item.forecloserDocId || item.documentId || item.id) ? (
+                        {deleteMutation.isPending &&
+                        deletingDocId ===
+                          (item.forecloserDocId ||
+                            item.documentId ||
+                            item.id) ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
                             Removing...
@@ -1102,11 +1230,15 @@ export default function AdminPropertiesDashboard({
                     ) : (
                       <button
                         onClick={() => handleCopyForecloser(item)}
-                        disabled={copyMutation.isPending && copyingDocId === (item.documentId || item.id)}
+                        disabled={
+                          copyMutation.isPending &&
+                          copyingDocId === (item.documentId || item.id)
+                        }
                         className="w-full py-1.5 px-2 text-xs font-semibold text-white bg-secondary hover:opacity-90 rounded-lg transition flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 cursor-pointer"
                         title="Copy to forecloser list"
                       >
-                        {copyMutation.isPending && copyingDocId === (item.documentId || item.id) ? (
+                        {copyMutation.isPending &&
+                        copyingDocId === (item.documentId || item.id) ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                             Adding...
@@ -1136,10 +1268,14 @@ export default function AdminPropertiesDashboard({
             </div>
             <div>
               <p className="text-xs font-bold text-white leading-tight">
-                {selectedDocIds.length} {selectedDocIds.length === 1 ? "Property" : "Properties"} Selected
+                {selectedDocIds.length}{" "}
+                {selectedDocIds.length === 1 ? "Property" : "Properties"}{" "}
+                Selected
               </p>
               <p className="text-[11px] text-gray-400">
-                {isForeclosureTab ? "Foreclosure List" : `${currentStatus} listings`}
+                {isForeclosureTab
+                  ? "Foreclosure List"
+                  : `${currentStatus} listings`}
               </p>
             </div>
           </div>
@@ -1198,8 +1334,9 @@ export default function AdminPropertiesDashboard({
       {totalPages > 1 && (
         <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-gray-500 font-medium">
-            Showing Page <span className="font-bold text-gray-800">{page}</span> of{" "}
-            <span className="font-bold text-gray-800">{totalPages}</span> ({totalListings.toLocaleString()} total)
+            Showing Page <span className="font-bold text-gray-800">{page}</span>{" "}
+            of <span className="font-bold text-gray-800">{totalPages}</span> (
+            {totalListings.toLocaleString()} total)
           </p>
 
           <div className="flex items-center gap-2">

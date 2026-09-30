@@ -71,4 +71,12 @@ export const Endpoints = {
     `${BASE_URL}/api/forecloser-properties/${id}/similar-sold?radiusKm=90&limit=20`,
   getNearbyForecloserPlaces: (id: string) =>
     `${BASE_URL}/api/forecloser-properties/${id}/neighborhood?radius=9000&limit=6`,
+
+  // Blog Management Endpoints
+  getBlogs: `${BASE_URL}/api/blogs`,
+  getBlogBySlug: (slug: string) => `${BASE_URL}/api/blogs/${slug}`,
+  createBlog: `${BASE_URL}/api/blogs`,
+  updateBlogBySlug: (slug: string) => `${BASE_URL}/api/blogs/${slug}`,
+  deleteBlogBySlug: (slug: string) => `${BASE_URL}/api/blogs/${slug}`,
+  uploadMedia: `${BASE_URL}/api/upload`,
 };

@@ -30,6 +30,7 @@ import {
   Gavel,
   Trash2,
   X,
+  UploadCloud,
 } from "lucide-react";
 import {
   useGetRealEstateListings,
@@ -41,6 +42,7 @@ import {
 import PropertyViewModal from "./PropertyViewModal";
 import PropertyEditModal from "./PropertyEditModal";
 import MediaRearrangeModal from "./MediaRearrangeModal";
+import ForecloserCsvUploadModal from "./ForecloserCsvUploadModal";
 
 interface AdminPropertiesDashboardProps {
   currentStatus: "active" | "sold" | "expired" | "foreclosure";
@@ -64,6 +66,7 @@ export default function AdminPropertiesDashboard({
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [rearrangeModalOpen, setRearrangeModalOpen] = useState(false);
+  const [csvUploadModalOpen, setCsvUploadModalOpen] = useState(false);
 
   // Multi-selection state for batch actions
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
@@ -655,6 +658,17 @@ export default function AdminPropertiesDashboard({
                 <LayoutGrid className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Upload Foreclosure CSV Button */}
+            <button
+              type="button"
+              onClick={() => setCsvUploadModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title="Import Properties to Foreclosure from CSV or MLS IDs"
+            >
+              <UploadCloud className="w-4 h-4" />
+              <span>Upload CSV</span>
+            </button>
 
             {/* Refresh Button */}
             <button
@@ -1393,6 +1407,18 @@ export default function AdminPropertiesDashboard({
           />
         </>
       )}
+
+      {/* CSV Foreclosure Import Modal */}
+      <ForecloserCsvUploadModal
+        open={csvUploadModalOpen}
+        onClose={() => setCsvUploadModalOpen(false)}
+        onSuccess={() => {
+          refetchForecloser();
+          if (!isForeclosureTab) {
+            refetchRealEstate();
+          }
+        }}
+      />
     </div>
   );
 }

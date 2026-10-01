@@ -1,4 +1,5 @@
 "use client";
+import React, { useEffect, useRef } from "react";
 import PropertyTopAddressSection from "./PropertyTopAddressSection";
 import PropertyGallery from "./PropertyGallery";
 import PropertyInformation from "./propertyInformation/PropertyInformation";
@@ -9,6 +10,7 @@ import { Images } from "@/src/app/exports";
 import PropertySimilarAndSoldListing from "./PropertySimilarAndSoldListing";
 import FaqsSection from "./propertyInformation/FaqsSection";
 import { useGetRealEstateListingById } from "@/src/hooks/listing/useRealEstateListingQueries";
+import { logPropertySearchActivity } from "@/src/api/activityLog/activityLogApi";
 
 const PropertyInfo = ({
   paramsId,
@@ -24,6 +26,22 @@ const PropertyInfo = ({
   } = useGetRealEstateListingById(paramsId, {
     select: (res: any) => res?.data || res,
   });
+
+  const hasLoggedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (listing && (listing.documentId || paramsId)) {
+      const targetId = listing.documentId || paramsId;
+      if (hasLoggedRef.current !== targetId) {
+        hasLoggedRef.current = targetId;
+        logPropertySearchActivity({
+          propertySearchType: "find_home",
+          searchTerm: listing.address || "",
+          propertyId: targetId,
+        });
+      }
+    }
+  }, [listing, paramsId]);
 
   if (loading) return <PropertyInfoSkeleton />;
   if (error)

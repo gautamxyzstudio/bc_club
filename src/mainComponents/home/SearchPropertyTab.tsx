@@ -8,9 +8,9 @@ import { useRouter } from "next/navigation";
 import { MapPin, Search } from "lucide-react";
 import {
   useGetAssessmentPropertiesList,
-  useGetDDFPropertiesListByAddress,
 } from "@/src/hooks/listing/useListingQueries";
 import { useGetRealEstatePropertiesListByAddress } from "@/src/hooks/listing/useRealEstateListingQueries";
+import { logPropertySearchActivity } from "@/src/api/activityLog/activityLogApi";
 
 const SearchPropertyTab = () => {
   const tabList = ["Find Home", "Home Assessment", "Market Trends"];
@@ -60,16 +60,51 @@ const SearchPropertyTab = () => {
 
   const router = useRouter();
 
-  const handleSelectAssessment = (documentId: string) => {
+  const handleSelectAssessment = (documentId: string, address?: string) => {
     setShowDropdown(false);
     setNavigating(true);
+    // Log activity: Home Assessment relation to property_assignment_list
+    logPropertySearchActivity({
+      propertySearchType: "property_evaluation",
+      searchTerm: query || address || "",
+      propertyId: documentId,
+    });
     router.push(`/property-assessment/${documentId}`);
   };
 
-  const handleSelectProperty = (documentId: string) => {
+  const handleSelectProperty = (documentId: string, address?: string) => {
     setShowDropdown(false);
     setNavigating(true);
+    // Log activity: Find Home relation to real_estate_board
+    logPropertySearchActivity({
+      propertySearchType: "find_home",
+      searchTerm: ddfQuery || address || "",
+      propertyId: documentId,
+    });
     router.push(`/property-info/${documentId}`);
+  };
+
+  const handleFindHomeSearchSubmit = () => {
+    if (ddfResults.length > 0) {
+      handleSelectProperty(ddfResults[0].documentId, ddfResults[0].address);
+    } else if (ddfQuery.trim()) {
+      logPropertySearchActivity({
+        propertySearchType: "find_home",
+        searchTerm: ddfQuery.trim(),
+      });
+      router.push(`/properties?search=${encodeURIComponent(ddfQuery.trim())}`);
+    }
+  };
+
+  const handleAssessmentSearchSubmit = () => {
+    if (assessmentResults.length > 0) {
+      handleSelectAssessment(assessmentResults[0].documentId, assessmentResults[0].address);
+    } else if (query.trim()) {
+      logPropertySearchActivity({
+        propertySearchType: "property_evaluation",
+        searchTerm: query.trim(),
+      });
+    }
   };
 
   return (
@@ -123,6 +158,7 @@ const SearchPropertyTab = () => {
                 if (idx !== 2) {
                   setActiveTab(idx);
                   setQuery(""); // Clear query when switching tabs
+                  setDdfQuery("");
                   setShowDropdown(false);
                 } else {
                   router.push(`/market-trends`);
@@ -145,15 +181,19 @@ const SearchPropertyTab = () => {
               required
               value={ddfQuery}
               onChange={(e) => setDdfQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleFindHomeSearchSubmit();
+                }
+              }}
               onFocus={() => {
                 if (ddfResults.length > 0) setShowDropdown(true);
               }}
               onBlur={() => setTimeout(() => setShowDropdown(false), 180)}
             />
             <button
-              onClick={() => {
-                console.log("Search", ddfQuery);
-              }}
+              type="button"
+              onClick={handleFindHomeSearchSubmit}
               className="md:w-13 md:h-13 w-10 h-10 bg-secondary md:p-3.5 p-2 text-center flex items-center justify-center-safe md:rounded-xl rounded-md cursor-pointer"
             >
               {isFetchingDdf ? (
@@ -211,7 +251,7 @@ const SearchPropertyTab = () => {
                 {ddfResults.map((item, index) => (
                   <div
                     key={`${item.documentId}-${index}`}
-                    onMouseDown={() => handleSelectProperty(item.documentId)}
+                    onMouseDown={() => handleSelectProperty(item.documentId, item.address)}
                     className="search-item cursor-pointer px-4 py-3 flex items-start gap-3"
                     style={{
                       borderBottom:
@@ -256,6 +296,11 @@ const SearchPropertyTab = () => {
                 required
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleAssessmentSearchSubmit();
+                  }
+                }}
                 onFocus={() => {
                   if (assessmentResults.length > 0) setShowDropdown(true);
                 }}
@@ -264,9 +309,8 @@ const SearchPropertyTab = () => {
             </div>
 
             <button
-              onClick={() => {
-                console.log("Search", query);
-              }}
+              type="button"
+              onClick={handleAssessmentSearchSubmit}
               className="md:w-13 md:h-13 w-10 h-10 bg-secondary md:p-3.5 p-2 text-center flex items-center justify-center-safe md:rounded-xl rounded-md cursor-pointer"
             >
               {isFetchingAssessment ? (
@@ -328,7 +372,7 @@ const SearchPropertyTab = () => {
                 {assessmentResults.map((item, index) => (
                   <div
                     key={item.id}
-                    onMouseDown={() => handleSelectAssessment(item.documentId)}
+                    onMouseDown={() => handleSelectAssessment(item.documentId, item.address)}
                     className="search-item cursor-pointer px-4 py-3 flex items-start gap-3"
                     style={{
                       borderBottom:

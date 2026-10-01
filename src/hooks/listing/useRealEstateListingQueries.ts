@@ -11,6 +11,7 @@ import {
   addRealEstateFavorite,
   removeRealEstateFavorite,
   getMyRealEstateFavorites,
+  getUserFavorites,
   getNearbyRealEstatePlaces,
   getSimilarRealEstateProperties,
   getSimilarRealEstateSoldProperties,
@@ -32,6 +33,8 @@ export const realEstateListingKeys = {
   detail: (id: string) => [...realEstateListingKeys.details(), id] as const,
   favorites: () => [...realEstateListingKeys.all, "favorites"] as const,
   favorite: (params: any) => [...realEstateListingKeys.favorites(), params] as const,
+  userFavorites: (userId: string | number) =>
+    [...realEstateListingKeys.all, "userFavorites", userId] as const,
 };
 
 export function useGetRealEstateListings<TData = any>(
@@ -73,6 +76,22 @@ export function useGetMyRealEstateFavorites<TData = any>(
   return useQuery<any, Error, TData, any>({
     queryKey: realEstateListingKeys.favorite(params),
     queryFn: () => getMyRealEstateFavorites(params),
+    ...options,
+  });
+}
+
+export function useGetUserFavorites<TData = any>(
+  userId?: string | number,
+  params?: any,
+  options?: Omit<
+    UseQueryOptions<any, Error, TData, any>,
+    "queryKey" | "queryFn"
+  >,
+) {
+  return useQuery<any, Error, TData, any>({
+    queryKey: realEstateListingKeys.userFavorites(userId || ""),
+    queryFn: () => getUserFavorites(userId!, params),
+    enabled: !!userId,
     ...options,
   });
 }

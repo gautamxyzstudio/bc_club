@@ -150,6 +150,33 @@ export async function getMyRealEstateFavorites(params?: any): Promise<any> {
   }
 }
 
+/**
+ * Fetch favorite properties for a specific user by ID (for Admin)
+ */
+export async function getUserFavorites(
+  userId: string | number,
+  params?: any,
+): Promise<any> {
+  const token = Cookies.get("token");
+  try {
+    const res = await axios.get(Endpoints.getUserFavorites(userId), {
+      params,
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : {},
+    });
+
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.error?.message || "API error");
+    }
+    throw new Error("An unexpected error occurred");
+  }
+}
+
 // Get nearby places
 export async function getNearbyRealEstatePlaces(id: string): Promise<any> {
   try {

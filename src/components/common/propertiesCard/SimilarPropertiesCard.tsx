@@ -19,6 +19,7 @@ import {
   useAddRealEstateFavorite,
   useRemoveRealEstateFavorite,
 } from "@/src/hooks/listing/useRealEstateListingQueries";
+import { logPropertySearchActivity } from "@/src/api/activityLog/activityLogApi";
 
 export interface SimilarPropertiesCardProps {
   id: string;
@@ -318,6 +319,14 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
       onClick={(e) => {
         if (isLinkDisabled) {
           e.preventDefault(); // Stop link from navigating
+          return;
+        }
+        if (isLogin) {
+          logPropertySearchActivity({
+            propertySearchType: "find_home",
+            searchTerm: address || title || "",
+            propertyId: id,
+          });
         }
       }}
     >

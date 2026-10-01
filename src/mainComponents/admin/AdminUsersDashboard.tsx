@@ -5,6 +5,7 @@ import {
   Search,
   Trash2,
   Activity,
+  Heart,
   RefreshCw,
   Users,
   ChevronLeft,
@@ -48,6 +49,7 @@ export default function AdminUsersDashboard() {
 
   // Modals state
   const [activityModalOpen, setActivityModalOpen] = useState(false);
+  const [activityModalTab, setActivityModalTab] = useState<"activity" | "favorites">("activity");
   const [selectedUserForActivity, setSelectedUserForActivity] =
     useState<StrapiUser | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -321,12 +323,26 @@ export default function AdminUsersDashboard() {
                             type="button"
                             onClick={() => {
                               setSelectedUserForActivity(user);
+                              setActivityModalTab("activity");
                               setActivityModalOpen(true);
                             }}
                             className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition cursor-pointer"
                             title="View Activity Logs"
                           >
                             <Activity className="w-4 h-4" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedUserForActivity(user);
+                              setActivityModalTab("favorites");
+                              setActivityModalOpen(true);
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                            title="View Saved Favorites"
+                          >
+                            <Heart className="w-4 h-4" />
                           </button>
 
                           <button
@@ -391,6 +407,7 @@ export default function AdminUsersDashboard() {
           setSelectedUserForActivity(null);
         }}
         user={selectedUserForActivity}
+        initialTab={activityModalTab}
       />
 
       <UserDeleteModal

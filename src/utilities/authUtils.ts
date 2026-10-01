@@ -15,9 +15,17 @@ export const isAdminUser = (user: any): boolean => {
 
   // Check object role (e.g. Strapi standard { id, name, type })
   if (typeof user.role === "object" && user.role !== null) {
-    const name = String(user.role.name || "").trim().toLowerCase();
-    const type = String(user.role.type || "").trim().toLowerCase();
-    if (name === "authenticated" || type === "authenticated" || name === "administrator") {
+    const name = String(user.role.name || "")
+      .trim()
+      .toLowerCase();
+    const type = String(user.role.type || "")
+      .trim()
+      .toLowerCase();
+    if (
+      name === "authenticated" ||
+      type === "authenticated" ||
+      name === "administrator"
+    ) {
       return true;
     }
   }
@@ -30,8 +38,12 @@ export const isAdminUser = (user: any): boolean => {
       }
       if (typeof r === "object" && r !== null) {
         return (
-          String(r.name || "").trim().toLowerCase() === "authenticated" ||
-          String(r.type || "").trim().toLowerCase() === "authenticated"
+          String(r.name || "")
+            .trim()
+            .toLowerCase() === "authenticated" ||
+          String(r.type || "")
+            .trim()
+            .toLowerCase() === "authenticated"
         );
       }
       return false;
@@ -40,14 +52,90 @@ export const isAdminUser = (user: any): boolean => {
   }
 
   // Check auxiliary role properties
-  if (typeof user.roleName === "string" && user.roleName.toLowerCase() === "authenticated") {
+  if (
+    typeof user.roleName === "string" &&
+    user.roleName.toLowerCase() === "authenticated"
+  ) {
     return true;
   }
-  if (typeof user.userRole === "string" && user.userRole.toLowerCase() === "authenticated") {
+  if (
+    typeof user.userRole === "string" &&
+    user.userRole.toLowerCase() === "authenticated"
+  ) {
     return true;
   }
   if (user.isAdmin === true || user.is_admin === true) {
     return true;
+  }
+
+  return false;
+};
+
+/**
+ * Specifically checks if user has the Admin role (excluding regular Authenticated role)
+ */
+export const hasAdminRole = (user: any): boolean => {
+  if (!user) return false;
+
+  if (user.isAdmin === true || user.is_admin === true) {
+    return true;
+  }
+
+  if (typeof user.role === "string") {
+    const r = user.role.trim().toLowerCase();
+    if (r === "admin" || r === "administrator") return true;
+  }
+
+  if (typeof user.role === "object" && user.role !== null) {
+    const name = String(user.role.name || "")
+      .trim()
+      .toLowerCase();
+    const type = String(user.role.type || "")
+      .trim()
+      .toLowerCase();
+    if (
+      name === "admin" ||
+      type === "admin" ||
+      name === "administrator" ||
+      type === "administrator"
+    ) {
+      return true;
+    }
+  }
+
+  if (Array.isArray(user.roles)) {
+    const hasAdmin = user.roles.some((r: any) => {
+      if (typeof r === "string") {
+        const str = r.trim().toLowerCase();
+        return str === "admin" || str === "administrator";
+      }
+      if (typeof r === "object" && r !== null) {
+        const name = String(r.name || "")
+          .trim()
+          .toLowerCase();
+        const type = String(r.type || "")
+          .trim()
+          .toLowerCase();
+        return (
+          name === "admin" ||
+          type === "admin" ||
+          name === "administrator" ||
+          type === "administrator"
+        );
+      }
+      return false;
+    });
+    if (hasAdmin) return true;
+  }
+
+  if (typeof user.roleName === "string") {
+    const r = user.roleName.toLowerCase();
+    if (r === "admin" || r === "administrator") return true;
+  }
+
+  if (typeof user.userRole === "string") {
+    const r = user.userRole.toLowerCase();
+    if (r === "admin" || r === "administrator") return true;
   }
 
   return false;

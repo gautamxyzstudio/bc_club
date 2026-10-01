@@ -1,4 +1,5 @@
 "use client";
+import React, { useEffect, useRef } from "react";
 import GetInTouch from "../getInTouch/GetInTouch";
 import Image from "next/image";
 import { Images } from "@/src/app/exports";
@@ -10,6 +11,7 @@ import PropertyTopAddressSection from "../propertyInfo/PropertyTopAddressSection
 import PropertyGallery from "../propertyInfo/PropertyGallery";
 import PropertyInformation from "../propertyInfo/propertyInformation/PropertyInformation";
 import PropertyInfoSkeleton from "../propertyInfo/PropertyInfoSkeleton";
+import { logPropertySearchActivity } from "@/src/api/activityLog/activityLogApi";
 
 const SoldPropertyInfo = ({ paramsId }: { paramsId: string }) => {
   const { isLoggedIn, setOpenLogin, authLoading } = useAuthContext();
@@ -21,6 +23,22 @@ const SoldPropertyInfo = ({ paramsId }: { paramsId: string }) => {
     select: (res: any) => res?.data || res,
     enabled: !!paramsId && isLoggedIn,
   });
+
+  const hasLoggedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (isLoggedIn && listing && (listing.documentId || paramsId)) {
+      const targetId = listing.documentId || paramsId;
+      if (hasLoggedRef.current !== targetId) {
+        hasLoggedRef.current = targetId;
+        logPropertySearchActivity({
+          propertySearchType: "find_home",
+          searchTerm: listing.address || "",
+          propertyId: targetId,
+        });
+      }
+    }
+  }, [isLoggedIn, listing, paramsId]);
 
   if (authLoading || loading) return <PropertyInfoSkeleton />;
   if (error)

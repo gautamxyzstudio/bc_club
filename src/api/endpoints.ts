@@ -48,6 +48,8 @@ export const Endpoints = {
   getNearbyRealEstatePlaces: (id: string) =>
     `${BASE_URL}/api/real-estate-board/${id}/neighborhood?radius=9000&limit=6`,
   getMyRealEstateFavorites: `${BASE_URL}/api/real-estate-board/my-favorites`,
+  getUserFavorites: (userId: string | number) =>
+    `${BASE_URL}/api/real-estate-board/user-favorites/${userId}`,
   addRealEstateFavorite: (id: string) =>
     `${BASE_URL}/api/real-estate-board/add-favorite/${id}`,
   removeRealEstateFavorite: (id: string) =>
@@ -87,4 +89,10 @@ export const Endpoints = {
   updateUser: (id: string | number) => `${BASE_URL}/api/users/${id}`,
   deleteUser: (id: string | number) => `${BASE_URL}/api/users/${id}`,
   getUserRoles: `${BASE_URL}/api/users-permissions/roles`,
+
+  // Activity Logs Endpoints
+  logActivity: `${BASE_URL}/api/activity-logs/log`,
+  getActivityLogs: `${BASE_URL}/api/activity-logs`,
+  getUserActivityLogs: (userId: string | number) => `${BASE_URL}/api/activity-logs/user/${userId}`,
 };
+

@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MapPin, Search } from "lucide-react";
 import { useGetAssessmentPropertiesList } from "@/src/hooks/listing/useListingQueries";
+import { logPropertySearchActivity } from "@/src/api/activityLog/activityLogApi";
 
 const HomeEstimationTop = () => {
   const router = useRouter();
@@ -53,9 +54,14 @@ const HomeEstimationTop = () => {
     setShowDropdown(list.length > 0);
   }, [assessmentPropertiesList, debouncedQuery]);
 
-  const handleSelectProperty = (documentId: string) => {
+  const handleSelectProperty = (documentId: string, address?: string) => {
     setShowDropdown(false);
     setNavigating(true);
+    logPropertySearchActivity({
+      propertySearchType: "property_evaluation",
+      searchTerm: query || address || "",
+      propertyId: documentId,
+    });
     router.push(`/property-assessment/${documentId}`);
   };
 
@@ -183,7 +189,7 @@ const HomeEstimationTop = () => {
                 {filteredResults.map((item, index) => (
                   <div
                     key={item.documentId || item.id}
-                    onMouseDown={() => handleSelectProperty(item.documentId)}
+                    onMouseDown={() => handleSelectProperty(item.documentId, item.address)}
                     className="estimation-item cursor-pointer px-4 py-3 flex items-start gap-3"
                     style={{
                       borderBottom:

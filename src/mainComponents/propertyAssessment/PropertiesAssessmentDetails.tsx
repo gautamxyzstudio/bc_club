@@ -1,9 +1,11 @@
 "use client";
+import React, { useEffect, useRef } from "react";
 import { useGetPropertiesAssignmentDetails } from "@/src/hooks/listing/useListingQueries";
 import GetInTouch from "@/src/mainComponents/getInTouch/GetInTouch";
 import AssessmentPropertySimilarAndSoldListing from "@/src/mainComponents/propertyAssessment/AssessmentPropertySimilarAndSoldListing";
 import PropertyAssessmentInformation from "@/src/mainComponents/propertyAssessment/PropertyAssessmentInformation";
 import PropertyAssessmentTopSection from "@/src/mainComponents/propertyAssessment/PropertyAssessmentTopSection";
+import { logPropertySearchActivity } from "@/src/api/activityLog/activityLogApi";
 
 const PropertiesAssessmentDetails = ({
   assessmentId,
@@ -12,6 +14,22 @@ const PropertiesAssessmentDetails = ({
 }) => {
   const { data } = useGetPropertiesAssignmentDetails(assessmentId);
   const property = data;
+
+  const hasLoggedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (property && (property.documentId || assessmentId)) {
+      const targetId = property.documentId || assessmentId;
+      if (hasLoggedRef.current !== targetId) {
+        hasLoggedRef.current = targetId;
+        logPropertySearchActivity({
+          propertySearchType: "property_evaluation",
+          searchTerm: property.address || "",
+          propertyId: targetId,
+        });
+      }
+    }
+  }, [property, assessmentId]);
 
   return (
     <>

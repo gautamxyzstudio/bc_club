@@ -40,8 +40,6 @@ export default function OpenStreetMapControls({
   handleMeasure: () => void;
   mapZoomVal?: number | null;
 }) {
-  const canShowSchools =
-    mapZoomVal !== null && mapZoomVal !== undefined && mapZoomVal >= 15;
   const disabledSchoolBtn = loadingSchools;
 
   const schoolBoxRef = useRef<HTMLDivElement | null>(null);
@@ -116,7 +114,7 @@ export default function OpenStreetMapControls({
       <div ref={schoolBoxRef} className="relative">
         <button
           onClick={() => {
-            if (!canShowSchools) return;
+           
 
             if (schoolMode) {
               handleSchool();
@@ -133,11 +131,9 @@ export default function OpenStreetMapControls({
             schoolMode
               ? "bg-primary text-white border-primary"
               : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100"
-          } ${disabledSchoolBtn ? "opacity-60 cursor-not-allowed" : ""} ${
-            !canShowSchools ? "opacity-60" : ""
-          }`}
+          } ${disabledSchoolBtn ? "opacity-60 cursor-not-allowed" : ""}`}
           title={
-            canShowSchools ? "Schools" : "Zoom to level 15+ to view schools"
+            "View Schools"
           }
         >
           <MdSchool className="w-5 h-5" />

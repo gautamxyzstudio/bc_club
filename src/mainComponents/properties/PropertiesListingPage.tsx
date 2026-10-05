@@ -325,8 +325,6 @@ export default function PropertiesListingPage() {
       enabled: status === "forecloser" || status === "forcecloser",
     });
 
-  console.log("queryDataForeClose", queryDataForeClose);
-
   const queryData = isForSale
     ? queryDataActive
     : status === "forecloser" || status === "forcecloser"

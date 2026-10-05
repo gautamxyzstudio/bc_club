@@ -11,7 +11,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import NextTopLoader from "nextjs-toploader";
 import { CanonicalURL } from "../components/colonical-tag-generator/ColonicalTagGenerator";
-import AiChatWidget from "@/src/components/ai-assistant/AiChatWidget";
 
 export const metadata: Metadata = {
   title: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -48,7 +47,6 @@ export default function RootLayout({
               <Header />
               {children}
               <Footer />
-              <AiChatWidget />
               <ToastContainer />
             </AuthProvider>
           </GoogleOAuthProvider>

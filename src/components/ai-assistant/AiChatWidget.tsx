@@ -6,23 +6,15 @@ import {
   X,
   Send,
   RotateCcw,
-  Minus,
   MessageSquare,
   Home,
   HelpCircle,
   TrendingUp,
-  MapPin,
-  Tag,
-  FileText,
-  Heart,
-  ChevronRight,
   ArrowLeft,
   ArrowRight,
   Building2,
   Calculator,
   Compass,
-  CheckCheck,
-  Check,
   Plus,
 } from "lucide-react";
 import Link from "next/link";
@@ -187,6 +179,9 @@ const QUICK_TOPICS = [
   },
 ];
 
+// Module-level flag: persists across client-side SPA route navigations, resets on hard refresh / initial page load
+let hasAutoOpenedOnPageLoad = false;
+
 export default function AiChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"home" | "messages" | "help">("home");
@@ -228,8 +223,11 @@ export default function AiChatWidget() {
     setActiveConvId(null);
   };
 
-  // Auto-open on initial load
+  // Auto-open only on initial page load or hard refresh (not on client-side route navigation)
   useEffect(() => {
+    if (hasAutoOpenedOnPageLoad) return;
+    hasAutoOpenedOnPageLoad = true;
+
     const timer = setTimeout(() => setIsOpen(true), 800);
     return () => clearTimeout(timer);
   }, []);

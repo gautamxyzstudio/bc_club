@@ -60,6 +60,7 @@ const HomeHeroSection = () => {
             alt="Map Vector"
             width={1400}
             height={1000}
+            loading="eager"
             className="w-full xl:h-195 md:h-128.5 h-66.25 relative object-fill xl:rounded-bl-[124px] md:rounded-bl-[108px] rounded-bl-3xl"
           />
           <DotButton

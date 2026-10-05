@@ -41,13 +41,13 @@ export default function OpenStreetMapSchoolMarker({
       L.divIcon({
         className: "bc-osm-marker",
         html: `
-          <div class="relative flex h-[34px] w-[34px] items-center justify-center rounded-full bg-primary text-white shadow-lg ring-2 ring-white">
-            <svg stroke="currentColor" fill="currentColor" viewBox="0 0 512 512" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
+          <div class="relative flex h-[26px] w-[26px] items-center justify-center rounded-full bg-primary text-white shadow-lg ring-2 ring-white">
+            <svg stroke="currentColor" fill="currentColor" viewBox="0 0 512 512" height="15" width="15" xmlns="http://www.w3.org/2000/svg">
               <path d="M256 32 20 160l236 128 192-104v104h44V160L256 32zM108 247.3V336c0 48.6 66.3 88 148 88s148-39.4 148-88v-88.7L256 328 108 247.3z"></path>
             </svg>
             ${
               rating
-                ? `<span class="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-yellow-400 px-1 text-[10px] font-bold text-[#15376b] shadow">${rating}</span>`
+                ? `<span class="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-yellow-400 px-1 text-[10px] font-bold text-[#15376b] shadow">${rating}</span>`
                 : ""
             }
           </div>

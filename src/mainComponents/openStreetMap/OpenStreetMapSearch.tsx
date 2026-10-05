@@ -118,7 +118,7 @@ export default function OpenStreetMapSearch() {
   const [fitBoundsDone, setFitBoundsDone] = useState(false);
   const [parcelGeoJSON, setParcelGeoJSON] = useState<any>(null);
   const [geocodedCache, setGeocodedCache] = useState<Record<string, any>>({});
-  const [schoolMode, setSchoolMode] = useState(false);
+  const [schoolMode, setSchoolMode] = useState(true);
   const [schoolType, setSchoolType] = useState<SchoolType>("All");
   const [measureMode, setMeasureMode] = useState(false);
   const [measurePoints, setMeasurePoints] = useState<LatLngPoint[]>([]);
@@ -130,7 +130,8 @@ export default function OpenStreetMapSearch() {
   const [userLocation, setUserLocation] = useState<LatLngPoint | null>(null);
   const [locationChecked, setLocationChecked] = useState(false);
   const floodLayerRef = useRef<L.GeoJSON | null>(null);
-  const [showFloodProvince, setShowFloodProvince] = useState(false);
+  const floodGeoJsonRef = useRef<any>(null);
+  const [showFloodProvince, setShowFloodProvince] = useState(true);
   const [loadingFloodProvince, setLoadingFloodProvince] = useState(false);
   const [selectedAssessmentProperty, setSelectedAssessmentProperty] =
     useState<any>(null);
@@ -352,45 +353,61 @@ export default function OpenStreetMapSearch() {
     }
   }, []);
 
-  const toggleFloodLayer = async () => {
+  useEffect(() => {
     if (!map) return;
 
-    if (floodLayerRef.current) {
+    if (showFloodProvince && !floodLayerRef.current) {
+      let cancelled = false;
+
+      const loadFloodLayer = async () => {
+        try {
+          let geojson = floodGeoJsonRef.current;
+          if (!geojson) {
+            setLoadingFloodProvince(true);
+            const res = await fetch(`${Endpoints.getFloodProvinceGeoJSON}`);
+            if (!res.ok) throw new Error("Failed to fetch flood province layer");
+            geojson = await res.json();
+            floodGeoJsonRef.current = geojson;
+          }
+
+          if (cancelled) return;
+
+          const layer = L.geoJSON(geojson, {
+            pane: "overlayPane",
+            style: {
+              color: "#dc2626",
+              weight: 1,
+              opacity: 1,
+              dashArray: "10",
+              fillColor: "#dc2626",
+              fillOpacity: 0.75,
+            },
+          });
+
+          layer.addTo(map);
+          floodLayerRef.current = layer;
+        } catch (err) {
+          console.error("Flood layer error:", err);
+        } finally {
+          if (!cancelled) setLoadingFloodProvince(false);
+        }
+      };
+
+      loadFloodLayer();
+
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (!showFloodProvince && floodLayerRef.current) {
       map.removeLayer(floodLayerRef.current);
       floodLayerRef.current = null;
-      setShowFloodProvince(false);
-      return;
     }
+  }, [map, showFloodProvince]);
 
-    try {
-      setLoadingFloodProvince(true);
-
-      const res = await fetch(`${Endpoints.getFloodProvinceGeoJSON}`);
-
-      if (!res.ok) throw new Error("Failed to fetch flood province layer");
-
-      const geojson = await res.json();
-
-      const layer = L.geoJSON(geojson, {
-        pane: "overlayPane",
-        style: {
-          color: "#dc2626",
-          weight: 1,
-          opacity: 1,
-          dashArray: "10",
-          fillColor: "#dc2626",
-          fillOpacity: 0.75,
-        },
-      });
-
-      layer.addTo(map);
-      floodLayerRef.current = layer;
-      setShowFloodProvince(true);
-    } catch (err) {
-      console.error("Flood layer error:", err);
-    } finally {
-      setLoadingFloodProvince(false);
-    }
+  const toggleFloodLayer = () => {
+    setShowFloodProvince((prev) => !prev);
   };
 
   const triggerSearch = useCallback(() => {
@@ -412,6 +429,11 @@ export default function OpenStreetMapSearch() {
   const onMapReady = useCallback((mapInstance: L.Map) => {
     setMap(mapInstance);
     setMapLoaded(true);
+
+    const initialBounds = getBoundsPayload(mapInstance);
+    setMapBounds(initialBounds);
+    setMapZoomVal(Math.round(initialBounds.zoom));
+    lastFetchedBounds.current = boundsKey(initialBounds);
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -560,22 +582,30 @@ export default function OpenStreetMapSearch() {
               item.latitude !== 0 &&
               item.longitude !== 0,
           ),
-      enabled:
-        schoolMode && !!mapBounds && mapZoomVal !== null && mapZoomVal >= 15,
+      enabled: schoolMode && !!mapBounds,
       staleTime: 1000 * 60 * 5,
     });
 
-  const schools =
-    mapZoomVal !== null && mapZoomVal >= 15 ? schoolsData || [] : [];
+  const schools = schoolMode ? schoolsData || [] : [];
 
-  const handleSchool = () => {
-    setSchoolMode((prev) => !prev);
-
-    if (!schoolMode && map) {
+  useEffect(() => {
+    if (map && schoolMode && !mapBounds) {
       const nextBounds = getBoundsPayload(map);
       setMapBounds(nextBounds);
       setMapZoomVal(Math.round(nextBounds.zoom));
     }
+  }, [map, schoolMode, mapBounds]);
+
+  const handleSchool = () => {
+    setSchoolMode((prev) => {
+      const nextMode = !prev;
+      if (nextMode && map) {
+        const nextBounds = getBoundsPayload(map);
+        setMapBounds(nextBounds);
+        setMapZoomVal(Math.round(nextBounds.zoom));
+      }
+      return nextMode;
+    });
   };
 
   const handleSchoolTypeChange = (type: SchoolType) => {
@@ -784,8 +814,6 @@ export default function OpenStreetMapSearch() {
               )}
 
               {schoolMode &&
-                mapZoomVal &&
-                mapZoomVal >= 15 &&
                 schools.map((school: SchoolItem) => (
                   <OpenStreetMapSchoolMarker key={school.id} school={school} />
                 ))}

@@ -109,7 +109,8 @@ const LoginPopup = ({
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ idToken }),
+          body: JSON.stringify({ idToken, acceptedVowTerms: true,
+            acceptedVowVersion: "2026-07", }),
         },
       );
 

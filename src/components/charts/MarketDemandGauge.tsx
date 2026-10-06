@@ -1,7 +1,20 @@
 import React, { useEffect, useState } from "react";
 
+export type MarketConditionType =
+  | "Buyer's Market"
+  | "Balanced"
+  | "Seller's Market";
+
+export const getMarketCondition = (sal: number): MarketConditionType => {
+  if (sal < 12) return "Buyer's Market";
+  if (sal <= 20) return "Balanced";
+  return "Seller's Market";
+};
+
 type MarketDemandGaugeProps = {
   value: number;
+  max?: number;
+  showLabels?: boolean;
 };
 
 const polarToCartesian = (cx: number, cy: number, r: number, angle: number) => {
@@ -26,9 +39,14 @@ const describeArc = (
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
 };
 
-const MarketDemandGauge: React.FC<MarketDemandGaugeProps> = ({ value }) => {
-  const clampedValue = Math.max(0, Math.min(100, value));
-  const targetAngle = (clampedValue / 100) * 180 - 90;
+const MarketDemandGauge: React.FC<MarketDemandGaugeProps> = ({
+  value,
+  max = 32,
+  showLabels = true,
+}) => {
+  const safeValue = typeof value === "number" && !isNaN(value) ? value : 0;
+  const clampedValue = Math.max(0, Math.min(max, safeValue));
+  const targetAngle = (clampedValue / max) * 180 - 90;
 
   const [angle, setAngle] = useState(-90);
 
@@ -38,15 +56,15 @@ const MarketDemandGauge: React.FC<MarketDemandGaugeProps> = ({ value }) => {
   }, [targetAngle]);
 
   const getColor = () => {
-    if (clampedValue < 40) return "#f4b400"; // yellow
-    if (clampedValue < 65) return "#34a853"; // green
-    return "#ea4335"; // red
+    if (clampedValue < 12) return "#F5A900"; // yellow - Buyer's Market (SAL < 12%)
+    if (clampedValue <= 20) return "#34a853"; // green - Balanced Market (SAL 12-20%)
+    return "#ea4335"; // red - Seller's Market (SAL > 20%)
   };
 
   const needleColor = getColor();
 
-  // Tick marks
-  const ticks = Array.from({ length: 11 });
+  // Tick marks: 0, 4, 8, 12, 16, 20, 24, 28, 32
+  const ticks = [0, 4, 8, 12, 16, 20, 24, 28, 32];
   const cx = 100;
   const cy = 100;
   const r = 70;
@@ -62,27 +80,27 @@ const MarketDemandGauge: React.FC<MarketDemandGaugeProps> = ({ value }) => {
     >
       <svg viewBox="0 0 200 120" width="100%">
         {/* Gauge arcs */}
-        {/* Yellow: -180° → -120° */}
+        {/* Buyer's Market (Yellow): SAL < 12% (-180° → -112.5°) */}
         <path
-          d={describeArc(cx, cy, r, -180, -120)}
+          d={describeArc(cx, cy, r, -180, -112.5)}
           stroke="#F5A900"
           strokeWidth={12}
           fill="none"
           strokeLinecap="round"
         />
 
-        {/* Green: -120° → -60° */}
+        {/* Balanced Market (Green): SAL 12-20% (-112.5° → -67.5°) */}
         <path
-          d={describeArc(cx, cy, r, -120, -60)}
+          d={describeArc(cx, cy, r, -112.5, -67.5)}
           stroke="#34a853"
           strokeWidth={12}
           fill="none"
           strokeLinecap="round"
         />
 
-        {/* Red: -60° → 0° */}
+        {/* Seller's Market (Red): SAL > 20% (-67.5° → 0°) */}
         <path
-          d={describeArc(cx, cy, r, -60, 0)}
+          d={describeArc(cx, cy, r, -67.5, 0)}
           stroke="#ea4335"
           strokeWidth={12}
           fill="none"
@@ -90,14 +108,69 @@ const MarketDemandGauge: React.FC<MarketDemandGaugeProps> = ({ value }) => {
         />
 
         {/* Tick marks */}
-        {ticks.map((_, i) => {
-          const tickAngle = -180 + i * 18;
+        {ticks.map((tick, i) => {
+          const tickAngle = -180 + (tick / max) * 180;
+          const isThreshold = tick === 12 || tick === 20;
           const r1 = 58;
-          const x1 = 100 + r1 * Math.cos((tickAngle * Math.PI) / 180);
-          const y1 = 100 + r1 * Math.sin((tickAngle * Math.PI) / 180);
+          const x1 = cx + r1 * Math.cos((tickAngle * Math.PI) / 180);
+          const y1 = cy + r1 * Math.sin((tickAngle * Math.PI) / 180);
 
-          return <circle key={i} cx={x1} cy={y1} r={1.5} fill="#aaa" />;
+          return (
+            <circle
+              key={i}
+              cx={x1}
+              cy={y1}
+              r={isThreshold ? 2 : 1.5}
+              fill={isThreshold ? "#666" : "#aaa"}
+            />
+          );
         })}
+
+        {/* Threshold & Scale Labels */}
+        {showLabels && (
+          <>
+            <text
+              x="24"
+              y="114"
+              fill="#8e8e93"
+              fontSize="8"
+              fontWeight="600"
+              textAnchor="middle"
+            >
+              0%
+            </text>
+            <text
+              x="68"
+              y="18"
+              fill="#8e8e93"
+              fontSize="8"
+              fontWeight="600"
+              textAnchor="middle"
+            >
+              12%
+            </text>
+            <text
+              x="132"
+              y="18"
+              fill="#8e8e93"
+              fontSize="8"
+              fontWeight="600"
+              textAnchor="middle"
+            >
+              20%
+            </text>
+            <text
+              x="176"
+              y="114"
+              fill="#8e8e93"
+              fontSize="8"
+              fontWeight="600"
+              textAnchor="middle"
+            >
+              32%
+            </text>
+          </>
+        )}
 
         {/* Needle */}
         <path
@@ -112,6 +185,7 @@ const MarketDemandGauge: React.FC<MarketDemandGaugeProps> = ({ value }) => {
 
         {/* Center circles */}
         <circle cx={100} cy={100} r={8} fill={needleColor} />
+        <circle cx={100} cy={100} r={3} fill="#ffffff" />
       </svg>
     </div>
   );

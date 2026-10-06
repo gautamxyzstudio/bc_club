@@ -10,92 +10,83 @@ export const saleBC: GetInTouchLinkListProps = {
   title: "Homes for Sale in BC",
   linkList: [
     {
-      label: "Homes For Sale in Vancouver",
+      label: "Vancouver Homes for Sale",
       href: "/Homes For Sale in Vancouver",
     },
     {
-      label: "Homes For Sale in Burnaby",
+      label: "Burnaby Homes for Sale",
       href: "/Homes For Sale in Burnaby",
     },
     {
-      label: "Homes For Sale in Surrey",
+      label: "Surrey Homes for Sale",
       href: "/Homes For Sale in Surrey",
     },
     {
-      label: "Homes For Sale in Richmond",
+      label: "Richmond Homes for Sale",
       href: "/Homes For Sale in Richmond",
     },
-    // {
-    //   label: "Homes For Sale in Victoria",
-    //   href: "/Homes For Sale in Victoria",
-    // }, 
-    // {
-    //   label: "Homes For Sale in Kelowna",
-    //   href: "/Homes For Sale in Kelowna",
-    // },
-   
     {
-      label: "Homes For Sale in Abbotsford",
+      label: "Abbotsford Homes for Sale",
       href: "/Homes For Sale in Abbotsford",
     },
     {
-      label: "Homes For Sale in Coquitlam",
+      label: "Coquitlam Homes for Sale",
       href: "/Homes For Sale in Coquitlam",
     },
   ],
 };
 
 export const soldBC: GetInTouchLinkListProps = {
-  title: "Homes for Sold in BC",
+  title: "Recently Sold Homes in BC",
   linkList: [
     {
-      label: "Homes Sold in Vancouver",
+      label: "Vancouver Homes Sold",
       href: "/Homes Sold in Vancouver",
     },
     {
-      label: "Homes Sold in Abbotsford",
+      label: "Abbotsford Homes Sold",
       href: "/Homes Sold in Abbotsford",
     },
     {
-      label: "Homes Sold in White Rock",
+      label: "White Rock Homes Sold",
       href: "/Homes Sold in White Rock",
     },
     {
-      label: "Homes Sold in Maple Ridge",
+      label: "Maple Ridge Homes Sold",
       href: "/Homes Sold in Maple Ridge",
     },
   ],
 };
 
 export const realEstateBC: GetInTouchLinkListProps = {
-  title: "Homes for Real Estate Market in BC",
+  title: "More Homes for Sale in BC",
   linkList: [
     {
-      label: "Homes For Sale in Langley",
+      label: "Langley Homes for Sale",
       href: "/Homes For Sale in Langley",
     },
     {
-      label: "Homes For Sale in Delta",
+      label: "Delta Homes for Sale",
       href: "/Homes For Sale in Delta",
     },
     {
-      label: "Homes For Sale in North Vancouver",
+      label: "North Vancouver Homes for Sale",
       href: "/Homes For Sale in North Vancouver",
     },
     {
-      label: "Homes For Sale in West Vancouver",
+      label: "West Vancouver Homes for Sale",
       href: "/Homes For Sale in West Vancouver",
     },
     {
-      label: "Homes For Sale in Port Coquitlam",
+      label: "Port Coquitlam Homes for Sale",
       href: "/Homes For Sale in Port Coquitlam",
     },
     {
-      label: "Homes For Sale in New Westminster",
+      label: "New Westminster Homes for Sale",
       href: "/Homes For Sale in New Westminster",
     },
     {
-      label: "Homes For Sale in Chilliwack",
+      label: "Chilliwack Homes for Sale",
       href: "/Homes For Sale in Chilliwack",
     },
   ],

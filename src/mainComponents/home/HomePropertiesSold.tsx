@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Heading, { IHeadingTypes } from "@/src/components/heading/Heading";
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { cities, propertyDataByCity, PropertySoldData } from ".";
+import { cities, PropertySoldData } from ".";
 import MarketDemandGauge from "@/src/components/charts/MarketDemandGauge";
 import PoweredBy from "@/src/components/common/poweredby/PoweredBy";
 import { useAuthContext } from "../auth/AuthContext";
@@ -35,10 +35,9 @@ const HomePropertiesSold = () => {
     },
   );
 
-  const propertyData: PropertySoldData[] =
-    soldSummaryRes?.data && soldSummaryRes.data.length > 0
-      ? soldSummaryRes.data
-      : propertyDataByCity[location] || [];
+  const propertyData: PropertySoldData[] = soldSummaryRes?.data && soldSummaryRes.data.length > 0
+    ? soldSummaryRes.data
+    : [];
 
   const meta = soldSummaryRes?.meta;
   const isDataLoading = isLoading || isFetching;

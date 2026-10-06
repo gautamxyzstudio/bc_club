@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import {
   logPropertySearchActivity,
   getUserActivityLogs,
@@ -27,12 +27,16 @@ export function useLogActivity() {
   });
 }
 
-export function useGetUserActivityLogs(userId?: string | number, enabled: boolean = true) {
+export function useGetUserActivityLogs(userId?: string | number, enabled: boolean = true, options?: Omit<
+    UseQueryOptions<any, Error, ActivityLogItem[], any>,
+    "queryKey" | "queryFn"
+  >,) {
   return useQuery<ActivityLogItem[]>({
     queryKey: activityLogKeys.user(userId || ""),
     queryFn: () => (userId ? getUserActivityLogs(userId) : Promise.resolve([])),
     enabled: Boolean(userId) && enabled,
     staleTime: 1000 * 60, // 1 minute
+    ...options,
   });
 }
 

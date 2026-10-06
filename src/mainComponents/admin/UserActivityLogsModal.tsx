@@ -80,12 +80,23 @@ export default function UserActivityLogsModal({
 
   // Fetch real activity logs for this user from backend
   const { data: serverLogs = [], isLoading: isLoadingLogs } =
-    useGetUserActivityLogs(user?.documentId || user?.id, open);
+    useGetUserActivityLogs(user?.documentId || user?.id, open, {
+      refetchInterval: 10000,
+      refetchOnWindowFocus: true,
+      refetchIntervalInBackground: true,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+    });
 
   // Fetch favorite properties for this user from backend
   const { data: serverFavorites = [], isLoading: isLoadingFavorites } =
     useGetUserFavorites(user?.documentId || user?.id, undefined, {
       enabled: open,
+      refetchInterval: 10000,
+      refetchOnWindowFocus: true,
+      refetchIntervalInBackground: true,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
     });
 
   // Format date helper
@@ -134,8 +145,8 @@ export default function UserActivityLogsModal({
       Array.isArray(serverLogs) && serverLogs.length > 0
         ? serverLogs
         : Array.isArray(user.activity_logs)
-        ? user.activity_logs
-        : [];
+          ? user.activity_logs
+          : [];
 
     if (Array.isArray(rawLogs)) {
       rawLogs.forEach((log: any) => {
@@ -196,8 +207,8 @@ export default function UserActivityLogsModal({
           const desc =
             details.length > 0
               ? `Searched & viewed home evaluation: ${address} (${details.join(
-                  " • ",
-                )})`
+                " • ",
+              )})`
               : `Searched & viewed home evaluation: ${address}`;
 
           events.push({
@@ -242,12 +253,12 @@ export default function UserActivityLogsModal({
       Array.isArray(serverFavorites?.data)
         ? serverFavorites.data
         : Array.isArray(serverFavorites) && serverFavorites.length > 0
-        ? serverFavorites
-        : Array.isArray(user.real_estate_boards) && user.real_estate_boards.length > 0
-        ? user.real_estate_boards
-        : Array.isArray(user.favorites) && user.favorites.length > 0
-        ? user.favorites
-        : [];
+          ? serverFavorites
+          : Array.isArray(user.real_estate_boards) && user.real_estate_boards.length > 0
+            ? user.real_estate_boards
+            : Array.isArray(user.favorites) && user.favorites.length > 0
+              ? user.favorites
+              : [];
 
     return rawFavorites.filter(Boolean);
   }, [user, serverFavorites]);
@@ -298,20 +309,18 @@ export default function UserActivityLogsModal({
             <button
               type="button"
               onClick={() => setActiveTab("activity")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-                activeTab === "activity"
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === "activity"
                   ? "bg-primary text-white shadow-xs"
                   : "bg-slate-100 hover:bg-slate-200/80 text-slate-600"
-              }`}
+                }`}
             >
               <Activity className="w-3.5 h-3.5" />
               <span>Activity Logs</span>
               <span
-                className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-                  activeTab === "activity"
+                className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${activeTab === "activity"
                     ? "bg-white/20 text-white"
                     : "bg-slate-200 text-slate-700"
-                }`}
+                  }`}
               >
                 {isLoadingLogs ? "..." : activityEvents.length}
               </span>
@@ -320,24 +329,21 @@ export default function UserActivityLogsModal({
             <button
               type="button"
               onClick={() => setActiveTab("favorites")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-                activeTab === "favorites"
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === "favorites"
                   ? "bg-rose-500 text-white shadow-xs"
                   : "bg-slate-100 hover:bg-slate-200/80 text-slate-600"
-              }`}
+                }`}
             >
               <Heart
-                className={`w-3.5 h-3.5 ${
-                  activeTab === "favorites" ? "fill-white" : "text-rose-500"
-                }`}
+                className={`w-3.5 h-3.5 ${activeTab === "favorites" ? "fill-white" : "text-rose-500"
+                  }`}
               />
               <span>Saved Favorites</span>
               <span
-                className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-                  activeTab === "favorites"
+                className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${activeTab === "favorites"
                     ? "bg-white/20 text-white"
                     : "bg-slate-200 text-slate-700"
-                }`}
+                  }`}
               >
                 {isLoadingFavorites ? "..." : userFavorites.length}
               </span>

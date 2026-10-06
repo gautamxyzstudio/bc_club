@@ -423,7 +423,7 @@ export default function OpenStreetMapSearch() {
     setMapZoomVal(Math.round(zoom));
     lastFetchedBounds.current = key;
 
-    if (zoom >= 19) fetchParcels(newBounds);
+    if (zoom >= 18) fetchParcels(newBounds);
   }, [map, fetchParcels]);
 
   const onMapReady = useCallback((mapInstance: L.Map) => {
@@ -806,7 +806,7 @@ export default function OpenStreetMapSearch() {
                 }}
               />
 
-              {parcelGeoJSON && mapZoomVal && mapZoomVal >= 19 && (
+              {parcelGeoJSON && mapZoomVal && mapZoomVal >= 18 && (
                 <OpenStreetMapGeoJsonLayer
                   data={parcelGeoJSON}
                   properties={properties}

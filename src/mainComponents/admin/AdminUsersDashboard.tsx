@@ -24,7 +24,7 @@ import UserDeleteModal from "./UserDeleteModal";
 export default function AdminUsersDashboard() {
   // Filters & State
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"name" | "newest" | "oldest">("name");
+  const [sortBy, setSortBy] = useState<"name" | "newest" | "oldest">("newest");
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
@@ -290,7 +290,7 @@ export default function AdminUsersDashboard() {
                             {getInitials(user.fullName, user.username)}
                           </div>
                           <div className="min-w-0">
-                            <p className="font-bold text-slate-900 truncate">
+                            <p className="font-bold text-slate-900 truncate capitalize">
                               {user.fullName || user.username}
                             </p>
                             <p className="text-[11px] text-slate-400 truncate">

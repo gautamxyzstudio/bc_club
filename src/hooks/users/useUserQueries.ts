@@ -39,6 +39,7 @@ export function useGetUsers<TData = StrapiUser[]>(
     queryKey: userKeys.list(params || {}),
     queryFn: () => getUsers(params),
     staleTime: 1000 * 60 * 2, // 2 minutes
+    
     ...options,
   });
 }

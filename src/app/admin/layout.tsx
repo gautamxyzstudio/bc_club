@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -10,14 +10,11 @@ import {
   CheckCircle2,
   Clock,
   AlertCircle,
-  LayoutDashboard,
   LogOut,
   ExternalLink,
   ChevronRight,
-  User,
   Menu,
   X,
-  Sparkles,
   Gavel,
   BookOpen,
   Users,
@@ -34,11 +31,10 @@ export default function AdminLayout({
   const { isLoggedIn, username, authLoading, setOpenLogin, logoutUser } =
     useAuthContext();
 
-  const [previewBypass, setPreviewBypass] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Check if current user is admin
-  const isAdmin = isAdminUser(username) || previewBypass;
+  const isAdmin = isAdminUser(username);
 
   const navItems = [
     {
@@ -141,17 +137,6 @@ export default function AdminLayout({
               <Home className="w-4 h-4" />
               Return to Public Website
             </Link>
-          </div>
-
-          {/* Dev/Demo bypass option for easy previewing */}
-          <div className="pt-4 border-t border-gray-100">
-            <button
-              onClick={() => setPreviewBypass(true)}
-              className="text-xs text-primary hover:underline font-medium inline-flex items-center gap-1"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              Preview Dashboard as Admin (Demo Mode)
-            </button>
           </div>
         </div>
       </div>
@@ -278,7 +263,6 @@ export default function AdminLayout({
             <button
               onClick={() => {
                 logoutUser();
-                setPreviewBypass(false);
               }}
               className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition"
             >

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -63,50 +63,145 @@ export default function Page() {
       .slice(0, 3);
   }, [allBlogsResponse, slug]);
 
-  const renderedContent = useMemo(() => {
-    if (!blog?.blogContent) return null;
-    return decodeHtmlEntities(blog.blogContent);
-  }, [blog?.blogContent]);
-
-  // Extract headings from HTML for TOC
-  const tocItems = useMemo(() => {
-    if (!renderedContent) return [];
+  // Process content to inject IDs into h2/h3 headings and extract TOC items
+  const { renderedContent, tocItems } = useMemo(() => {
+    if (!blog?.blogContent) return { renderedContent: null, tocItems: [] };
+    const rawContent = decodeHtmlEntities(blog.blogContent);
     const items: { label: string; id: string }[] = [];
-    const regex = /<h[23][^>]*>(.*?)<\/h[23]>/gi;
-    let match;
     let count = 0;
 
-    while ((match = regex.exec(renderedContent)) !== null) {
-      count++;
-      const text = match[1].replace(/<[^>]*>/g, "").trim();
-      if (text) {
-        items.push({
-          label: text,
-          id: `heading-${count}`,
-        });
-      }
-    }
+    const processedContent = rawContent.replace(
+      /<h([23])([^>]*)>([\s\S]*?)<\/h\1>/gi,
+      (match, level, attrs, innerText) => {
+        const plainText = innerText
+          .replace(/<[^>]*>/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+        if (!plainText) return match;
 
-    return items;
-  }, [renderedContent]);
+        count++;
+        const id = `heading-${count}`;
+        items.push({
+          label: plainText,
+          id,
+        });
+
+        const cleanAttrs = attrs.replace(/\s+id=(['"]).*?\1/gi, "").trim();
+        const attrsString = cleanAttrs ? ` ${cleanAttrs}` : "";
+        return `<h${level} id="${id}"${attrsString}>${innerText}</h${level}>`;
+      }
+    );
+
+    return { renderedContent: processedContent, tocItems: items };
+  }, [blog?.blogContent]);
+
+  const isClickScrolling = useRef(false);
+  const clickScrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleScroll = (id: string, index: number, label?: string) => {
     setActiveIndex(index);
+    isClickScrolling.current = true;
+    if (clickScrollTimeoutRef.current) {
+      clearTimeout(clickScrollTimeoutRef.current);
+    }
+    clickScrollTimeoutRef.current = setTimeout(() => {
+      isClickScrolling.current = false;
+    }, 800);
+
     if (typeof document !== "undefined") {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-        return;
-      }
-      if (label) {
+      let target = document.getElementById(id);
+      if (!target && label) {
         const headings = Array.from(document.querySelectorAll("h2, h3"));
-        const target = headings.find((h) => h.textContent?.trim() === label);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
+        target = (headings.find((h) => h.textContent?.trim() === label) as HTMLElement) || null;
+      }
+
+      if (target) {
+        const headerOffset = 110;
+        const elementPosition = target.getBoundingClientRect().top;
+        const currentScroll = window.scrollY || document.documentElement.scrollTop;
+        const offsetPosition = elementPosition + currentScroll - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
       }
     }
   };
+
+  // Scroll spy to highlight active TOC heading on scroll
+  useEffect(() => {
+    if (tocItems.length === 0) return;
+
+    let rafId: number | null = null;
+
+    const handleScrollSpy = () => {
+      if (isClickScrolling.current) return;
+
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+
+      rafId = requestAnimationFrame(() => {
+        const scrollHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const clientHeight = window.innerHeight;
+
+        // If user reached near bottom of page, highlight the last TOC item
+        if (scrollTop + clientHeight >= scrollHeight - 80) {
+          setActiveIndex(tocItems.length - 1);
+          return;
+        }
+
+        const offset = 140; // Top offset threshold
+        let currentActiveIndex = 0;
+
+        for (let i = 0; i < tocItems.length; i++) {
+          const item = tocItems[i];
+          let el = document.getElementById(item.id);
+          if (!el && item.label) {
+            const headings = Array.from(document.querySelectorAll("h2, h3"));
+            el = (headings.find((h) => h.textContent?.trim() === item.label) as HTMLElement) || null;
+          }
+
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= offset) {
+              currentActiveIndex = i;
+            } else {
+              break;
+            }
+          }
+        }
+
+        setActiveIndex(currentActiveIndex);
+      });
+    };
+
+    const handleUserInteraction = () => {
+      isClickScrolling.current = false;
+    };
+
+    window.addEventListener("scroll", handleScrollSpy, { passive: true });
+    window.addEventListener("wheel", handleUserInteraction, { passive: true });
+    window.addEventListener("touchmove", handleUserInteraction, { passive: true });
+
+    handleScrollSpy();
+    const timer = setTimeout(handleScrollSpy, 250);
+
+    return () => {
+      window.removeEventListener("scroll", handleScrollSpy);
+      window.removeEventListener("wheel", handleUserInteraction);
+      window.removeEventListener("touchmove", handleUserInteraction);
+      clearTimeout(timer);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      if (clickScrollTimeoutRef.current) {
+        clearTimeout(clickScrollTimeoutRef.current);
+      }
+    };
+  }, [tocItems]);
 
   const handleShareFacebook = () => {
     if (typeof window !== "undefined") {
@@ -234,10 +329,20 @@ export default function Page() {
 
   return (
     <>
-      <section className="pt-24 sm:pt-28 pb-12 sm:pb-16">
+      <style>
+        {`
+          .btn{
+            display: flex !important
+          }
+            section{
+            padding: 0 !important;
+            }
+        `}
+      </style>
+      <section className="mt-20 sm:mt-24 mb-12 sm:mb-16">
         <div className="xl:max-w-screen-2xl mx-auto px-6 xl:px-16">
           {/* ===== BREADCRUMB ===== */}
-          <div className="mt-2 mb-6">
+          <div className="mb-6 mt-6">
             <nav
               aria-label="Breadcrumb"
               className="inline-flex items-center flex-wrap gap-2 bg-[#F2F2F2] px-4 py-2 rounded-xl text-xs sm:text-sm font-medium border border-gray-200/60 shadow-xs"
@@ -296,7 +401,7 @@ export default function Page() {
                 {/* Content */}
                 {renderedContent ? (
                   <div
-                    className="space-y-6 text-gray-600 text-sm sm:text-base leading-relaxed [&_h2]:text-2xl [&_h2]:text-black [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:text-black [&_h3]:font-bold [&_h3]:mt-4 [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_img]:rounded-xl [&_img]:my-4 [&_a]:text-[#22558B] [&_a]:underline"
+                    className="space-y-6 text-gray-600 text-sm sm:text-base leading-relaxed [&_h2]:text-2xl [&_h2]:text-black [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:scroll-mt-28 [&_h3]:text-xl [&_h3]:text-black [&_h3]:font-bold [&_h3]:mt-4 [&_h3]:scroll-mt-28 [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_img]:rounded-xl [&_img]:my-4 [&_a]:text-[#22558B] [&_a]:underline"
                     dangerouslySetInnerHTML={{ __html: renderedContent }}
                   />
                 ) : (
@@ -367,26 +472,26 @@ export default function Page() {
                       In this article
                     </h3>
 
-                    <ul className="space-y-3">
+                    <ul className="space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto pr-1">
                       {tocItems.map((item, index) => (
                         <li
                           key={item.id || index}
                           onClick={() => handleScroll(item.id, index, item.label)}
-                          className="cursor-pointer relative pl-4"
+                          className="cursor-pointer relative pl-4 select-none"
                         >
                           <span
-                            className={`absolute left-0 top-0 h-full w-0.75 rounded-full transition-colors ${
+                            className={`absolute left-0 top-0 h-full w-[3px] rounded-full transition-all duration-200 ${
                               activeIndex === index
-                                ? "bg-[#22558B]"
-                                : "bg-transparent"
+                                ? "bg-[#22558B] opacity-100"
+                                : "bg-transparent opacity-0"
                             }`}
                           />
 
                           <span
-                            className={`text-sm leading-6 block transition-colors ${
+                            className={`text-sm leading-6 block transition-colors duration-200 ${
                               activeIndex === index
-                                ? "text-[#22558B] font-medium"
-                                : "text-gray-600 hover:text-gray-900"
+                                ? "text-[#22558B] font-semibold"
+                                : "text-gray-600 hover:text-gray-900 font-normal"
                             }`}
                           >
                             {item.label}
@@ -403,7 +508,7 @@ export default function Page() {
       </section>
 
       {/* ================= RECENT BLOGS ================= */}
-      <div className="bg-[#F0F0F0] xl:max-w-screen-2xl mx-auto p-5 sm:p-7 lg:p-8 rounded-3xl mb-16 md:mb-24">
+      <div className="xl:max-w-screen-2xl mx-auto px-6 xl:px-16 mt-8 md:mt-24 mb-16 md:mb-24">
         <h2 className="text-2xl sm:text-3xl font-bold mb-5 text-[#2E2E2E]">
           Recent Blogs
         </h2>
@@ -450,7 +555,7 @@ export default function Page() {
         </div>
       </div>
 
-      <GetInTouch />
+      {/* <GetInTouch /> */}
     </>
   );
 }

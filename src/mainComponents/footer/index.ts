@@ -87,10 +87,10 @@ export const contactUs: LinkListProps = {
       label: "Contact Form",
       href: "/contact-us",
     },
-    {
-      label: "info@bcclub.com",
-      href: "mailto:info@bcclub.com",
-    },
+    // {
+    //   label: "info@bcclub.com",
+    //   href: "mailto:info@bcclub.com",
+    // },
     {
       label: "Support / Help Center",
       href: "/contact-us",

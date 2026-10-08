@@ -39,7 +39,7 @@ const Footer = () => {
     },
   ];
   return (
-    <footer className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-13 p-6 md:pt-13 md:pb-8 bg-foreground text-background flex flex-col md:gap-y-6 gap-y-5">
+    <footer className="xl:max-w-screen-2xl mx-auto w-full xl:px-16! md:px-13! p-6! md:pt-13! md:pb-8! bg-foreground text-background! flex flex-col md:gap-y-6 gap-y-5">
       <div className="w-full flex flex-col md:flex-row md:justify-between md:items-center-safe gap-y-4">
         <div className="flex flex-col gap-y-4 md:w-[60%]">
           <Link href={"/"} title="BC Club">

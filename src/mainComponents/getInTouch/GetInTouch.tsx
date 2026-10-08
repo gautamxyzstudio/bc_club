@@ -117,7 +117,7 @@ const GetInTouch = () => {
             content={`Whether you're buying, selling, investing, or researching the BC real estate market, we're here to help.\n\nBC Real Estate Market helps you search BC homes for sale, explore neighbourhood trends, compare property values, track local market activity, and discover valuable property insights across British Columbia.\n\nHave questions about a property, neighbourhood, market trends, or using our platform? Fill out the form below and we'll get back to you as soon as possible.
  `}
           />
-          <div className="flex flex-row items-center-safe gap-x-3 md:mt-6 mt-4">
+          {/* <div className="flex flex-row items-center-safe gap-x-3 md:mt-6 mt-4">
             <div className="bg-secondary cursor-pointer md:p-1.5 p-1 rounded-lg md:w-12.5 md:h-12.5 w-10 h-10">
               <Image
                 title="image title"
@@ -137,7 +137,7 @@ const GetInTouch = () => {
                 info@bcrealestatemarket.com
               </Link>
             </div>
-          </div>
+          </div> */}
         </div>
         <GetInTouchForm />
       </div>

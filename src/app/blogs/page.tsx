@@ -131,7 +131,7 @@ const Page = () => {
           </section>
 
           {/* Recent Blogs Skeleton */}
-          <div className="bg-[#F0F0F0] xl:max-w-screen-2xl mx-auto p-5 sm:p-7 lg:p-8 rounded-3xl mb-16 md:mb-24 animate-pulse">
+          <div className="bg-[#F0F0F0] xl:max-w-screen-2xl mx-auto xl:px-16 md:px-13 px-6 py-5 sm:p-7 lg:p-8 rounded-t-3xl animate-pulse">
             <div className="h-8 bg-gray-300 rounded-lg w-44 mb-5"></div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
               {[1, 2, 3, 4].map((i) => (
@@ -146,7 +146,7 @@ const Page = () => {
         </>
       ) : blogs.length === 0 ? (
         /* Empty State */
-        <section className="xl:max-w-screen-2xl mx-auto px-6 py-20 text-center relative z-20">
+        <section className="xl:max-w-screen-2xl mx-auto xl:px-16 md:px-13 px-6 py-5 sm:p-7 lg:p-8 rounded-t-3xl text-center relative z-20">
           <div className="max-w-md mx-auto">
             <div className="w-16 h-16 bg-amber-50 text-[#F4A51C] rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-200">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,13 +169,14 @@ const Page = () => {
                     href={`/blogs/${firstBlog.slug}`}
                     className="block flex-1 flex flex-col justify-between"
                   >
-                    <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-slate-50 overflow-hidden flex items-center justify-center">
+                    <div className="relative w-full h-48 md:h-[278px] bg-slate-50 flex items-center justify-center">
                       <Image
                         title={firstBlog.blogTitle}
                         src={getBlogImageUrl(firstBlog.blogImage)}
                         alt={firstBlog.blogTitle || "Smart Property Investment"}
-                        fill
-                        className="object-contain rounded-t-2xl group-hover:scale-103 transition-transform duration-500"
+                        width={1200}
+                        height={899}
+                        className="h-48 md:h-[278px] object-top rounded-t-2xl group-hover:scale-103 transition-transform duration-500"
                       />
                     </div>
 
@@ -285,12 +286,12 @@ const Page = () => {
 
           {/* ================= RECENT BLOGS ================= */}
           {remainingBlogs.length > 0 && (
-            <div className="bg-[#F0F0F0] xl:max-w-screen-2xl mx-auto p-5 sm:p-7 lg:p-8 rounded-3xl mb-16 md:mb-24">
+            <div className="bg-[#F0F0F0] xl:max-w-screen-2xl mx-auto xl:px-16 md:px-13 px-6 py-5 sm:p-7 lg:p-8 rounded-t-3xl">
               <h2 className="text-2xl sm:text-3xl font-bold mb-5 text-[#2E2E2E]">
                 Recent Blogs
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                 {remainingBlogs.map((blog, idx) => (
                   <div
                     key={blog.id || blog.slug || idx}

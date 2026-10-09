@@ -298,6 +298,7 @@ export default function FiltersPopup({
       "Single Family Residence",
       "Half Duplex",
       "Row House (Non-Strata)",
+      "Industrial",
     ];
 
     if (isSingleFamilyGroup) {
@@ -329,6 +330,7 @@ export default function FiltersPopup({
       "Single Family Residence",
       "Half Duplex",
       "Row House (Non-Strata)",
+      "Industrial",
     ];
 
     const currentSF = selectedProperties.filter((p) =>
@@ -589,7 +591,7 @@ export default function FiltersPopup({
             <button
               key={s.k}
               onClick={() => {
-                if ((s.k === "sold" || s.k === "expired" || s.k === "forecloser") && !isLoggedIn) {
+                if ((s.k === "sold" || s.k === "expired") && !isLoggedIn) {
                   setOpenLogin(true);
                   return;
                 }
@@ -860,6 +862,7 @@ export default function FiltersPopup({
                   { label: "Business", value: "Business" },
                   { label: "Agriculture", value: "Agriculture" },
                   { label: "Vacant Land", value: "Vacant Land" },
+                  { label: "Industrial", value: "Industrial" },
                 ].map((prop) => (
                   <div
                     key={prop.value}

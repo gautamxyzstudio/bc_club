@@ -22,6 +22,7 @@ import {
 } from "@/src/hooks/listing/useListingQueries";
 import { useListingStore } from "@/src/store/useListingStore";
 import { useAuthContext } from "@/src/mainComponents/auth/AuthContext";
+import { useMediaQuery } from "@/src/hooks/useMediaQuery";
 import {
   boundsKey,
   formatMeter,
@@ -81,6 +82,9 @@ function MapReady({ onReady }: { onReady: (map: L.Map) => void }) {
 }
 
 export default function OpenStreetMapSearch() {
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const minParcelZoom = isMobile ? 16 : 18;
+
   const { data: me } = useGetMe();
   const { isLoggedIn, setOpenLogin } = useAuthContext();
   const { getInstanceFilters, updateInstanceFilter, clearInstanceFilters } =
@@ -423,7 +427,7 @@ export default function OpenStreetMapSearch() {
     setMapZoomVal(Math.round(zoom));
     lastFetchedBounds.current = key;
 
-    if (zoom >= 18) fetchParcels(newBounds);
+    if (zoom >= 16) fetchParcels(newBounds);
   }, [map, fetchParcels]);
 
   const onMapReady = useCallback((mapInstance: L.Map) => {
@@ -687,7 +691,7 @@ export default function OpenStreetMapSearch() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search city, neighborhood, or address..."
+              placeholder="Search within Map View (city, neighborhood or address)"
               className="flex-1 text-sm outline-none bg-transparent"
             />
 
@@ -806,7 +810,7 @@ export default function OpenStreetMapSearch() {
                 }}
               />
 
-              {parcelGeoJSON && mapZoomVal && mapZoomVal >= 18 && (
+              {parcelGeoJSON && mapZoomVal && mapZoomVal >= minParcelZoom && (
                 <OpenStreetMapGeoJsonLayer
                   data={parcelGeoJSON}
                   properties={properties}

@@ -377,14 +377,14 @@ const page = () => {
           actively abiding by the terms outlined above, you must contact our
           Surrey administration team immediately:
         </p>
-        <ul className="list-disc list-outside ml-9 space-y-2">
+        {/* <ul className="list-disc list-outside ml-9 space-y-2">
           <li>
             <strong>Email: </strong>
             <a href="mailto:info@bcrealestatemarket.com">
               info@bcrealestatemarket.com
             </a>
           </li>
-        </ul>
+        </ul> */}
       </div>
     </section>
   );

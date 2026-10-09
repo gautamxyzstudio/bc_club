@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState, useRef } from "react";
 import {
@@ -9,7 +11,7 @@ import {
 } from "react-icons/fi";
 import { motion } from "framer-motion";
 import FiltersPopup from "@/src/components/common/propertiesCard/FiltersPopup";
-import { Box, Chip, Dialog, Pagination } from "@mui/material";
+import { Chip, Dialog, Pagination } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import PropertiesCard, {
   PropertyCardProps,
@@ -60,7 +62,7 @@ export default function PropertiesListingPage() {
   const filters = getInstanceFilters("list");
 
   const search = filters.search || "";
-  const isChip = filters.isChip || false;
+  // const isChip = filters.isChip || false;
   const activePrice = filters.activePrice || "newest";
   const activeBathRoom = filters.activeBathRoom || "any";
   const activeBedRoom = filters.activeBedRoom || "any";
@@ -89,8 +91,6 @@ export default function PropertiesListingPage() {
 
   const setSearch = (val: string) =>
     updateInstanceFilter("list", "search", val);
-  const setIsChip = (val: boolean) =>
-    updateInstanceFilter("list", "isChip", val);
   const setActivePrice = (val: string) => {
     updateInstanceFilter("list", "activePrice", val);
   };
@@ -100,8 +100,6 @@ export default function PropertiesListingPage() {
     updateInstanceFilter("list", "activeBedRoom", val);
   const setActivePriceChange = (val: string) =>
     updateInstanceFilter("list", "activePriceChange", val);
-  const setActiveProperty = (val: string) =>
-    updateInstanceFilter("list", "activeProperty", val);
   const setPage = (val: number | ((prev: number) => number)) => {
     if (typeof val === "function") {
       updateInstanceFilter("list", "page", val(page));
@@ -246,6 +244,7 @@ export default function PropertiesListingPage() {
               listing?.raw_data?.BridgeModificationTimestamp ??
               0),
         address: listing?.address,
+        neighborhood: listing?.neighborhood,
         sqft: listing?.Living_area ?? listing?.area ?? 0,
         beds: listing?.bedrooms ?? 0,
         baths: listing?.bathrooms ?? 0,
@@ -819,7 +818,7 @@ export default function PropertiesListingPage() {
             <div className="w-full flex flex-col h-full">
               <div
                 ref={scrollRef}
-                className="gap-7 grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 2xl:grid-cols-4 items-stretch justify-between overflow-y-scroll xl:min-h-[50svh] xl:max-h-[80svh] no-scrollbar w-full xl:p-3"
+                className="gap-7 grid grid-cols-1 xl:grid-cols-3  2xl:grid-cols-4 md:grid-cols-2 items-stretch justify-between overflow-y-scroll xl:min-h-[50svh] xl:max-h-[80svh] no-scrollbar w-full xl:p-3"
               >
                 {data.map((property: any) => (
                   <PropertiesCard

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
@@ -5,7 +8,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { Dialog } from "@mui/material";
-import { FiArrowLeft, FiMaximize2, FiMinimize2, FiX } from "react-icons/fi";
+import { FiArrowLeft, FiMaximize2, FiMinimize2 } from "react-icons/fi";
 
 import "swiper/css/navigation";
 
@@ -101,6 +104,7 @@ const OurProperty = () => {
             listing?.raw_data?.BridgeModificationTimestamp ??
             0),
     address: listing?.address,
+    neighborhood: listing?.neighborhood,
     sqft: listing?.area ?? listing?.Living_area ?? 0,
     beds: listing?.bedrooms ?? 0,
     baths: listing?.bathrooms ?? 0,
@@ -132,7 +136,7 @@ const OurProperty = () => {
         select: (res: any) => {
           return (
             res?.data
-              ?.filter((l: any) => l?.priceChangedAt === null)
+              ?.filter((l: any) => l?.priceChangedAt === null && l?.property_sub_type?.toLowerCase() !== 'other')
               ?.sort((a: any, b: any) => {
                 const aTime = a?.OriginalEntryTimestamp
                   ? Date.parse(a.OriginalEntryTimestamp)

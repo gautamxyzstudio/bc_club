@@ -18,6 +18,7 @@ import {
   Gavel,
   BookOpen,
   Users,
+  Calculator,
 } from "lucide-react";
 import { useAuthContext } from "@/src/mainComponents/auth/AuthContext";
 import { isAdminUser } from "@/src/utilities/authUtils";
@@ -68,6 +69,14 @@ export default function AdminLayout({
       badge: "Distressed",
       badgeColor: "bg-amber-100 text-amber-800",
       activeColor: "text-amber-700 bg-amber-50",
+    },
+    {
+      label: "Evaluation Requests",
+      href: "/admin/dashboard/evaluations",
+      icon: Calculator,
+      badge: "Leads",
+      badgeColor: "bg-blue-100 text-blue-800",
+      activeColor: "text-blue-700 bg-blue-50",
     },
     {
       label: "Blogs",

@@ -11,6 +11,11 @@ export const Endpoints = {
 
   // Home Evaluation Request
   createHomeEvaluationRequest: `${BASE_URL}/api/home-evaluation-requests`,
+  getHomeEvaluationRequests: `${BASE_URL}/api/home-evaluation-requests`,
+  getHomeEvaluationRequestById: (id: string | number) =>
+    `${BASE_URL}/api/home-evaluation-requests/${id}`,
+  deleteHomeEvaluationRequest: (id: string | number) =>
+    `${BASE_URL}/api/home-evaluation-requests/${id}`,
 
   // Assignment List Properties
   getAssessmentPropertiesList: `${BASE_URL}/api/property-assignment-lists`,

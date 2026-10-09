@@ -313,7 +313,6 @@ const HomeEstimationTop = () => {
             </p>
 
             <div className="w-full p-4 rounded-2xl bg-primary/5 border border-primary/20 text-left flex items-start gap-3 mt-1">
-              <Sparkles size={18} className="text-primary shrink-0 mt-0.5" />
               <p className="text-xs md:text-sm text-foreground">
                 In the meantime, you can also <strong>explore and search BC Assessment property records</strong> and comparative market trends below!
               </p>
@@ -325,11 +324,25 @@ const HomeEstimationTop = () => {
                 type="button"
                 onClick={() => {
                   handleCloseModal();
-                  setNavigatingText("Redirecting to Home Assessment…");
-                  setNavigating(true);
-                  router.push("/?tab=home-assessment");
+                  setTimeout(() => {
+                    const sectionEl = document.getElementById(
+                      "bc-assessment-search-section"
+                    );
+                    if (sectionEl) {
+                      sectionEl.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                      });
+                    }
+                    const inputEl = document.getElementById(
+                      "bc-assessment-search-input"
+                    ) as HTMLInputElement;
+                    if (inputEl) {
+                      inputEl.focus();
+                    }
+                  }, 120);
                 }}
-                className="w-full py-3.5 px-6 bg-primary hover:bg-primary2 text-white font-bold rounded-xl transition-colors shadow-md cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3.5 px-6 bg-primary hover:bg-primary2 text-white font-bold rounded-xl transition-colors shadow-md cursor-pointer flex items-center justify-center gap-2 active:scale-98"
               >
                 <span>Explore BC Assessment Properties</span>
                 <ArrowRight size={18} />

@@ -15,7 +15,10 @@ import {
   ArrowUpDown,
   Mail,
   Calendar,
+  AlertTriangle,
+  ShieldAlert,
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { useGetUsers } from "@/src/hooks/users/useUserQueries";
 import { StrapiUser } from "@/src/api/users/usersApi";
 import UserActivityLogsModal from "./UserActivityLogsModal";
@@ -57,7 +60,21 @@ export default function AdminUsersDashboard() {
     useState<StrapiUser | null>(null);
 
   // Query users from API
-  const { data: users = [], isLoading, isFetching, refetch } = useGetUsers();
+  const {
+    data: users = [],
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useGetUsers();
+
+  // Show error toast notification whenever query fails
+  useEffect(() => {
+    if (isError && error) {
+      toast.error(error.message || "Failed to load user accounts.");
+    }
+  }, [isError, error]);
 
   // Filter & Sort users
   const filteredUsers = useMemo(() => {
@@ -250,6 +267,31 @@ export default function AdminUsersDashboard() {
             <p className="text-xs font-semibold text-slate-500">
               Loading user accounts...
             </p>
+          </div>
+        ) : isError ? (
+          <div className="p-8 sm:p-12 text-center space-y-4 max-w-lg mx-auto">
+            <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto shadow-inner border border-rose-100">
+              <ShieldAlert className="w-7 h-7" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="text-base font-bold text-slate-900">
+                Failed to Load User Accounts
+              </h3>
+              <p className="text-xs text-rose-600 font-medium bg-rose-50/80 px-3.5 py-2 rounded-xl border border-rose-200/80 font-mono">
+                {error?.message || "An error occurred while fetching users."}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="px-4 py-2 bg-primary hover:bg-primary2 text-white text-xs font-bold rounded-xl shadow-md transition inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`}
+              />
+              Retry
+            </button>
           </div>
         ) : paginatedUsers.length === 0 ? (
           <div className="p-12 text-center space-y-3">

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "Find condos, townhouses, and houses for sale in British Columbia. Detailed property information, market insights, and expert guidance from BC Real Estate.",
   keywords:
     "BC Real Estate, British Columbia Real Estate, Condos for Sale BC, Houses for Sale BC, Townhouses for Sale BC, Vancouver Real Estate, Burnaby Real Estate, Surrey Real Estate, Richmond Real Estate, Coquitlam Real Estate, Victoria Real Estate, Kelowna Real Estate, Abbotsford Real Estate, White Rock Real Estate, Nanaimo Real Estate, New Westminster Real Estate, North Vancouver Real Estate, West Vancouver Real Estate, Langley Real Estate, Delta Real Estate, Maple Ridge Real Estate, Chilliwack Real Estate",
-  robots: "noindex, nofollow",
+  robots: "index, follow",
 };
 
 export default function RootLayout({
@@ -33,6 +33,7 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@xz/fonts@1/serve/plus-jakarta-display.min.css"
         />
+        <meta name="google-site-verification" content="_9Vs41vRcW_kQn7Ni2l5uhdxFs8pJm6TMq5DLZaxi5U" />
         <CanonicalURL />
       </head>
 

@@ -48,7 +48,7 @@ export function validateCanadianPhoneNumber(phone: string): PhoneValidationResul
   if (raw.length !== 10) {
     return {
       isValid: false,
-      error: "Please enter a 10-digit Canadian phone number (e.g. 604-555-0123)",
+      error: "Please enter a valid Canadian phone number",
       digits: raw,
     };
   }

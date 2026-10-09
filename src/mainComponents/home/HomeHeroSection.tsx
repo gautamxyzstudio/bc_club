@@ -49,7 +49,9 @@ const HomeHeroSection = () => {
           content={`Don’t just browse listings. See price trends in each neighbourhood,\nexplore past sales, and find your perfect home with up-to-date \nMLS listings.`}
         />
         <div className="w-full xl:mt-8 md:mt-6 mt-5 relative">
-          <SearchPropertyTab />
+          <React.Suspense fallback={null}>
+            <SearchPropertyTab />
+          </React.Suspense>
         </div>
       </div>
       <div className="xl:w-[58.5%] bg-gray h-auto xl:rounded-bl-[124px] md:rounded-bl-[108px] rounded-bl-3xl z-10">

@@ -9,6 +9,9 @@ export const Endpoints = {
   reactiveAccount: `${BASE_URL}/api/auth/reactivate-vow-account`,
   me: `${BASE_URL}/api/users/me`,
 
+  // Home Evaluation Request
+  createHomeEvaluationRequest: `${BASE_URL}/api/home-evaluation-requests`,
+
   // Assignment List Properties
   getAssessmentPropertiesList: `${BASE_URL}/api/property-assignment-lists`,
   getPropertiesAssignmentDetails: (id: string) =>

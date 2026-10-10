@@ -782,18 +782,25 @@ export default function PropertiesListingPage() {
           </div>
         )}
 
-        {filters.location &&
-          filters.location.split(",").filter(Boolean).length < 2 && (
-            <h1 className="text-2xl font-bold mb-4">
-              Homes for{" "}
-              {filters.status === "forSale"
-                ? "Sale"
-                : filters.status === "sold"
-                  ? "Sold"
-                  : "Expired"}{" "}
-              in {filters.location}, BC
-            </h1>
-          )}
+  
+{filters.location &&
+  filters.location.split(",").filter(Boolean).length < 2 && (
+    <h1 className="text-2xl font-bold mb-4">
+      Homes for{" "}
+      {filters.status === "forSale" || !filters.status
+        ? "Sale"
+        : filters.status === "sold"
+          ? "Sold"
+          : filters.status === "expired"
+            ? "Expired"
+            : filters.status === "forecloser" ||
+                filters.status === "forcecloser"
+              ? "Foreclosure"
+              : "Sale"}{" "}
+      in {filters.location}, BC
+    </h1>
+  )}
+
 
         {/* Property Grid */}
         {isLoading ? (

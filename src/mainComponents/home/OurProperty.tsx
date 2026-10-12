@@ -151,7 +151,7 @@ const OurProperty = () => {
         select: (res: any) => {
           return (
             res?.data
-              ?.filter((l: any) => l?.priceChangedAt === null)
+              ?.filter((l: any) => l?.priceChangedAt === null && l?.property_sub_type?.toLowerCase() !== 'other')
               ?.sort((a: any, b: any) => {
                 const aTime = a?.OriginalEntryTimestamp
                   ? Date.parse(a.OriginalEntryTimestamp)

@@ -4,7 +4,7 @@ import { Icons } from "@/src/app/exports";
 import CustomButton from "@/src/components/button/CustomButton";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MapPin, Search } from "lucide-react";
 import {
   useGetAssessmentPropertiesList,
@@ -13,6 +13,9 @@ import { useGetRealEstatePropertiesListByAddress } from "@/src/hooks/listing/use
 import { logPropertySearchActivity } from "@/src/api/activityLog/activityLogApi";
 
 const SearchPropertyTab = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const tabList = ["Find Home", "Home Assessment", "Market Trends"];
   const [activeTab, setActiveTab] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -26,6 +29,28 @@ const SearchPropertyTab = () => {
   const [ddfResults, setDdfResults] = useState<any[]>([]);
 
   const [navigating, setNavigating] = useState(false);
+
+  // Handle URL query parameters (e.g. ?tab=home-assessment)
+  useEffect(() => {
+    if (!searchParams) return;
+    const tabParam = searchParams.get("tab")?.toLowerCase();
+
+    if (
+      tabParam === "home-assessment" ||
+      tabParam === "assessment" ||
+      tabParam === "1"
+    ) {
+      setActiveTab(1);
+      setQuery("");
+      setShowDropdown(false);
+    } else if (tabParam === "find-home" || tabParam === "0") {
+      setActiveTab(0);
+      setDdfQuery("");
+      setShowDropdown(false);
+    } else if (tabParam === "market-trends" || tabParam === "2") {
+      setActiveTab(2);
+    }
+  }, [searchParams]);
 
   const { data: assessmentPropertiesList, isLoading: isLoadingAssessment } =
     useGetAssessmentPropertiesList({
@@ -57,8 +82,6 @@ const SearchPropertyTab = () => {
 
   const isFetchingAssessment = isLoadingAssessment;
   const isFetchingDdf = isLoadingDdfListing;
-
-  const router = useRouter();
 
   const handleSelectAssessment = (documentId: string, address?: string) => {
     setShowDropdown(false);

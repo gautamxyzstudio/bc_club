@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import NextTopLoader from "nextjs-toploader";
 import { CanonicalURL } from "../components/colonical-tag-generator/ColonicalTagGenerator";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -19,6 +20,26 @@ export const metadata: Metadata = {
   keywords:
     "BC Real Estate, British Columbia Real Estate, Condos for Sale BC, Houses for Sale BC, Townhouses for Sale BC, Vancouver Real Estate, Burnaby Real Estate, Surrey Real Estate, Richmond Real Estate, Coquitlam Real Estate, Victoria Real Estate, Kelowna Real Estate, Abbotsford Real Estate, White Rock Real Estate, Nanaimo Real Estate, New Westminster Real Estate, North Vancouver Real Estate, West Vancouver Real Estate, Langley Real Estate, Delta Real Estate, Maple Ridge Real Estate, Chilliwack Real Estate",
   robots: "index, follow",
+  openGraph: {
+    title: "BC Real Estate | Homes, Condos & Townhouses for Sale",
+    description:
+      "Find condos, townhouses, and houses for sale in British Columbia. Detailed property information, market insights, and expert guidance from BC Real Estate.",
+    images: [
+      {
+        url: "https://bcrealestatemarket.com/BCRealEstateMarket.svg",
+        width: 1200,
+        height: 630,
+        alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BC Real Estate | Homes, Condos & Townhouses for Sale",
+    description:
+      "Find condos, townhouses, and houses for sale in British Columbia. Detailed property information, market insights, and expert guidance from BC Real Estate.",
+    images: ["https://bcrealestatemarket.com/BCRealEstateMarket.svg"],
+  },
 };
 
 export default function RootLayout({
@@ -35,6 +56,24 @@ export default function RootLayout({
         />
         <meta name="google-site-verification" content="_9Vs41vRcW_kQn7Ni2l5uhdxFs8pJm6TMq5DLZaxi5U" />
         <CanonicalURL />
+        <Script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_TRACKING_ID}`}
+        />
+
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+             window.dataLayer = window.dataLayer || [];
+             function gtag(){dataLayer.push(arguments);}
+             gtag('js', new Date());
+             gtag('config', '${process.env.NEXT_PUBLIC_GA_TRACKING_ID}', {
+                 page_path: window.location.pathname,
+                }); `,
+          }}
+        />
       </head>
 
       <body

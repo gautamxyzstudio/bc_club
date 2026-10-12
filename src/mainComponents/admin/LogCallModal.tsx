@@ -134,6 +134,10 @@ export default function LogCallModal({
         toast.error("Invalid date selected.");
         return;
       }
+      if (parsedDate.getTime() > Date.now()) {
+        toast.error("Call date and time cannot be in the future.");
+        return;
+      }
       isoString = parsedDate.toISOString();
     }
 
@@ -321,10 +325,6 @@ export default function LogCallModal({
               </div>
 
               <div className="mt-2.5 pt-2 border-t border-emerald-100/70 flex items-center justify-between text-[11px] text-slate-500">
-                <span className="flex items-center gap-1 text-slate-500 group-hover:text-emerald-800 transition">
-                  <Sparkles className="w-3 h-3 text-emerald-500" />
-                  Click to choose a custom date & time
-                </span>
                 {isCustom && (
                   <button
                     type="button"

@@ -72,6 +72,19 @@ const parseDateTime = (str: string) => {
       throw new Error("Invalid date");
     }
 
+    const candidate = new Date(year, month, day, hour24, minute);
+    const now = new Date();
+    if (candidate.getTime() > now.getTime()) {
+      return {
+        year: now.getFullYear(),
+        month: now.getMonth(),
+        day: now.getDate(),
+        hour12: now.getHours() % 12 || 12,
+        minute: now.getMinutes(),
+        period: now.getHours() >= 12 ? ("PM" as const) : ("AM" as const),
+      };
+    }
+
     const hour12 = hour24 % 12 || 12;
     const period = hour24 >= 12 ? ("PM" as const) : ("AM" as const);
 
@@ -114,22 +127,38 @@ export default function CustomDateTimePickerModal({
   // Active tab: 'date' or 'time'
   const [activeTab, setActiveTab] = useState<"date" | "time">("date");
 
-  // Temporary picker state
-  const [selectedYear, setSelectedYear] = useState(2026);
-  const [selectedMonth, setSelectedMonth] = useState(9);
-  const [selectedDay, setSelectedDay] = useState(12);
-  const [selectedHour12, setSelectedHour12] = useState(1);
-  const [selectedMinute, setSelectedMinute] = useState(30);
-  const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">("PM");
+  // Temporary picker state initialized dynamically
+  const initial = useMemo(() => parseDateTime(value), [value]);
+
+  const [selectedYear, setSelectedYear] = useState(initial.year);
+  const [selectedMonth, setSelectedMonth] = useState(initial.month);
+  const [selectedDay, setSelectedDay] = useState(initial.day);
+  const [selectedHour12, setSelectedHour12] = useState(initial.hour12);
+  const [selectedMinute, setSelectedMinute] = useState(initial.minute);
+  const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">(
+    initial.period,
+  );
 
   // Calendar month navigation view
-  const [viewYear, setViewYear] = useState(2026);
-  const [viewMonth, setViewMonth] = useState(9);
+  const [viewYear, setViewYear] = useState(initial.year);
+  const [viewMonth, setViewMonth] = useState(initial.month);
 
   // Initialize state when popup opens
   useEffect(() => {
     if (open) {
       const p = parseDateTime(value);
+      const now = new Date();
+      const currentY = now.getFullYear();
+      const currentM = now.getMonth();
+
+      // Ensure view is never initialized to a future month/year
+      let vy = p.year;
+      let vm = p.month;
+      if (vy > currentY || (vy === currentY && vm > currentM)) {
+        vy = currentY;
+        vm = currentM;
+      }
+
       setSelectedYear(p.year);
       setSelectedMonth(p.month);
       setSelectedDay(p.day);
@@ -137,11 +166,68 @@ export default function CustomDateTimePickerModal({
       setSelectedMinute(p.minute);
       setSelectedPeriod(p.period);
 
-      setViewYear(p.year);
-      setViewMonth(p.month);
+      setViewYear(vy);
+      setViewMonth(vm);
       setActiveTab("date");
     }
   }, [open, value]);
+
+  // Current real-time date anchors
+  const now = new Date();
+  const todayY = now.getFullYear();
+  const todayM = now.getMonth();
+  const todayD = now.getDate();
+  const currentH24 = now.getHours();
+  const currentMin = now.getMinutes();
+
+  // Helper to determine if a specific calendar day is in the future
+  const isFutureDay = (y: number, m: number, d: number): boolean => {
+    if (y > todayY) return true;
+    if (y < todayY) return false;
+    if (m > todayM) return true;
+    if (m < todayM) return false;
+    return d > todayD;
+  };
+
+  // Check if currently viewing current month (or beyond), meaning Next Month goes into the future
+  const isNextMonthDisabled =
+    viewYear > todayY || (viewYear === todayY && viewMonth >= todayM);
+
+  // Check if selected date is today
+  const isSelectedDateToday =
+    selectedYear === todayY &&
+    selectedMonth === todayM &&
+    selectedDay === todayD;
+
+  // Time-disabling helpers when today is selected
+  const isPmDisabled = isSelectedDateToday && currentH24 < 12;
+
+  const isHourDisabled = (h: number): boolean => {
+    if (!isSelectedDateToday) return false;
+    let h24 = h % 12;
+    if (selectedPeriod === "PM") h24 += 12;
+    return h24 > currentH24;
+  };
+
+  let selectedHour24 = selectedHour12 % 12;
+  if (selectedPeriod === "PM") selectedHour24 += 12;
+
+  const isCurrentHourToday =
+    isSelectedDateToday && selectedHour24 === currentH24;
+  const maxMinuteAllowed = isCurrentHourToday ? currentMin : 59;
+
+  // Clamps time to now if user switched date to today and previous time was in future
+  const clampTimeToNowIfFuture = (y: number, m: number, d: number) => {
+    if (y === todayY && m === todayM && d === todayD) {
+      let h24 = selectedHour12 % 12;
+      if (selectedPeriod === "PM") h24 += 12;
+      if (h24 > currentH24 || (h24 === currentH24 && selectedMinute > currentMin)) {
+        setSelectedHour12(currentH24 % 12 || 12);
+        setSelectedPeriod(currentH24 >= 12 ? "PM" : "AM");
+        setSelectedMinute(currentMin);
+      }
+    }
+  };
 
   // Calendar days grid
   const calendarDays = useMemo(() => {
@@ -156,12 +242,8 @@ export default function CustomDateTimePickerModal({
       isCurrentMonth: boolean;
       isSelected: boolean;
       isToday: boolean;
+      isFuture: boolean;
     }> = [];
-
-    const now = new Date();
-    const todayY = now.getFullYear();
-    const todayM = now.getMonth();
-    const todayD = now.getDate();
 
     // Previous month trailing
     for (let i = firstDayOfMonth - 1; i >= 0; i--) {
@@ -176,6 +258,7 @@ export default function CustomDateTimePickerModal({
         isSelected:
           d === selectedDay && m === selectedMonth && y === selectedYear,
         isToday: d === todayD && m === todayM && y === todayY,
+        isFuture: isFutureDay(y, m, d),
       });
     }
 
@@ -191,6 +274,7 @@ export default function CustomDateTimePickerModal({
           viewMonth === selectedMonth &&
           viewYear === selectedYear,
         isToday: d === todayD && viewMonth === todayM && viewYear === todayY,
+        isFuture: isFutureDay(viewYear, viewMonth, d),
       });
     }
 
@@ -208,11 +292,12 @@ export default function CustomDateTimePickerModal({
         isSelected:
           d === selectedDay && m === selectedMonth && y === selectedYear,
         isToday: d === todayD && m === todayM && y === todayY,
+        isFuture: isFutureDay(y, m, d),
       });
     }
 
     return days;
-  }, [viewYear, viewMonth, selectedDay, selectedMonth, selectedYear]);
+  }, [viewYear, viewMonth, selectedDay, selectedMonth, selectedYear, todayY, todayM, todayD]);
 
   if (!open) return null;
 
@@ -229,6 +314,7 @@ export default function CustomDateTimePickerModal({
 
   const handleNextMonth = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isNextMonthDisabled) return;
     if (viewMonth === 11) {
       setViewMonth(0);
       setViewYear((y) => y + 1);
@@ -238,27 +324,86 @@ export default function CustomDateTimePickerModal({
   };
 
   const handleSetToday = () => {
-    const now = new Date();
-    setSelectedYear(now.getFullYear());
-    setSelectedMonth(now.getMonth());
-    setSelectedDay(now.getDate());
-    setViewYear(now.getFullYear());
-    setViewMonth(now.getMonth());
+    setSelectedYear(todayY);
+    setSelectedMonth(todayM);
+    setSelectedDay(todayD);
+    setViewYear(todayY);
+    setViewMonth(todayM);
+    clampTimeToNowIfFuture(todayY, todayM, todayD);
   };
 
   const handleSetNow = () => {
-    const now = new Date();
-    setSelectedYear(now.getFullYear());
-    setSelectedMonth(now.getMonth());
-    setSelectedDay(now.getDate());
-    setSelectedHour12(now.getHours() % 12 || 12);
-    setSelectedMinute(now.getMinutes());
-    setSelectedPeriod(now.getHours() >= 12 ? "PM" : "AM");
-    setViewYear(now.getFullYear());
-    setViewMonth(now.getMonth());
+    const curNow = new Date();
+    setSelectedYear(curNow.getFullYear());
+    setSelectedMonth(curNow.getMonth());
+    setSelectedDay(curNow.getDate());
+    setSelectedHour12(curNow.getHours() % 12 || 12);
+    setSelectedMinute(curNow.getMinutes());
+    setSelectedPeriod(curNow.getHours() >= 12 ? "PM" : "AM");
+    setViewYear(curNow.getFullYear());
+    setViewMonth(curNow.getMonth());
+  };
+
+  const handleSelectPeriod = (period: "AM" | "PM") => {
+    if (period === "PM" && isPmDisabled) return;
+    setSelectedPeriod(period);
+
+    let h24 = selectedHour12 % 12;
+    if (period === "PM") h24 += 12;
+
+    if (isSelectedDateToday) {
+      if (h24 > currentH24) {
+        setSelectedHour12(currentH24 % 12 || 12);
+        setSelectedMinute(currentMin);
+      } else if (h24 === currentH24 && selectedMinute > currentMin) {
+        setSelectedMinute(currentMin);
+      }
+    }
+  };
+
+  const handleSelectHour = (h: number) => {
+    if (isHourDisabled(h)) return;
+    setSelectedHour12(h);
+    let h24 = h % 12;
+    if (selectedPeriod === "PM") h24 += 12;
+    if (isSelectedDateToday && h24 === currentH24 && selectedMinute > currentMin) {
+      setSelectedMinute(currentMin);
+    }
   };
 
   const handleApply = () => {
+    let hour24 = selectedHour12 % 12;
+    if (selectedPeriod === "PM") {
+      hour24 += 12;
+    }
+
+    const curNow = new Date();
+    const candidate = new Date(
+      selectedYear,
+      selectedMonth,
+      selectedDay,
+      hour24,
+      selectedMinute,
+    );
+
+    // Final safety clamp: if candidate is in the future, clamp to current time
+    if (candidate.getTime() > curNow.getTime()) {
+      const clampedH12 = curNow.getHours() % 12 || 12;
+      const clampedPeriod = curNow.getHours() >= 12 ? "PM" : "AM";
+      const clampedMin = curNow.getMinutes();
+      const formatted = formatDateTimeLocal(
+        curNow.getFullYear(),
+        curNow.getMonth(),
+        curNow.getDate(),
+        clampedH12,
+        clampedMin,
+        clampedPeriod,
+      );
+      onApply(formatted);
+      onClose();
+      return;
+    }
+
     const formatted = formatDateTimeLocal(
       selectedYear,
       selectedMonth,
@@ -367,8 +512,17 @@ export default function CustomDateTimePickerModal({
                 <button
                   type="button"
                   onClick={handleNextMonth}
-                  className="p-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
-                  title="Next Month"
+                  disabled={isNextMonthDisabled}
+                  className={`p-1 rounded-md transition ${
+                    isNextMonthDisabled
+                      ? "text-slate-300 opacity-25 cursor-not-allowed"
+                      : "text-slate-400 hover:text-slate-800 hover:bg-slate-100 cursor-pointer"
+                  }`}
+                  title={
+                    isNextMonthDisabled
+                      ? "Future months disabled"
+                      : "Next Month"
+                  }
                 >
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -394,7 +548,9 @@ export default function CustomDateTimePickerModal({
                   <button
                     key={idx}
                     type="button"
+                    disabled={d.isFuture}
                     onClick={() => {
+                      if (d.isFuture) return;
                       setSelectedYear(d.year);
                       setSelectedMonth(d.month);
                       setSelectedDay(d.day);
@@ -402,15 +558,18 @@ export default function CustomDateTimePickerModal({
                         setViewYear(d.year);
                         setViewMonth(d.month);
                       }
+                      clampTimeToNowIfFuture(d.year, d.month, d.day);
                     }}
-                    className={`h-7 w-full rounded-lg text-xs flex items-center justify-center transition cursor-pointer ${
-                      d.isSelected
-                        ? "bg-emerald-600 text-white font-bold shadow-xs scale-105"
-                        : d.isToday
-                          ? "border border-emerald-500 text-emerald-700 font-bold bg-emerald-50/60"
-                          : d.isCurrentMonth
-                            ? "text-slate-800 font-semibold hover:bg-slate-100"
-                            : "text-slate-300 hover:bg-slate-50"
+                    className={`h-7 w-full rounded-lg text-xs flex items-center justify-center transition ${
+                      d.isFuture
+                        ? "text-slate-300/60 cursor-not-allowed opacity-35 hover:bg-transparent"
+                        : d.isSelected
+                          ? "bg-emerald-600 text-white font-bold shadow-xs scale-105 cursor-pointer"
+                          : d.isToday
+                            ? "border border-emerald-500 text-emerald-700 font-bold bg-emerald-50/60 cursor-pointer hover:bg-emerald-100/50"
+                            : d.isCurrentMonth
+                              ? "text-slate-800 font-semibold hover:bg-slate-100 cursor-pointer"
+                              : "text-slate-300 hover:bg-slate-50 cursor-pointer"
                     }`}
                   >
                     {d.day}
@@ -448,7 +607,7 @@ export default function CustomDateTimePickerModal({
             <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-xl text-xs font-bold gap-1">
               <button
                 type="button"
-                onClick={() => setSelectedPeriod("AM")}
+                onClick={() => handleSelectPeriod("AM")}
                 className={`py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                   selectedPeriod === "AM"
                     ? "bg-white text-emerald-700 shadow-xs"
@@ -459,11 +618,14 @@ export default function CustomDateTimePickerModal({
               </button>
               <button
                 type="button"
-                onClick={() => setSelectedPeriod("PM")}
-                className={`py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  selectedPeriod === "PM"
-                    ? "bg-white text-emerald-700 shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
+                disabled={isPmDisabled}
+                onClick={() => handleSelectPeriod("PM")}
+                className={`py-1.5 rounded-lg text-xs font-bold transition ${
+                  isPmDisabled
+                    ? "text-slate-300 opacity-40 cursor-not-allowed hover:bg-transparent"
+                    : selectedPeriod === "PM"
+                      ? "bg-white text-emerald-700 shadow-xs cursor-pointer"
+                      : "text-slate-600 hover:text-slate-900 cursor-pointer"
                 }`}
               >
                 PM
@@ -478,15 +640,19 @@ export default function CustomDateTimePickerModal({
               <div className="grid grid-cols-4 gap-1">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => {
                   const isSelected = selectedHour12 === h;
+                  const disabled = isHourDisabled(h);
                   return (
                     <button
                       key={h}
                       type="button"
-                      onClick={() => setSelectedHour12(h)}
-                      className={`py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                        isSelected
-                          ? "bg-emerald-600 text-white shadow-xs scale-105"
-                          : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80"
+                      disabled={disabled}
+                      onClick={() => handleSelectHour(h)}
+                      className={`py-1.5 rounded-lg text-xs font-bold transition ${
+                        disabled
+                          ? "bg-slate-50 text-slate-300 border border-slate-100 cursor-not-allowed opacity-40"
+                          : isSelected
+                            ? "bg-emerald-600 text-white shadow-xs scale-105 cursor-pointer"
+                            : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80 cursor-pointer"
                       }`}
                     >
                       {String(h).padStart(2, "0")}
@@ -506,7 +672,9 @@ export default function CustomDateTimePickerModal({
                   <button
                     type="button"
                     onClick={() =>
-                      setSelectedMinute((m) => (m === 0 ? 59 : m - 1))
+                      setSelectedMinute((m) =>
+                        m === 0 ? maxMinuteAllowed : m - 1,
+                      )
                     }
                     className="w-6 h-6 flex items-center justify-center rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition cursor-pointer"
                     title="-1 minute"
@@ -516,22 +684,32 @@ export default function CustomDateTimePickerModal({
                   <input
                     type="number"
                     min={0}
-                    max={59}
+                    max={maxMinuteAllowed}
                     value={String(selectedMinute).padStart(2, "0")}
                     onChange={(e) => {
                       const val = parseInt(e.target.value, 10);
                       if (!isNaN(val)) {
-                        setSelectedMinute(Math.min(59, Math.max(0, val)));
+                        setSelectedMinute(
+                          Math.min(maxMinuteAllowed, Math.max(0, val)),
+                        );
                       }
                     }}
                     className="w-10 h-6 text-center font-mono font-bold text-xs bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                   <button
                     type="button"
-                    onClick={() =>
-                      setSelectedMinute((m) => (m === 59 ? 0 : m + 1))
-                    }
-                    className="w-6 h-6 flex items-center justify-center rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                    disabled={isCurrentHourToday && selectedMinute >= maxMinuteAllowed}
+                    onClick={() => {
+                      if (isCurrentHourToday && selectedMinute >= maxMinuteAllowed) return;
+                      setSelectedMinute((m) =>
+                        m >= maxMinuteAllowed ? 0 : m + 1,
+                      );
+                    }}
+                    className={`w-6 h-6 flex items-center justify-center rounded-md border transition ${
+                      isCurrentHourToday && selectedMinute >= maxMinuteAllowed
+                        ? "bg-slate-50 border-slate-200 text-slate-300 cursor-not-allowed opacity-40"
+                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100 cursor-pointer"
+                    }`}
                     title="+1 minute"
                   >
                     <Plus className="w-3 h-3" />
@@ -543,15 +721,20 @@ export default function CustomDateTimePickerModal({
               <div className="grid grid-cols-4 gap-1">
                 {[0, 15, 30, 45].map((m) => {
                   const isSelected = selectedMinute === m;
+                  const chipDisabled =
+                    isCurrentHourToday && m > maxMinuteAllowed;
                   return (
                     <button
                       key={m}
                       type="button"
-                      onClick={() => setSelectedMinute(m)}
-                      className={`py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                        isSelected
-                          ? "bg-emerald-600 text-white shadow-xs"
-                          : "bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200/80"
+                      disabled={chipDisabled}
+                      onClick={() => !chipDisabled && setSelectedMinute(m)}
+                      className={`py-1 rounded-lg text-[10px] font-bold transition ${
+                        chipDisabled
+                          ? "bg-slate-50 text-slate-300 border border-slate-100 cursor-not-allowed opacity-40 hover:bg-slate-50 hover:text-slate-300"
+                          : isSelected
+                            ? "bg-emerald-600 text-white shadow-xs cursor-pointer"
+                            : "bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200/80 cursor-pointer"
                       }`}
                     >
                       :{String(m).padStart(2, "0")}

@@ -20,8 +20,9 @@ import {
   ExternalLink,
   FileX,
   PhoneCall,
-  History,
   Clock,
+  Bed,
+  Bath,
 } from "lucide-react";
 import { useGetHomeEvaluationRequests } from "@/src/hooks/homeEvaluation/useHomeEvaluationQueries";
 import { HomeEvaluationRequestItem } from "@/src/api/homeEvaluation/homeEvaluationApi";
@@ -127,6 +128,8 @@ export default function AdminEvaluationRequestsDashboard() {
         const phone = (req.phoneNumber || "").toLowerCase();
         const address = (req.address || "").toLowerCase();
         const size = (req.propertySizeInSquareFeet || "").toString().toLowerCase();
+        const city = (req.city || "").toLowerCase();
+        const postal = (req.postal_code || "").toLowerCase();
         const search = searchTerm.toLowerCase().trim();
 
         return (
@@ -135,7 +138,9 @@ export default function AdminEvaluationRequestsDashboard() {
           email.includes(search) ||
           phone.includes(search) ||
           address.includes(search) ||
-          size.includes(search)
+          size.includes(search) ||
+          city.includes(search) ||
+          postal.includes(search)
         );
       })
       .sort((a, b) => {
@@ -306,7 +311,7 @@ export default function AdminEvaluationRequestsDashboard() {
                 setSearchTerm(e.target.value);
                 setPage(1);
               }}
-              placeholder="Search by client name, email, phone, property address..."
+              placeholder="Search by client name, email, phone, address, city, postal code..."
               className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
             />
           </div>
@@ -513,28 +518,17 @@ export default function AdminEvaluationRequestsDashboard() {
                       {/* Call History Column (Replaces Submitted Date) */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         {req.call_histories && req.call_histories.length > 0 ? (
-                          <div className="flex items-center gap-2.5">
-                            <div className="flex flex-col">
-                              <div className="flex items-center gap-1.5 text-slate-900 font-bold text-xs">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-                                <span>{formatDate(req.call_histories[0].callAt)}</span>
-                              </div>
-                              <span className="text-[10px] text-slate-400 mt-0.5">
-                                {req.call_histories.length}{" "}
-                                {req.call_histories.length === 1
-                                  ? "call recorded"
-                                  : "calls recorded"}
-                              </span>
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-1.5 text-slate-900 font-bold text-xs">
+                              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                              <span>{formatDate(req.call_histories[0].callAt)}</span>
                             </div>
-
-                            <button
-                              type="button"
-                              onClick={() => handleOpenLogCall(req)}
-                              className="p-1 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 transition cursor-pointer"
-                              title="View Call History / Log Timing"
-                            >
-                              <History className="w-3.5 h-3.5" />
-                            </button>
+                            <span className="text-[10px] text-slate-400 mt-0.5">
+                              {req.call_histories.length}{" "}
+                              {req.call_histories.length === 1
+                                ? "call recorded"
+                                : "calls recorded"}
+                            </span>
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">

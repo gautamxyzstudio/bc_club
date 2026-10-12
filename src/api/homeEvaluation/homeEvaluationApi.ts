@@ -28,6 +28,10 @@ export interface HomeEvaluationPayload {
   phoneNumber: string;
   address: string;
   propertySizeInSquareFeet: string;
+  city?: string;
+  postal_code?: string;
+  bedrooms?: string;
+  bathrooms?: string;
 }
 
 export interface CallHistoryItem {
@@ -48,6 +52,10 @@ export interface HomeEvaluationRequestItem {
   phoneNumber: string;
   address: string;
   propertySizeInSquareFeet: string;
+  city?: string;
+  postal_code?: string;
+  bedrooms?: string;
+  bathrooms?: string;
   createdAt: string;
   updatedAt?: string;
   publishedAt?: string;
@@ -67,6 +75,10 @@ export function normalizeHomeEvaluationItem(item: any): HomeEvaluationRequestIte
       phoneNumber: "",
       address: "",
       propertySizeInSquareFeet: "",
+      city: "",
+      postal_code: "",
+      bedrooms: "",
+      bathrooms: "",
       createdAt: "",
       call_histories: [],
     };
@@ -110,6 +122,10 @@ export function normalizeHomeEvaluationItem(item: any): HomeEvaluationRequestIte
     phoneNumber: attrs.phoneNumber || attrs.phone || "",
     address: attrs.address || "",
     propertySizeInSquareFeet: attrs.propertySizeInSquareFeet || attrs.propertySize || "",
+    city: attrs.city || "",
+    postal_code: attrs.postal_code || attrs.postalCode || "",
+    bedrooms: attrs.bedrooms != null ? String(attrs.bedrooms) : "",
+    bathrooms: attrs.bathrooms != null ? String(attrs.bathrooms) : "",
     createdAt: attrs.createdAt || item.createdAt || new Date().toISOString(),
     updatedAt: attrs.updatedAt || item.updatedAt,
     publishedAt: attrs.publishedAt || item.publishedAt,

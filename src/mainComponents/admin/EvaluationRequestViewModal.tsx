@@ -13,6 +13,10 @@ import {
   Compass,
   Trash2,
   RefreshCw,
+  Building2,
+  Bed,
+  Bath,
+  Navigation,
 } from "lucide-react";
 import { HomeEvaluationRequestItem, CallHistoryItem } from "@/src/api/homeEvaluation/homeEvaluationApi";
 import { useDeleteCallHistory } from "@/src/hooks/homeEvaluation/useHomeEvaluationQueries";
@@ -83,6 +87,27 @@ export default function EvaluationRequestViewModal({
         minute: "2-digit",
       })
     : "N/A";
+
+  // Helper to resolve city (either stored directly or extracted from address if legacy)
+  let displayCity = (request.city || "").trim();
+  if (!displayCity && request.address) {
+    const parts = request.address.split(",").map((p) => p.trim());
+    if (parts.length >= 2) {
+      const cityPart = parts[1]
+        .replace(/\b(BC|AB|ON|QC|MB|SK|NS|NB|NL|PE|YT|NT|NU)\b.*$/i, "")
+        .trim();
+      if (cityPart) displayCity = cityPart;
+    }
+  }
+
+  // Helper to resolve postal code (either stored directly or extracted from address if legacy)
+  let displayPostalCode = (request.postal_code || "").trim().toUpperCase();
+  if (!displayPostalCode && request.address) {
+    const match = request.address.match(
+      /\b([A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d)\b/,
+    );
+    if (match) displayPostalCode = match[1].toUpperCase();
+  }
 
   const getInitials = (name?: string) => {
     if (!name) return "E";
@@ -178,11 +203,6 @@ export default function EvaluationRequestViewModal({
 
           {/* Property Assessment Request Details */}
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-4">
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Compass className="w-3.5 h-3.5 text-indigo-600" />
-              Property & Valuation Details
-            </h4>
-
             {/* Property Address */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
@@ -220,23 +240,73 @@ export default function EvaluationRequestViewModal({
               )}
             </div>
 
-            {/* Property Size */}
-            <div className="space-y-1.5 pt-2 border-t border-slate-200/60">
-              <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-                <span className="flex items-center gap-1.5">
-                  <Maximize2 className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                  Estimated Size / Area
-                </span>
+            {/* Property Specs Grid: Size, Bedrooms, Bathrooms, City, Postal Code */}
+            <div className="pt-2 border-t border-slate-200/60 space-y-2.5">
+              {/* Row 1: Area Size, Bedrooms, Bathrooms */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {/* Area Size */}
+                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1 shadow-2xs">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <Maximize2 className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                    Area Size
+                  </span>
+                  <p className="text-sm font-bold text-slate-800">
+                    {request.propertySizeInSquareFeet
+                      ? `${request.propertySizeInSquareFeet} sq ft`
+                      : "Not specified"}
+                  </p>
+                </div>
+
+                {/* Bedrooms */}
+                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1 shadow-2xs">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <Bed className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                    Bedrooms
+                  </span>
+                  <p className="text-sm font-bold text-slate-800">
+                    {request.bedrooms
+                      ? `${request.bedrooms} ${request.bedrooms === "1" ? "Bed" : "Beds"}`
+                      : "Not specified"}
+                  </p>
+                </div>
+
+                {/* Bathrooms */}
+                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1 shadow-2xs">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <Bath className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+                    Bathrooms
+                  </span>
+                  <p className="text-sm font-bold text-slate-800">
+                    {request.bathrooms
+                      ? `${request.bathrooms} ${request.bathrooms === "1" ? "Bath" : "Baths"}`
+                      : "Not specified"}
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="px-3.5 py-1.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 font-bold text-sm">
-                  {request.propertySizeInSquareFeet
-                    ? `${request.propertySizeInSquareFeet} sq ft`
-                    : "Not Specified"}
-                </span>
-                <span className="text-xs text-slate-400">
-                  (Estimated interior living area submitted by owner)
-                </span>
+
+              {/* Row 2: City, Postal Code (full width columns for no text truncation) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* City */}
+                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1 shadow-2xs">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    City
+                  </span>
+                  <p className="text-sm font-bold text-slate-800 break-words">
+                    {displayCity || "Not specified"}
+                  </p>
+                </div>
+
+                {/* Postal Code */}
+                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1 shadow-2xs">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <Navigation className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    Postal Code
+                  </span>
+                  <p className="text-sm font-bold text-slate-800 uppercase font-mono break-words">
+                    {displayPostalCode || "Not specified"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

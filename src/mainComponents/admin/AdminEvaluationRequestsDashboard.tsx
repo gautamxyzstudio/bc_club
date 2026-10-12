@@ -19,11 +19,15 @@ import {
   Download,
   ExternalLink,
   FileX,
+  PhoneCall,
+  History,
+  Clock,
 } from "lucide-react";
 import { useGetHomeEvaluationRequests } from "@/src/hooks/homeEvaluation/useHomeEvaluationQueries";
 import { HomeEvaluationRequestItem } from "@/src/api/homeEvaluation/homeEvaluationApi";
 import EvaluationRequestViewModal from "./EvaluationRequestViewModal";
 import EvaluationRequestDeleteModal from "./EvaluationRequestDeleteModal";
+import LogCallModal from "./LogCallModal";
 import { toast } from "react-toastify";
 
 export default function AdminEvaluationRequestsDashboard() {
@@ -67,6 +71,15 @@ export default function AdminEvaluationRequestsDashboard() {
   const [selectedRequestForDelete, setSelectedRequestForDelete] =
     useState<HomeEvaluationRequestItem | null>(null);
 
+  const [logCallModalOpen, setLogCallModalOpen] = useState(false);
+  const [selectedRequestForCall, setSelectedRequestForCall] =
+    useState<HomeEvaluationRequestItem | null>(null);
+
+  const handleOpenLogCall = (req: HomeEvaluationRequestItem) => {
+    setSelectedRequestForCall(req);
+    setLogCallModalOpen(true);
+  };
+
   // Query evaluation requests from API
   const {
     data: requests = [],
@@ -76,6 +89,27 @@ export default function AdminEvaluationRequestsDashboard() {
     error,
     refetch,
   } = useGetHomeEvaluationRequests();
+
+  // Active requests dynamically synced with live requests data
+  const activeRequestForCall = useMemo(() => {
+    if (!selectedRequestForCall) return null;
+    const match = requests.find(
+      (r) =>
+        (r.documentId && r.documentId === selectedRequestForCall.documentId) ||
+        (r.id && r.id === selectedRequestForCall.id),
+    );
+    return match || selectedRequestForCall;
+  }, [requests, selectedRequestForCall]);
+
+  const activeRequestForView = useMemo(() => {
+    if (!selectedRequestForView) return null;
+    const match = requests.find(
+      (r) =>
+        (r.documentId && r.documentId === selectedRequestForView.documentId) ||
+        (r.id && r.id === selectedRequestForView.id),
+    );
+    return match || selectedRequestForView;
+  }, [requests, selectedRequestForView]);
 
   // Show error toast notification whenever query fails
   useEffect(() => {
@@ -174,7 +208,8 @@ export default function AdminEvaluationRequestsDashboard() {
         "Phone Number",
         "Address",
         "Property Size (Sq Ft)",
-        "Submitted Date",
+        "Call History Count",
+        "Latest Call Date",
       ];
 
       const rows = filteredRequests.map((req) => [
@@ -184,7 +219,8 @@ export default function AdminEvaluationRequestsDashboard() {
         `"${(req.phoneNumber || "").replace(/"/g, '""')}"`,
         `"${(req.address || "").replace(/"/g, '""')}"`,
         `"${(req.propertySizeInSquareFeet || "").toString().replace(/"/g, '""')}"`,
-        `"${req.createdAt ? new Date(req.createdAt).toISOString() : ""}"`,
+        `"${req.call_histories?.length || 0}"`,
+        `"${req.call_histories?.[0]?.callAt ? formatDate(req.call_histories[0].callAt) : "No calls"}"`,
       ]);
 
       const csvContent =
@@ -408,7 +444,7 @@ export default function AdminEvaluationRequestsDashboard() {
                   <th className="py-3.5 px-4 sm:px-6">Client / Contact</th>
                   <th className="py-3.5 px-4">Property Address</th>
                   <th className="py-3.5 px-4">Size (Sq Ft)</th>
-                  <th className="py-3.5 px-4">Submitted Date</th>
+                  <th className="py-3.5 px-4 min-w-[200px]">Call History</th>
                   <th className="py-3.5 px-4 sm:px-6 text-center">Actions</th>
                 </tr>
               </thead>
@@ -441,14 +477,13 @@ export default function AdminEvaluationRequestsDashboard() {
                                 </a>
                               )}
                               {req.phoneNumber && (
-                                <a
-                                  href={`tel:${req.phoneNumber.replace(/[^0-9+]/g, "")}`}
-                                  className="text-[11px] text-slate-500 hover:text-emerald-600 transition flex items-center gap-1 truncate"
-                                  title={req.phoneNumber}
+                                <div
+                                  className="text-[11px] text-slate-600 flex items-center gap-1 truncate select-all"
+                                  title={`Phone: ${req.phoneNumber}`}
                                 >
                                   <Phone className="w-3 h-3 text-slate-400 shrink-0" />
-                                  <span className="truncate">{req.phoneNumber}</span>
-                                </a>
+                                  <span className="truncate font-mono">{req.phoneNumber}</span>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -475,12 +510,40 @@ export default function AdminEvaluationRequestsDashboard() {
                         </span>
                       </td>
 
-                      {/* Submitted Date */}
-                      <td className="py-3.5 px-4 text-slate-500 text-[11px] font-medium whitespace-nowrap">
-                        <div className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span>{formatDate(req.createdAt)}</span>
-                        </div>
+                      {/* Call History Column (Replaces Submitted Date) */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        {req.call_histories && req.call_histories.length > 0 ? (
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-1.5 text-slate-900 font-bold text-xs">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span>{formatDate(req.call_histories[0].callAt)}</span>
+                              </div>
+                              <span className="text-[10px] text-slate-400 mt-0.5">
+                                {req.call_histories.length}{" "}
+                                {req.call_histories.length === 1
+                                  ? "call recorded"
+                                  : "calls recorded"}
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleOpenLogCall(req)}
+                              className="p-1 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 transition cursor-pointer"
+                              title="View Call History / Log Timing"
+                            >
+                              <History className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-500 text-[11px] font-medium border border-slate-200/70">
+                              <Phone className="w-3 h-3 text-slate-400" />
+                              No calls
+                            </span>
+                          </div>
+                        )}
                       </td>
 
                       {/* Actions */}
@@ -499,16 +562,15 @@ export default function AdminEvaluationRequestsDashboard() {
                             <Eye className="w-4 h-4" />
                           </button>
 
-                          {/* Quick Phone */}
-                          {req.phoneNumber && (
-                            <a
-                              href={`tel:${req.phoneNumber.replace(/[^0-9+]/g, "")}`}
-                              className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition inline-flex items-center"
-                              title="Call Client"
-                            >
-                              <Phone className="w-4 h-4" />
-                            </a>
-                          )}
+                          {/* Log Call Timing */}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenLogCall(req)}
+                            className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition inline-flex items-center cursor-pointer"
+                            title="Log Call Timing"
+                          >
+                            <Phone className="w-4 h-4" />
+                          </button>
 
                           {/* Delete Request */}
                           <button
@@ -576,7 +638,17 @@ export default function AdminEvaluationRequestsDashboard() {
           setViewModalOpen(false);
           setSelectedRequestForView(null);
         }}
-        request={selectedRequestForView}
+        request={activeRequestForView}
+        onOpenLogCall={(req) => handleOpenLogCall(req)}
+      />
+
+      <LogCallModal
+        open={logCallModalOpen}
+        onClose={() => {
+          setLogCallModalOpen(false);
+          setSelectedRequestForCall(null);
+        }}
+        request={activeRequestForCall}
       />
 
       <EvaluationRequestDeleteModal

@@ -63,7 +63,7 @@ interface HomeEvaluationFormValues {
 
 const HomeEstimationTop = () => {
   const router = useRouter();
-  const { isLoggedIn, username } = useAuthContext();
+  const { isLoggedIn, username, setOpenLogin } = useAuthContext();
   const { data: me } = useGetMe();
 
   // Form submission state
@@ -324,6 +324,9 @@ const HomeEstimationTop = () => {
                 type="button"
                 onClick={() => {
                   handleCloseModal();
+                  if (!isLoggedIn) {
+                    setOpenLogin(true);
+                  }
                   setTimeout(() => {
                     const sectionEl = document.getElementById(
                       "bc-assessment-search-section"
@@ -334,11 +337,13 @@ const HomeEstimationTop = () => {
                         block: "center",
                       });
                     }
-                    const inputEl = document.getElementById(
-                      "bc-assessment-search-input"
-                    ) as HTMLInputElement;
-                    if (inputEl) {
-                      inputEl.focus();
+                    if (isLoggedIn) {
+                      const inputEl = document.getElementById(
+                        "bc-assessment-search-input"
+                      ) as HTMLInputElement;
+                      if (inputEl) {
+                        inputEl.focus();
+                      }
                     }
                   }, 120);
                 }}

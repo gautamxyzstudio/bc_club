@@ -17,6 +17,11 @@ export const Endpoints = {
   deleteHomeEvaluationRequest: (id: string | number) =>
     `${BASE_URL}/api/home-evaluation-requests/${id}`,
 
+  // Call History Endpoints
+  getCallHistories: `${BASE_URL}/api/call-histories`,
+  createCallHistory: `${BASE_URL}/api/call-histories`,
+  deleteCallHistory: (id: string | number) => `${BASE_URL}/api/call-histories/${id}`,
+
   // Assignment List Properties
   getAssessmentPropertiesList: `${BASE_URL}/api/property-assignment-lists`,
   getPropertiesAssignmentDetails: (id: string) =>

@@ -30,6 +30,16 @@ export interface HomeEvaluationPayload {
   propertySizeInSquareFeet: string;
 }
 
+export interface CallHistoryItem {
+  id: number | string;
+  documentId?: string;
+  callAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  home_evaluation_request?: any;
+}
+
 export interface HomeEvaluationRequestItem {
   id: number | string;
   documentId?: string;
@@ -41,6 +51,7 @@ export interface HomeEvaluationRequestItem {
   createdAt: string;
   updatedAt?: string;
   publishedAt?: string;
+  call_histories?: CallHistoryItem[];
   [key: string]: any;
 }
 
@@ -57,10 +68,40 @@ export function normalizeHomeEvaluationItem(item: any): HomeEvaluationRequestIte
       address: "",
       propertySizeInSquareFeet: "",
       createdAt: "",
+      call_histories: [],
     };
   }
 
   const attrs = item.attributes || item;
+  
+  // Extract and normalize call_histories array
+  const rawHistories =
+    attrs.call_histories?.data ||
+    attrs.call_histories ||
+    item.call_histories?.data ||
+    item.call_histories ||
+    [];
+
+  const normalizedCallHistories: CallHistoryItem[] = Array.isArray(rawHistories)
+    ? rawHistories
+        .map((h: any) => {
+          const hAttrs = h.attributes || h;
+          return {
+            id: h.id || hAttrs.id || h.documentId || hAttrs.documentId || "",
+            documentId: h.documentId || hAttrs.documentId || h.id?.toString(),
+            callAt: hAttrs.callAt || h.callAt || hAttrs.createdAt || h.createdAt || "",
+            createdAt: hAttrs.createdAt || h.createdAt,
+            updatedAt: hAttrs.updatedAt || h.updatedAt,
+            publishedAt: hAttrs.publishedAt || h.publishedAt,
+          };
+        })
+        .sort(
+          (a: CallHistoryItem, b: CallHistoryItem) =>
+            new Date(b.callAt || b.createdAt || 0).getTime() -
+            new Date(a.callAt || a.createdAt || 0).getTime(),
+        )
+    : [];
+
   return {
     id: item.id || attrs.id || item.documentId || attrs.documentId || "",
     documentId: item.documentId || attrs.documentId || item.id?.toString(),
@@ -72,6 +113,7 @@ export function normalizeHomeEvaluationItem(item: any): HomeEvaluationRequestIte
     createdAt: attrs.createdAt || item.createdAt || new Date().toISOString(),
     updatedAt: attrs.updatedAt || item.updatedAt,
     publishedAt: attrs.publishedAt || item.publishedAt,
+    call_histories: normalizedCallHistories,
     ...attrs,
   };
 }
@@ -198,19 +240,91 @@ export async function getHomeEvaluationRequestById(
   }
 }
 
+export type DeleteHomeEvaluationPayload =
+  | string
+  | number
+  | {
+      id: string | number;
+      callHistories?: CallHistoryItem[];
+    };
+
 /**
- * Delete a Home Evaluation Request by ID or documentId
+ * Delete a Home Evaluation Request by ID or documentId,
+ * and cascade-delete all associated Call History records.
  */
 export async function deleteHomeEvaluationRequest(
-  id: string | number,
+  payload: DeleteHomeEvaluationPayload,
 ): Promise<boolean> {
   try {
     const authHeaders = getAuthHeaders();
-    const targetIdentifier = id;
+    const targetIdentifier =
+      typeof payload === "object" ? payload.id : payload;
+    const knownCallHistories =
+      typeof payload === "object" ? payload.callHistories : undefined;
+
+    const deletedCallIds = new Set<string>();
+
+    // 1. Delete known call histories if provided from request state
+    if (Array.isArray(knownCallHistories) && knownCallHistories.length > 0) {
+      await Promise.allSettled(
+        knownCallHistories.map(async (ch) => {
+          const chId = ch.documentId || ch.id;
+          if (chId) {
+            deletedCallIds.add(String(chId));
+            return deleteCallHistory(chId);
+          }
+        }),
+      );
+    }
+
+    // 2. Query Strapi for any additional call histories linked to this evaluation request
+    try {
+      const res = await axios.get(
+        `${Endpoints.getCallHistories}?filters[home_evaluation_request][documentId][$eq]=${targetIdentifier}&pagination[pageSize]=100`,
+        authHeaders,
+      );
+      const items = res.data?.data || [];
+      if (Array.isArray(items) && items.length > 0) {
+        await Promise.allSettled(
+          items.map(async (item: any) => {
+            const chId = item.documentId || item.id;
+            if (chId && !deletedCallIds.has(String(chId))) {
+              deletedCallIds.add(String(chId));
+              return deleteCallHistory(chId);
+            }
+          }),
+        );
+      }
+    } catch {
+      // Fallback: try by numeric ID filter
+      try {
+        const res = await axios.get(
+          `${Endpoints.getCallHistories}?filters[home_evaluation_request][id][$eq]=${targetIdentifier}&pagination[pageSize]=100`,
+          authHeaders,
+        );
+        const items = res.data?.data || [];
+        if (Array.isArray(items) && items.length > 0) {
+          await Promise.allSettled(
+            items.map(async (item: any) => {
+              const chId = item.documentId || item.id;
+              if (chId && !deletedCallIds.has(String(chId))) {
+                deletedCallIds.add(String(chId));
+                return deleteCallHistory(chId);
+              }
+            }),
+          );
+        }
+      } catch {
+        // Silently continue to parent request deletion
+      }
+    }
+
+    // 3. Delete the parent Home Evaluation Request
     await axios.delete(
       Endpoints.deleteHomeEvaluationRequest(targetIdentifier),
       authHeaders,
     );
+
     return true;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -218,6 +332,70 @@ export async function deleteHomeEvaluationRequest(
         error.response?.data?.error?.message ||
           error.response?.data?.message ||
           "Failed to delete evaluation request",
+      );
+    }
+    throw error;
+  }
+}
+
+/**
+ * Create a Call History entry for a Home Evaluation Request
+ */
+export async function createCallHistory(payload: {
+  callAt: string;
+  home_evaluation_request: string | number;
+}): Promise<CallHistoryItem> {
+  try {
+    const authHeaders = getAuthHeaders();
+    const res = await axios.post(
+      Endpoints.createCallHistory,
+      {
+        data: {
+          callAt: payload.callAt,
+          home_evaluation_request: payload.home_evaluation_request,
+        },
+      },
+      authHeaders,
+    );
+
+    const raw = res.data?.data || res.data;
+    const attrs = raw.attributes || raw;
+    return {
+      id: raw.id || attrs.id || raw.documentId || attrs.documentId || "",
+      documentId: raw.documentId || attrs.documentId || raw.id?.toString(),
+      callAt: attrs.callAt || raw.callAt || new Date().toISOString(),
+      createdAt: attrs.createdAt || raw.createdAt,
+      updatedAt: attrs.updatedAt || raw.updatedAt,
+      publishedAt: attrs.publishedAt || raw.publishedAt,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error?.message ||
+          error.response?.data?.message ||
+          "Failed to log call history",
+      );
+    }
+    throw error;
+  }
+}
+
+/**
+ * Delete a Call History entry
+ */
+export async function deleteCallHistory(
+  id: string | number,
+): Promise<boolean> {
+  try {
+    const authHeaders = getAuthHeaders();
+    await axios.delete(Endpoints.deleteCallHistory(id), authHeaders);
+    return true;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error?.message ||
+          error.response?.data?.message ||
+          "Failed to delete call record",
       );
     }
     throw error;

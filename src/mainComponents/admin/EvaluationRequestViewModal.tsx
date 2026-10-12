@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   X,
   Mail,
@@ -11,20 +11,42 @@ import {
   ExternalLink,
   Calculator,
   Compass,
+  Trash2,
+  RefreshCw,
 } from "lucide-react";
-import { HomeEvaluationRequestItem } from "@/src/api/homeEvaluation/homeEvaluationApi";
+import { HomeEvaluationRequestItem, CallHistoryItem } from "@/src/api/homeEvaluation/homeEvaluationApi";
+import { useDeleteCallHistory } from "@/src/hooks/homeEvaluation/useHomeEvaluationQueries";
+import DeleteCallLogModal from "./DeleteCallLogModal";
 
 interface EvaluationRequestViewModalProps {
   open: boolean;
   onClose: () => void;
   request: HomeEvaluationRequestItem | null;
+  onOpenLogCall?: (request: HomeEvaluationRequestItem) => void;
 }
 
 export default function EvaluationRequestViewModal({
   open,
   onClose,
   request,
+  onOpenLogCall,
 }: EvaluationRequestViewModalProps) {
+  const deleteCallMutation = useDeleteCallHistory();
+  const [deletingId, setDeletingId] = useState<string | number | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<CallHistoryItem | null>(null);
+
+  const confirmDeleteCall = () => {
+    if (!itemToDelete) return;
+    const id = itemToDelete.documentId || itemToDelete.id;
+    setDeletingId(id);
+    setItemToDelete(null);
+    deleteCallMutation.mutate(id, {
+      onSettled: () => {
+        setDeletingId(null);
+      },
+    });
+  };
+
   // Prevent background scrolling when modal is open
   useEffect(() => {
     if (open) {
@@ -219,14 +241,90 @@ export default function EvaluationRequestViewModal({
             </div>
           </div>
 
-          {/* Submission Info Bar */}
-          <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-100/60 border border-slate-200/60 text-xs text-slate-500">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-slate-400" />
-              <span>
-                Received on: <strong>{formattedDate}</strong>
-              </span>
+          {/* Call History Section (Replaces old Submitted Date section) */}
+          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Phone className="w-3.5 h-3.5" />
+                </div>
+                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Call History
+                </h4>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                  {(request.call_histories || []).length}{" "}
+                  {(request.call_histories || []).length === 1 ? "call" : "calls"}
+                </span>
+              </div>
             </div>
+
+            {/* List of Calls */}
+            {(!request.call_histories || request.call_histories.length === 0) ? (
+              <div className="p-4 rounded-xl bg-white border border-dashed border-slate-200 text-center space-y-2">
+                <p className="text-xs text-slate-400">
+                  No calls have been recorded with this client yet.
+                </p>
+              
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                {request.call_histories.map((call, index) => {
+                  const callDate = call.callAt || call.createdAt;
+                  let formattedCallDate = "N/A";
+                  try {
+                    formattedCallDate = callDate
+                      ? new Date(callDate).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "N/A";
+                  } catch {
+                    formattedCallDate = callDate || "N/A";
+                  }
+
+                  const callId = call.documentId || call.id;
+
+                  return (
+                    <div
+                      key={call.documentId || call.id || index}
+                      className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200/70 group"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                        <div>
+                          <p className="text-xs font-bold text-slate-800">
+                            {formattedCallDate}
+                          </p>
+                          <p className="text-[10px] text-slate-400">
+                            Recorded interaction #{request.call_histories!.length - index}
+                          </p>
+                        </div>
+                      </div>
+
+                      {callId && (
+                        <button
+                          type="button"
+                          onClick={() => setItemToDelete(call)}
+                          disabled={deletingId === callId}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition opacity-60 hover:opacity-100 cursor-pointer disabled:opacity-50"
+                          title="Remove Call Record"
+                        >
+                          {deletingId === callId ? (
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-500" />
+                          ) : (
+                            <Trash2 className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
@@ -241,6 +339,15 @@ export default function EvaluationRequestViewModal({
           </button>
         </div>
       </div>
+
+      {/* Custom Confirmation Popup for Deleting Call Record */}
+      <DeleteCallLogModal
+        open={!!itemToDelete}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={confirmDeleteCall}
+        isDeleting={!!deletingId}
+        callDate={itemToDelete?.callAt || itemToDelete?.createdAt}
+      />
     </div>
   );
 }

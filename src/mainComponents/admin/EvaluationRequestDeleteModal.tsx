@@ -50,7 +50,10 @@ export default function EvaluationRequestDeleteModal({
 
   const handleDelete = async () => {
     try {
-      await deleteMutation.mutateAsync(targetIdentifier);
+      await deleteMutation.mutateAsync({
+        id: targetIdentifier,
+        callHistories: request.call_histories,
+      });
       onSuccess?.();
       onClose();
     } catch {
@@ -105,7 +108,18 @@ export default function EvaluationRequestDeleteModal({
           <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 flex items-start gap-2.5 mt-2">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <p className="text-[11px] text-amber-800 leading-normal">
-              This action cannot be undone. The client inquiry record will be removed from your database.
+              This action cannot be undone. The client inquiry record
+              {request.call_histories && request.call_histories.length > 0 ? (
+                <>
+                  {" "}
+                  and all{" "}
+                  <strong className="text-amber-900 font-bold">
+                    {request.call_histories.length}{" "}
+                    associated call {request.call_histories.length === 1 ? "record" : "records"}
+                  </strong>
+                </>
+              ) : null}{" "}
+              will be permanently removed.
             </p>
           </div>
         </div>

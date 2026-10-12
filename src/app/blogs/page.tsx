@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useMemo } from "react";
@@ -96,7 +97,7 @@ const Page = () => {
             <div className="flex flex-col lg:flex-row gap-6 items-stretch animate-pulse">
               {/* Left Big Card Skeleton */}
               <div className="lg:w-1/2 bg-white rounded-2xl overflow-hidden shadow-xs flex flex-col justify-between border border-gray-100">
-                <div className="relative w-full aspect-[16/9] bg-gray-200 flex items-center justify-center">
+                <div className="relative w-full aspect-video bg-gray-200 flex items-center justify-center">
                   <div className="w-10 h-10 border-4 border-gray-300 border-t-[#F4A51C] rounded-full animate-spin"></div>
                 </div>
                 <div className="p-5 sm:p-6 space-y-4">
@@ -117,7 +118,7 @@ const Page = () => {
                     key={i}
                     className="bg-white rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row gap-5 items-center border border-gray-100"
                   >
-                    <div className="w-full sm:w-56 md:w-60 lg:w-64 aspect-[16/9] rounded-2xl bg-gray-200 shrink-0"></div>
+                    <div className="w-full sm:w-56 md:w-60 lg:w-64 aspect-video rounded-2xl bg-gray-200 shrink-0"></div>
                     <div className="flex-1 w-full space-y-3">
                       <div className="h-3 bg-gray-200 rounded w-20"></div>
                       <div className="h-5 bg-gray-200 rounded w-3/4"></div>
@@ -136,7 +137,7 @@ const Page = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="bg-white rounded-2xl overflow-hidden p-4 space-y-3 border border-gray-100">
-                  <div className="w-full aspect-[16/9] bg-gray-200 rounded-xl"></div>
+                  <div className="w-full aspect-video bg-gray-200 rounded-xl"></div>
                   <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                   <div className="h-3 bg-gray-200 rounded w-full"></div>
                 </div>
@@ -167,16 +168,16 @@ const Page = () => {
                 <div className="lg:w-1/2 bg-white rounded-2xl overflow-hidden group shadow-xs flex flex-col justify-between border border-gray-100">
                   <Link
                     href={`/blogs/${firstBlog.slug}`}
-                    className="block flex-1 flex flex-col justify-between"
+                    className="flex-1 flex flex-col justify-between"
                   >
-                    <div className="relative w-full h-48 md:h-[278px] bg-slate-50 flex items-center justify-center">
+                    <div className="relative w-full h-50 md:h-80 bg-slate-50 flex items-center justify-center">
                       <Image
                         title={firstBlog.blogTitle}
                         src={getBlogImageUrl(firstBlog.blogImage)}
                         alt={firstBlog.blogTitle || "Smart Property Investment"}
                         width={1200}
                         height={899}
-                        className="h-48 md:h-[278px] object-top rounded-t-2xl group-hover:scale-103 transition-transform duration-500"
+                        className="h-50 md:h-80 object-fill rounded-t-2xl group-hover:scale-103 transition-transform duration-500"
                       />
                     </div>
 
@@ -224,14 +225,14 @@ const Page = () => {
                   {rightBlogs.map((blog) => (
                     <div
                       key={blog.id || blog.slug}
-                      className="group bg-white rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-center border border-gray-100"
+                      className="group bg-white h-60 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-center border border-gray-100"
                     >
                       <Link
                         href={`/blogs/${blog.slug}`}
                         className="flex flex-col sm:flex-row gap-5 w-full items-center"
                       >
                         {/* Fixed Image Container with aspect-16/9 */}
-                        <div className="relative w-full sm:w-56 md:w-60 lg:w-64 aspect-[16/9] rounded-2xl overflow-hidden shrink-0 bg-slate-50 flex items-center justify-center">
+                        <div className="relative w-full sm:w-56 md:w-60 lg:w-64 aspect-video rounded-2xl overflow-hidden shrink-0 bg-slate-50 flex items-center justify-center">
                           <Image
                             title={blog.blogTitle}
                             src={getBlogImageUrl(blog.blogImage)}

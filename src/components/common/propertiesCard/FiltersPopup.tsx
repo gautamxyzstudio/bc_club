@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 import React, { useEffect, useState } from "react";
 import { FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
@@ -7,7 +9,9 @@ import { styled } from "@mui/material/styles";
 import { Images } from "@/src/app/exports";
 import LineGradient from "../lineGradient/LineGradient";
 import CustomButton from "../../button/CustomButton";
-import { Dialog, TextField } from "@mui/material";
+import { Dialog } from "@mui/material";
+import axios from "axios";
+import { Endpoints } from "@/src/api/endpoints";
 
 // ================= Constants =================
 const ALL_CITIES = [
@@ -238,6 +242,10 @@ export default function FiltersPopup({
   const [selectedLocations, setSelectedLocations] = useState<string[]>(
     filters.location ? filters.location.split(",").filter(Boolean) : [],
   );
+  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>(
+    filters.neighborhood ? filters.neighborhood.split(",").filter(Boolean) : [],
+  );
+
   const [selectedProperties, setSelectedProperties] = useState<string[]>(
     filters.activeProperty && filters.activeProperty !== "any"
       ? filters.activeProperty.split(",").filter(Boolean)
@@ -256,6 +264,14 @@ export default function FiltersPopup({
   );
 
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
+  const [neighborhoodDropdownOpen, setNeighborhoodDropdownOpen] =
+    useState(false);
+  const [neighborhoodSearch, setNeighborhoodSearch] = useState("");
+  const [availableNeighborhoods, setAvailableNeighborhoods] = useState<
+    string[]
+  >([]);
+  const [isNeighborhoodsLoading, setIsNeighborhoodsLoading] = useState(false);
+
   const [whenListedDropdownOpen, setWhenListedDropdownOpen] = useState(false);
   const [expandedCityGroup, setExpandedCityGroup] = useState<
     "all" | "popular" | null
@@ -286,63 +302,64 @@ export default function FiltersPopup({
     }
   };
 
-  const handleToggleProperty = (prop: string, isSingleFamilyGroup: boolean) => {
-    const singleFamilyOptions = [
-      "Single-Family",
-      "Townhouse",
-      "Detached House",
-      "Detached Home",
-      "Duplex",
-      "Apartment/Condo",
-      "Apartment",
-      "Single Family Residence",
-      "Half Duplex",
-      "Row House (Non-Strata)",
-      "Industrial",
-    ];
-
-    if (isSingleFamilyGroup) {
-      // If it's a Single Family group option, clear any "Other" types
-      const currentSF = selectedProperties.filter((p) =>
-        singleFamilyOptions.includes(p),
-      );
-      if (currentSF.includes(prop)) {
-        setSelectedProperties(currentSF.filter((p) => p !== prop));
-      } else {
-        setSelectedProperties([...currentSF, prop]);
-      }
+  const handleToggleNeighborhood = (nh: string) => {
+    if (selectedNeighborhoods.includes(nh)) {
+      setSelectedNeighborhoods(selectedNeighborhoods.filter((n) => n !== nh));
     } else {
-      // If it's an "Other" type, it's single-select and clears everything elsew
-      setSelectedProperties([prop]);
-      setSelectedStructureTypes([]);
+      setSelectedNeighborhoods([...selectedNeighborhoods, nh]);
     }
   };
 
-  const handleToggleStructureType = (type: string) => {
-    const singleFamilyOptions = [
-      "Single-Family",
-      "Townhouse",
-      "Detached House",
-      "Detached Home",
-      "Duplex",
-      "Apartment/Condo",
-      "Apartment",
-      "Single Family Residence",
-      "Half Duplex",
-      "Row House (Non-Strata)",
-      "Industrial",
-    ];
-
-    const currentSF = selectedProperties.filter((p) =>
-      singleFamilyOptions.includes(p),
-    );
-
-    if (currentSF.length !== selectedProperties.length) {
-      setSelectedProperties(currentSF);
+  useEffect(() => {
+    if (selectedLocations.length === 0) {
+      setAvailableNeighborhoods([]);
+      setSelectedNeighborhoods([]);
+      return;
     }
 
-    // Only one selection at a time
-    setSelectedStructureTypes((prev) => (prev[0] === type ? [] : [type]));
+    let isCancelled = false;
+    setIsNeighborhoodsLoading(true);
+
+    Promise.all(
+      selectedLocations.map(async (city) => {
+        try {
+          const res = await axios.get(Endpoints.getNeighborhoods(city));
+          return (res.data?.data as string[]) || [];
+        } catch {
+          return [];
+        }
+      }),
+    )
+      .then((results) => {
+        if (isCancelled) return;
+        const combined = Array.from(new Set(results.flat())).sort((a, b) =>
+          a.localeCompare(b),
+        );
+        setAvailableNeighborhoods(combined);
+        setSelectedNeighborhoods((prev) =>
+          prev.filter((nh) => combined.includes(nh)),
+        );
+        setIsNeighborhoodsLoading(false);
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setIsNeighborhoodsLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedLocations]);
+
+  const handleToggleStructureType = (type: string) => {
+    if (selectedStructureTypes.includes(type)) {
+      setSelectedStructureTypes(
+        selectedStructureTypes.filter((t) => t !== type),
+      );
+    } else {
+      setSelectedStructureTypes([...selectedStructureTypes, type]);
+    }
   };
 
   const handleToggleFeature = (feat: string) => {
@@ -422,6 +439,12 @@ export default function FiltersPopup({
           : [],
       );
 
+      setSelectedNeighborhoods(
+        currentFilters.neighborhood
+          ? currentFilters.neighborhood.split(",").filter(Boolean)
+          : [],
+      );
+
       setSelectedProperties(
         currentFilters.activeProperty && currentFilters.activeProperty !== "any"
           ? currentFilters.activeProperty.split(",").filter(Boolean)
@@ -476,6 +499,7 @@ export default function FiltersPopup({
     setStatus("");
     setWhenListed("any");
     setSelectedLocations([]);
+    setSelectedNeighborhoods([]);
     setSelectedProperties([]);
     setSelectedFeatures([]);
     setSelectedStructureTypes([]);
@@ -508,6 +532,11 @@ export default function FiltersPopup({
     updateInstanceFilter(id, "status", status);
     updateInstanceFilter(id, "whenListed", whenListed);
     updateInstanceFilter(id, "location", selectedLocations.join(","));
+    updateInstanceFilter(
+      id,
+      "neighborhood",
+      selectedNeighborhoods.join(","),
+    );
     updateInstanceFilter(
       id,
       "activeProperty",
@@ -568,7 +597,10 @@ export default function FiltersPopup({
         onClick={(e) => {
           e.stopPropagation();
           if (locationDropdownOpen) {
-            setLocationDropdownOpen(!locationDropdownOpen);
+            setLocationDropdownOpen(false);
+          }
+          if (neighborhoodDropdownOpen) {
+            setNeighborhoodDropdownOpen(false);
           }
         }}
       >
@@ -625,15 +657,18 @@ export default function FiltersPopup({
               className="w-full border border-[#33333333] rounded-xl px-3 py-3 cursor-pointer text-sm flex justify-between items-center bg-white"
             >
               <span
-                className={
+                className={`truncate ${
                   selectedLocations.length > 0 ? "text-black" : "text-gray-500"
-                }
+                }`}
+                title={selectedLocations.join(", ")}
               >
                 {selectedLocations.length > 0
-                  ? selectedLocations.join(", ")
+                  ? selectedLocations.length > 4
+                    ? `${selectedLocations.slice(0, 4).join(", ")}, more.....`
+                    : selectedLocations.join(", ")
                   : "All Locations"}
               </span>
-              <span className="text-gray-400">
+              <span className="text-gray-400 shrink-0 ml-2">
                 {locationDropdownOpen ? (
                   <FiChevronUp size={18} />
                 ) : (
@@ -643,7 +678,10 @@ export default function FiltersPopup({
             </div>
 
             {locationDropdownOpen && (
-              <div className="absolute top-full mt-1 w-full bg-white border border-[#33333333] shadow-lg rounded-xl z-50 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-hide py-2">
+              <div
+                // onClick={(e) => e.stopPropagation()}
+                className="absolute top-full mt-1 w-full bg-white border border-[#33333333] shadow-lg rounded-xl z-50 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-hide py-2"
+              >
                 {/* Popular Group */}
                 <div>
                   <div
@@ -736,6 +774,138 @@ export default function FiltersPopup({
             )}
           </div>
         </div>
+        
+        <LineGradient />
+
+        {/* Neighborhood */}
+        <div className="mb-6 space-y-2 flex flex-col gap-y-1 pt-5">
+          <label className="font-medium">Neighborhood</label>
+          <div className="relative w-full">
+            <div
+              onClick={() => {
+                if (selectedLocations.length > 0) {
+                  setNeighborhoodDropdownOpen(!neighborhoodDropdownOpen);
+                }
+              }}
+              className={`w-full border border-[#33333333] rounded-xl px-3 py-3 text-sm flex justify-between items-center bg-white ${
+                selectedLocations.length === 0
+                  ? "opacity-60 cursor-not-allowed"
+                  : "cursor-pointer"
+              }`}
+            >
+              <span
+                className={`truncate ${
+                  selectedLocations.length === 0
+                    ? "text-gray-400"
+                    : selectedNeighborhoods.length > 0
+                    ? "text-black"
+                    : "text-gray-500"
+                }`}
+                title={selectedNeighborhoods.join(", ")}
+              >
+                {selectedLocations.length === 0
+                  ? "Select a location first"
+                  : selectedNeighborhoods.length > 0
+                  ? selectedNeighborhoods.length > 4
+                    ? `${selectedNeighborhoods.slice(0, 4).join(", ")}, more.....`
+                    : selectedNeighborhoods.join(", ")
+                  : "All Neighborhoods"}
+              </span>
+              <span className="text-gray-400 shrink-0 ml-2">
+                {neighborhoodDropdownOpen ? (
+                  <FiChevronUp size={18} />
+                ) : (
+                  <FiChevronDown size={18} />
+                )}
+              </span>
+            </div>
+
+            {neighborhoodDropdownOpen && selectedLocations.length > 0 && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute top-full mt-1 w-full bg-white border border-[#33333333] shadow-lg rounded-xl z-50 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-hide py-2"
+              >
+                {/* Search Bar for Neighborhood */}
+                <div className="px-3 pb-2 pt-1 border-b border-gray-100">
+                  <input
+                    type="text"
+                    value={neighborhoodSearch}
+                    onChange={(e) => setNeighborhoodSearch(e.target.value)}
+                    placeholder="Search neighborhood..."
+                    className="w-full text-xs px-2.5 py-1.5 border border-gray-200 rounded-lg outline-none focus:border-primary"
+                  />
+                </div>
+
+                {isNeighborhoodsLoading ? (
+                  <div className="px-4 py-3 text-xs text-gray-400 text-center">
+                    Loading neighborhoods...
+                  </div>
+                ) : availableNeighborhoods.length === 0 ? (
+                  <div className="px-4 py-3 text-xs text-gray-400 text-center">
+                    No neighborhoods found for selected location
+                  </div>
+                ) : availableNeighborhoods.filter((nh) =>
+                    nh.toLowerCase().includes(neighborhoodSearch.toLowerCase().trim()),
+                  ).length === 0 ? (
+                  <div className="px-4 py-3 text-xs text-gray-400 text-center">
+                    No matching neighborhoods
+                  </div>
+                ) : (
+                  <>
+                    <div className="px-4 py-1.5 flex justify-between items-center text-xs text-primary border-b border-gray-100">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSelectedNeighborhoods([...availableNeighborhoods])
+                        }
+                        className="hover:underline font-medium"
+                      >
+                        Select All ({availableNeighborhoods.length})
+                      </button>
+                      {selectedNeighborhoods.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedNeighborhoods([])}
+                          className="text-gray-500 hover:text-red-500 hover:underline"
+                        >
+                          Clear ({selectedNeighborhoods.length})
+                        </button>
+                      )}
+                    </div>
+                    <div className="py-1 flex flex-col">
+                      {availableNeighborhoods
+                        .filter((nh) =>
+                          nh
+                            .toLowerCase()
+                            .includes(neighborhoodSearch.toLowerCase().trim()),
+                        )
+                        .map((nh) => (
+                          <div
+                            key={nh}
+                            className={`px-6 py-1.5 text-sm cursor-pointer hover:bg-gray-50 flex items-center gap-3 ${
+                              selectedNeighborhoods.includes(nh)
+                                ? "bg-gray-100 font-medium"
+                                : ""
+                            }`}
+                            onClick={() => handleToggleNeighborhood(nh)}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedNeighborhoods.includes(nh)}
+                              onChange={() => {}}
+                              className="cursor-pointer rounded border-gray-300 text-primary focus:ring-primary checkbox-sm checkbox"
+                            />
+                            <span>{nh}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
         <LineGradient />
 
         {/* When Listed */}
@@ -816,9 +986,15 @@ export default function FiltersPopup({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-1">
                 {[
                   { label: "Townhouse", value: "Townhouse" },
-                  { label: "Detached Home", value: "Detached Home" },
+                  { label: "Detached Home", value: "Single Family" },
                   { label: "Duplex", value: "Duplex" },
                   { label: "Apartment", value: "Apartment" },
+                  { label: "Multi-Family", value: "Multi-Family" },
+                  { label: "Office", value: "Office" },
+                  { label: "Business", value: "Business" },
+                  { label: "Agriculture", value: "Agriculture" },
+                  { label: "Vacant Land", value: "Vacant Land" },
+                  { label: "Industrial", value: "Industrial" },
                 ].map((prop) => (
                   <div
                     key={prop.value}
@@ -833,50 +1009,6 @@ export default function FiltersPopup({
                       }`}
                     >
                       {selectedStructureTypes.includes(prop.value) && (
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="white"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                      )}
-                    </div>
-                    <span className="text-sm text-gray-700 font-medium">
-                      {prop.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Other Types Section */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-1">
-                {[
-                  { label: "Multi-Family", value: "Multi-Family" },
-                  { label: "Office", value: "Office" },
-                  { label: "Business", value: "Business" },
-                  { label: "Agriculture", value: "Agriculture" },
-                  { label: "Vacant Land", value: "Vacant Land" },
-                  { label: "Industrial", value: "Industrial" },
-                ].map((prop) => (
-                  <div
-                    key={prop.value}
-                    className="flex items-center gap-3 cursor-pointer group"
-                    onClick={() => handleToggleProperty(prop.value, false)}
-                  >
-                    <div
-                      className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
-                        selectedProperties.includes(prop.value)
-                          ? "bg-primary border-primary"
-                          : "border-gray-300 group-hover:border-primary"
-                      }`}
-                    >
-                      {selectedProperties.includes(prop.value) && (
                         <svg
                           width="12"
                           height="12"

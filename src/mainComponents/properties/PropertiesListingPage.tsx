@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState, useRef } from "react";
 import {
@@ -6,10 +9,20 @@ import {
   FiArrowLeft,
   FiMaximize2,
   FiMinimize2,
+  FiShare2,
+  FiCopy,
+  FiCheck,
+  FiMail,
 } from "react-icons/fi";
+import {
+  FaWhatsapp,
+  FaFacebookF,
+  FaXTwitter,
+  FaLinkedinIn,
+} from "react-icons/fa6";
 import { motion } from "framer-motion";
 import FiltersPopup from "@/src/components/common/propertiesCard/FiltersPopup";
-import { Box, Chip, Dialog, Pagination } from "@mui/material";
+import { Chip, Dialog, Pagination } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import PropertiesCard, {
   PropertyCardProps,
@@ -86,6 +99,7 @@ export default function PropertiesListingPage() {
   const whenListed = filters.whenListed;
   const features = filters.features;
   const structureType = filters.structureType;
+  const neighborhood = filters.neighborhood;
 
   const setSearch = (val: string) =>
     updateInstanceFilter("list", "search", val);
@@ -223,6 +237,10 @@ export default function PropertiesListingPage() {
     params.structureType = structureType;
   }
 
+  if (neighborhood && neighborhood !== "") {
+    params.neighborhood = neighborhood;
+  }
+
   const select = (res: any) => {
     const listings = res?.data || [];
     const pagination = res?.meta?.pagination || {
@@ -245,7 +263,8 @@ export default function PropertiesListingPage() {
             : (listing?.OriginalEntryTimestamp ??
               listing?.raw_data?.BridgeModificationTimestamp ??
               0),
-        address: listing?.address,
+        address: listing?.address !== null && listing?.address !== "," ? listing?.address : "Unknown Address",
+        neighborhood: listing?.neighborhood,
         sqft: listing?.Living_area ?? listing?.area ?? 0,
         beds: listing?.bedrooms ?? 0,
         baths: listing?.bathrooms ?? 0,
@@ -275,7 +294,10 @@ export default function PropertiesListingPage() {
         ),
         isDdf: isForSale,
       }))
-      .filter((p: any) => Number(p.price) > 0);
+      .filter(
+        (p: any) =>
+          Number(p.price) > 0
+      );
 
     // Explicit client-side sort to guarantee order regardless of API behavior
     if (activePrice === "asc") {
@@ -338,6 +360,161 @@ export default function PropertiesListingPage() {
       : isLoadingNormal;
 
   const data = queryData?.properties || [];
+
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [canNativeShare, setCanNativeShare] = useState(false);
+  const shareRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (
+      typeof navigator !== "undefined" &&
+      typeof navigator.share === "function"
+    ) {
+      setCanNativeShare(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (shareRef.current && !shareRef.current.contains(e.target as Node)) {
+        setIsShareOpen(false);
+      }
+    };
+    if (isShareOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isShareOpen]);
+
+  useEffect(() => {
+    if (!selectedPropertyId) {
+      setIsShareOpen(false);
+      setCopied(false);
+    }
+  }, [selectedPropertyId]);
+
+  const selectedProperty = data.find(
+    (item: any) => item.id === selectedPropertyId,
+  );
+
+  const isSelectedSold =
+    status === "sold" ||
+    selectedProperty?.status === "Closed" ||
+    selectedProperty?.status?.toLowerCase() === "sold";
+
+  const isSelectedForeclosure =
+    status === "forecloser" ||
+    status === "forcecloser" ||
+    selectedProperty?.status?.toLowerCase() === "forecloser" ||
+    selectedProperty?.status?.toLowerCase() === "foreclosure";
+
+  const sharePath = isSelectedForeclosure
+    ? `/forecloser-property-info/${selectedPropertyId}`
+    : isSelectedSold
+    ? `/sold-property-info/${selectedPropertyId}`
+    : `/property-info/${selectedPropertyId}`;
+
+  const currentShareUrl =
+    typeof window !== "undefined" && selectedPropertyId
+      ? `${window.location.origin}${sharePath}`
+      : "";
+
+  const shareTitle =
+    selectedProperty?.title ||
+    selectedProperty?.address ||
+    "BC Real Estate Property";
+  const shareText = `Check out this property on BC Real Estate: ${shareTitle}`;
+
+  const handleCopyLink = async () => {
+    if (!currentShareUrl) return;
+    try {
+      await navigator.clipboard.writeText(currentShareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      const textArea = document.createElement("textarea");
+      textArea.value = currentShareUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
+  const handleShareWhatsapp = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        `https://api.whatsapp.com/send?text=${encodeURIComponent(
+          `${shareText} - ${currentShareUrl}`,
+        )}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    }
+  };
+
+  const handleShareFacebook = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          currentShareUrl,
+        )}`,
+        "_blank",
+        "noopener,noreferrer,width=600,height=500",
+      );
+    }
+  };
+
+  const handleShareTwitter = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+          currentShareUrl,
+        )}&text=${encodeURIComponent(shareText)}`,
+        "_blank",
+        "noopener,noreferrer,width=600,height=500",
+      );
+    }
+  };
+
+  const handleShareLinkedIn = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+          currentShareUrl,
+        )}`,
+        "_blank",
+        "noopener,noreferrer,width=600,height=500",
+      );
+    }
+  };
+
+  const handleShareEmail = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = `mailto:?subject=${encodeURIComponent(
+        shareTitle,
+      )}&body=${encodeURIComponent(`${shareText}\n\n${currentShareUrl}`)}`;
+    }
+  };
+
+  const handleNativeShare = async () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: currentShareUrl,
+        });
+      } catch {
+        // user dismissed
+      }
+    }
+  };
 
   const pageCount = queryData?.pagination?.pageCount || 1;
 
@@ -460,6 +637,7 @@ export default function PropertiesListingPage() {
                   filters.maxAssociationFee < 3000) ||
                 (filters.whenListed && filters.whenListed !== "any") ||
                 filters.location ||
+                filters.neighborhood ||
                 filters.features ||
                 filters.structureType
                   ? "bg-primary text-white"
@@ -574,6 +752,7 @@ export default function PropertiesListingPage() {
                 filters.maxAssociationFee < 3000) ||
               (filters.whenListed && filters.whenListed !== "any") ||
               filters.location ||
+              filters.neighborhood ||
               filters.features ||
               filters.structureType
                 ? "bg-primary text-white"
@@ -606,6 +785,7 @@ export default function PropertiesListingPage() {
             filters.maxAssociationFee < 3000) ||
           (filters.whenListed && filters.whenListed !== "any") ||
           filters.features ||
+          filters.neighborhood ||
           (filters.location &&
             filters.location.split(",").filter(Boolean).length > 1) ||
           filters.structureType ||
@@ -734,14 +914,25 @@ export default function PropertiesListingPage() {
                   className="bg-gray-100 text-sm"
                 />
               )}
-              {filters.activeProperty && filters.activeProperty !== "any" && (
+              {((filters.activeProperty && filters.activeProperty !== "any") ||
+                Boolean(filters.structureType)) && (
                 <Chip
-                  label={`Property Type: ${filters.activeProperty
-                    .split(",")
-                    .map((t: string) => t.replace(/([A-Z])/g, " $1").trim())
+                  label={`Property Type: ${[
+                    ...(filters.structureType
+                      ? filters.structureType.split(",").filter(Boolean)
+                      : []),
+                    ...(filters.activeProperty &&
+                    filters.activeProperty !== "any"
+                      ? filters.activeProperty.split(",").filter(Boolean)
+                      : []),
+                  ]
+                    .map((t: string) =>
+                      t.replace(/([A-Z])/g, " $1").replace(/\s+/g, " ").trim(),
+                    )
                     .join(", ")}`}
                   onDelete={() => {
                     updateInstanceFilter("list", "activeProperty", "any");
+                    updateInstanceFilter("list", "structureType", "");
                   }}
                   className="bg-gray-100 text-sm capitalize"
                 />
@@ -760,11 +951,19 @@ export default function PropertiesListingPage() {
                   className="bg-gray-100 text-sm capitalize"
                 />
               )}
-              {filters.structureType && (
+              {filters.neighborhood && (
                 <Chip
-                  label={`Property Type: ${filters.structureType.split(",").join(", ")}`}
+                
+                  label={`Neighborhood: ${(() => {
+                    const list = filters.neighborhood
+                      .split(",")
+                      .filter(Boolean);
+                    return list.length > 4
+                      ? `${list.slice(0, 4).join(", ")}, more.....`
+                      : list.join(", ");
+                  })()}`}
                   onDelete={() => {
-                    updateInstanceFilter("list", "structureType", "");
+                    updateInstanceFilter("list", "neighborhood", "");
                   }}
                   className="bg-gray-100 text-sm capitalize"
                 />
@@ -772,9 +971,17 @@ export default function PropertiesListingPage() {
               {filters.location &&
                 filters.location.split(",").filter(Boolean).length > 1 && (
                   <Chip
-                    label={`Location: ${filters.location.split(",").filter(Boolean).join(", ")}`}
+                    label={`Location: ${(() => {
+                      const list = filters.location
+                        .split(",")
+                        .filter(Boolean);
+                      return list.length > 4
+                        ? `${list.slice(0, 4).join(", ")}, more.....`
+                        : list.join(", ");
+                    })()}`}
                     onDelete={() => {
                       updateInstanceFilter("list", "location", "");
+                      updateInstanceFilter("list", "neighborhood", "");
                     }}
                     className="bg-gray-100 text-sm capitalize"
                   />
@@ -906,6 +1113,173 @@ export default function PropertiesListingPage() {
 
             {/* Actions: Full Screen Toggle & Close */}
             <div className="flex items-center gap-2">
+              {/* Share button with popup */}
+              <div className="relative" ref={shareRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsShareOpen((prev) => !prev)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition cursor-pointer text-sm font-medium border ${
+                    isShareOpen
+                      ? "bg-primary text-white border-primary shadow-xs"
+                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200"
+                  }`}
+                  title="Share Property"
+                  aria-label="Share Property"
+                >
+                  <FiShare2 className="w-4 h-4" />
+                  <span className="hidden md:inline-block">Share</span>
+                </button>
+
+                {isShareOpen && (
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute right-0 top-full mt-2 w-80 sm:w-96 max-w-[calc(100vw-32px)] bg-white border border-gray-200 rounded-2xl shadow-2xl p-4 z-50 animate-in fade-in duration-200"
+                  >
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                          <FiShare2 size={15} />
+                        </div>
+                        <span className="font-semibold text-gray-900 text-sm">
+                          Share Property
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsShareOpen(false)}
+                        className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                        title="Close share popup"
+                      >
+                        <FiX size={16} />
+                      </button>
+                    </div>
+
+                    {/* Social sharing options */}
+                    <div className="py-3.5">
+                      <p className="text-xs text-gray-500 mb-2.5 font-medium">
+                        Share link via:
+                      </p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {/* WhatsApp */}
+                        <button
+                          type="button"
+                          onClick={handleShareWhatsapp}
+                          className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-emerald-50 transition group cursor-pointer"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-[#25D366]/10 text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white flex items-center justify-center transition shadow-xs">
+                            <FaWhatsapp size={20} />
+                          </div>
+                          <span className="text-[11px] font-medium text-gray-700">
+                            WhatsApp
+                          </span>
+                        </button>
+
+                        {/* Facebook */}
+                        <button
+                          type="button"
+                          onClick={handleShareFacebook}
+                          className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-blue-50 transition group cursor-pointer"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-[#1877F2]/10 text-[#1877F2] group-hover:bg-[#1877F2] group-hover:text-white flex items-center justify-center transition shadow-xs">
+                            <FaFacebookF size={18} />
+                          </div>
+                          <span className="text-[11px] font-medium text-gray-700">
+                            Facebook
+                          </span>
+                        </button>
+
+                        {/* X / Twitter */}
+                        <button
+                          type="button"
+                          onClick={handleShareTwitter}
+                          className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-gray-100 transition group cursor-pointer"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-black/10 text-black group-hover:bg-black group-hover:text-white flex items-center justify-center transition shadow-xs">
+                            <FaXTwitter size={17} />
+                          </div>
+                          <span className="text-[11px] font-medium text-gray-700">
+                            X (Twitter)
+                          </span>
+                        </button>
+
+                        {/* LinkedIn */}
+                        <button
+                          type="button"
+                          onClick={handleShareLinkedIn}
+                          className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-sky-50 transition group cursor-pointer"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-[#0A66C2]/10 text-[#0A66C2] group-hover:bg-[#0A66C2] group-hover:text-white flex items-center justify-center transition shadow-xs">
+                            <FaLinkedinIn size={18} />
+                          </div>
+                          <span className="text-[11px] font-medium text-gray-700">
+                            LinkedIn
+                          </span>
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        {/* Email */}
+                        <button
+                          type="button"
+                          onClick={handleShareEmail}
+                          className="flex items-center justify-center gap-2 p-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 transition cursor-pointer text-xs font-medium border border-gray-200"
+                        >
+                          <FiMail size={15} className="text-gray-500" />
+                          <span>Send Email</span>
+                        </button>
+
+                        {/* Native Device Share */}
+                        {canNativeShare && (
+                          <button
+                            type="button"
+                            onClick={handleNativeShare}
+                            className="flex items-center justify-center gap-2 p-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 transition cursor-pointer text-xs font-medium border border-gray-200"
+                          >
+                            <FiShare2 size={15} className="text-gray-500" />
+                            <span>More apps...</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Copy Link Input Bar */}
+                    <div className="pt-2.5 border-t border-gray-100">
+                      <p className="text-xs text-gray-500 mb-1.5 font-medium">
+                        Or copy link
+                      </p>
+                      <div className="flex items-center gap-2 p-1 pl-2.5 bg-gray-50 border border-gray-200 rounded-xl focus-within:border-primary transition">
+                        <input
+                          type="text"
+                          readOnly
+                          value={currentShareUrl}
+                          className="w-full text-xs text-gray-600 bg-transparent outline-none truncate select-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleCopyLink}
+                          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer shrink-0 ${
+                            copied
+                              ? "bg-emerald-600 text-white"
+                              : "bg-primary text-white hover:bg-primary/90"
+                          }`}
+                        >
+                          {copied ? (
+                            <>
+                              <FiCheck size={14} />
+                              <span>Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <FiCopy size={14} />
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               <button
                 onClick={() => setIsFullScreen((prev) => !prev)}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition cursor-pointer text-sm font-medium border border-gray-200"

@@ -1,4 +1,5 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/preserve-manual-memoization */
 "use client";
 
 import React, { useState, useMemo, useEffect, useRef } from "react";
@@ -257,7 +258,7 @@ const BlogDetailPage = ({ slug }: { slug: string }) => {
               {/* Left column */}
               <div className="flex flex-col xl:w-[70%] w-full">
                 {/* Image Skeleton */}
-                <div className="relative w-full aspect-[16/9] rounded-2xl bg-gray-200 mb-8 flex items-center justify-center">
+                <div className="relative w-full aspect-video rounded-2xl bg-gray-200 mb-8 flex items-center justify-center">
                   <div className="w-10 h-10 border-4 border-gray-300 border-t-[#F4A51C] rounded-full animate-spin"></div>
                 </div>
 
@@ -393,7 +394,7 @@ const BlogDetailPage = ({ slug }: { slug: string }) => {
               </Link>
               <span className="text-gray-400">/</span>
 
-              <span className="text-[#F4A51C] font-semibold truncate max-w-[200px] sm:max-w-md md:max-w-xl">
+              <span className="text-[#F4A51C] font-semibold truncate max-w-50 sm:max-w-md md:max-w-xl">
                 {blog?.blogTitle || "Article"}
               </span>
             </nav>
@@ -409,7 +410,7 @@ const BlogDetailPage = ({ slug }: { slug: string }) => {
             <div className="flex flex-row items-start flex-nowrap gap-5">
               <div className="flex flex-col xl:w-[70%] w-full">
                 {/* Featured Image */}
-                <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-8 bg-slate-50 flex items-center justify-center border border-gray-100 shadow-xs">
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-8 bg-slate-50 flex items-center justify-center border border-gray-100 shadow-xs">
                   <Image
                     title={blog?.blogTitle || "Blog image"}
                     src={
@@ -507,7 +508,7 @@ const BlogDetailPage = ({ slug }: { slug: string }) => {
                           className="cursor-pointer relative pl-4 select-none"
                         >
                           <span
-                            className={`absolute left-0 top-0 h-full w-[3px] rounded-full transition-all duration-200 ${
+                            className={`absolute left-0 top-0 h-full w-0.75 rounded-full transition-all duration-200 ${
                               activeIndex === index
                                 ? "bg-[#22558B] opacity-100"
                                 : "bg-transparent opacity-0"

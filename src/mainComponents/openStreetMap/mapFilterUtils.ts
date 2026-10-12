@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ActiveFilterPill, MapBounds } from "./mapTypes";
 
 type UpdateFilter = (instance: "map", key: string, value: any) => void;
@@ -30,6 +31,7 @@ export const buildActiveFilterPills = ({
     whenListed,
     activeBedRoom,
     activeBathRoom,
+    neighborhood = "",
   } = filters;
 
   const activeFilterPills: ActiveFilterPill[] = [];
@@ -45,9 +47,13 @@ export const buildActiveFilterPills = ({
   }
 
   if (location) {
+    const list = location.split(",").filter(Boolean);
     activeFilterPills.push({
-      label: `Location: ${location}`,
-      onRemove: () => updateInstanceFilter("map", "location", ""),
+      label: `Location: ${list.length > 4 ? `${list.slice(0, 4).join(", ")}, more.....` : list.join(", ")}`,
+      onRemove: () => {
+        updateInstanceFilter("map", "location", "");
+        updateInstanceFilter("map", "neighborhood", "");
+      },
     });
   }
 
@@ -155,6 +161,14 @@ export const buildActiveFilterPills = ({
     });
   }
 
+  if (neighborhood) {
+    const list = neighborhood.split(",").filter(Boolean);
+    activeFilterPills.push({
+      label: `Neighborhood: ${list.length > 4 ? `${list.slice(0, 4).join(", ")}, more.....` : list.join(", ")}`,
+      onRemove: () => updateInstanceFilter("map", "neighborhood", ""),
+    });
+  }
+
   if (sortBy !== "newest") {
     const sortLabel =
       sortBy === "priceLow" ? "Price: Low→High" : "Price: High→Low";
@@ -218,6 +232,7 @@ const appendCommonParams = (params: any, filters: any) => {
     activeBedRoom,
     activeBathRoom,
     activeProperty,
+    neighborhood,
   } = filters;
 
   if (search) params.search = search;
@@ -236,6 +251,7 @@ const appendCommonParams = (params: any, filters: any) => {
   if (whenListed && whenListed !== "any") params.whenListed = whenListed;
   if (features) params.features = features;
   if (structureType) params.structureType = structureType;
+  if (neighborhood) params.neighborhood = neighborhood;
 
   if (activeBedRoom && activeBedRoom !== "any")
     params.beds = activeBedRoom.replace("+", "");

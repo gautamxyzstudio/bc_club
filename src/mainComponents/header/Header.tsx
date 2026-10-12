@@ -23,6 +23,8 @@ export const menulist = [
   { title: "Market Trends", href: "/market-trends" },
   { title: "Map Search", href: "/map-search" },
   { title: "Properties", href: "/properties" },
+  { title: "Blogs", href: "/blogs" },
+  { title: "Our Story", href: "/our-story" },
   { title: "Contact Us", href: "/contact-us" },
 ];
 
@@ -85,7 +87,7 @@ const Header = () => {
   if (pathname?.startsWith("/admin") || (isLoggedIn && isAdminUser(username))) {
     if (!pathname?.startsWith("/admin") && isLoggedIn && isAdminUser(username)) {
       return (
-        <div className="fixed top-0 left-0 right-0 z-[9999] bg-slate-900 text-white px-4 py-2 text-xs flex items-center justify-between shadow-md">
+        <div className="fixed top-0 left-0 right-0 z-9999 bg-slate-900 text-white px-4 py-2 text-xs flex items-center justify-between shadow-md">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>
@@ -149,28 +151,29 @@ const Header = () => {
             src={Icons.bcClub}
             width={119}
             height={42}
-            className="w-65 h-11 object-contain"
+            className="w-55 h-10 object-contain"
           />
         </Link>
 
         <nav className="hidden xl:flex justify-end-safe items-center-safe gap-x-5">
-          <div className="flex items-center gap-x-5">
+          <div className="flex items-center gap-x-0.5">
             {menulist.map((item, idx) => (
               <Link
                 key={idx}
                 href={item.href}
-                className={`text-foreground text-base uppercase hover:font-medium transition-all duration-300 ${
-                  pathname === item.href && "font-medium"
+                className={`hover:text-brand-navy text-sm uppercase hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex flex-col relative ${
+                  pathname === item.href ? "font-medium text-brand-navy bg-blue-50/80":"text-slate-700"
                 }`}
               >
-                {item.title}
+                <span>{item.title}</span>
+                <span className={`${pathname === item.href ? "scale-x-100":"scale-x-0"} w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}></span>
               </Link>
             ))}
           </div>
-
-          {/* LOGIN / SIGNUP BUTTONS */}
+        </nav>
+        {/* LOGIN / SIGNUP BUTTONS */}
           {isLoggedIn ? (
-            <div className="dropdown dropdown-hover dropdown-end">
+            <div className="dropdown dropdown-hover dropdown-end hidden md:block">
               <div
                 className="flex items-center gap-x-2 cursor-pointer"
                 tabIndex={0}
@@ -235,23 +238,22 @@ const Header = () => {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-x-3">
+            <div className="hidden md:flex items-center gap-x-3">
               <RippleButton
                 title="Login"
                 buttonType="primary"
                 onClick={() => setOpenLogin(true)}
-                customClassName="w-[132px]"
+                customClassName="w-20"
               />
 
               <RippleButton
                 title="Sign up"
                 buttonType="secondary"
                 onClick={() => setOpenSignup(true)}
-                customClassName="w-[132px]"
+                customClassName="w-20"
               />
             </div>
           )}
-        </nav>
 
         {/* Mobile Menu */}
         <div onClick={onPressMenuButton} className="block xl:hidden">
@@ -297,3 +299,4 @@ const Header = () => {
 };
 
 export default Header;
+ 

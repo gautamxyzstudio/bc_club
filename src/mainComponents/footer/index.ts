@@ -95,10 +95,6 @@ export const contactUs: LinkListProps = {
       label: "Support / Help Center",
       href: "/contact-us",
     },
-    {
-      label: "Renovation",
-      href: "/renovation",
-    },
   ],
 };
 

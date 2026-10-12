@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
 
 interface FilterState {
@@ -32,6 +33,7 @@ interface FilterState {
   minAssociationFeeInput?: string;
   maxAssociationFeeInput?: string;
   activeProperty?: string;
+  neighborhood?: string;
   [key: string]: any;
 }
 
@@ -79,6 +81,7 @@ const DEFAULT_FILTERS: FilterState = {
   status: "forSale",
   whenListed: "any",
   activeProperty: "any",
+  neighborhood: "",
 };
 
 export const useListingStore = create<ListingState>((set, get) => ({

@@ -1,6 +1,5 @@
 "use client";
 import LineGradient from "@/src/components/common/lineGradient/LineGradient";
-import Link from "next/link";
 import React from "react";
 import { GetInTouchLinkListProps, realEstateBC, saleBC, soldBC } from ".";
 import GetInTouchForm from "./GetInTouchForm";
@@ -8,8 +7,6 @@ import Heading, { IHeadingTypes } from "@/src/components/heading/Heading";
 import Description, {
   IDescriptionTypes,
 } from "@/src/components/description/Description";
-import Image from "next/image";
-import { Icons } from "@/src/app/exports";
 import { usePathname, useRouter } from "next/navigation";
 import { useListingStore } from "@/src/store/useListingStore";
 import { useAuthContext } from "../auth/AuthContext";
@@ -33,7 +30,7 @@ const GetInTouchLink: React.FC<
           <li
             key={idx}
             className="cursor-pointer hover:text-primary transition-colors"
-            onClick={() => onLinkClick?.(item.label)}
+            onClick={() => onLinkClick?.(item.href)}
           >
             {item.label}
           </li>

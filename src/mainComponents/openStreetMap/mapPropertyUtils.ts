@@ -105,6 +105,7 @@ export const transformActiveListing = (listing: any, me: any) => {
           listing?.raw_data?.BridgeModificationTimestamp ??
           0),
     address: listing?.address,
+    neighborhood: listing?.neighborhood,
     sqft: listing?.Living_area ?? listing?.area ?? 0,
     beds: listing?.bedrooms ?? 0,
     baths: listing?.bathrooms ?? 0,

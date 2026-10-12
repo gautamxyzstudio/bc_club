@@ -59,7 +59,7 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1260px;
-  --breakpoint-2xl: 1940px;
+  --breakpoint-2xl: 1540px;
   --font-weight-medium: 550;
 }
 
@@ -405,4 +405,4 @@ body::-webkit-scrollbar {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
+}

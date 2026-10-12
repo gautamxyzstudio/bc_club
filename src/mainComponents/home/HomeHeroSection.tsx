@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { Icons, Images } from "@/src/app/exports";
 import Image from "next/image";

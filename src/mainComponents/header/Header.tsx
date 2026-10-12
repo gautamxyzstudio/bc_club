@@ -85,7 +85,7 @@ const Header = () => {
   if (pathname?.startsWith("/admin") || (isLoggedIn && isAdminUser(username))) {
     if (!pathname?.startsWith("/admin") && isLoggedIn && isAdminUser(username)) {
       return (
-        <div className="fixed top-0 left-0 right-0 z-[9999] bg-slate-900 text-white px-4 py-2 text-xs flex items-center justify-between shadow-md">
+        <div className="fixed top-0 left-0 right-0 z-9999 bg-slate-900 text-white px-4 py-2 text-xs flex items-center justify-between shadow-md">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>
@@ -154,21 +154,22 @@ const Header = () => {
         </Link>
 
         <nav className="hidden xl:flex justify-end-safe items-center-safe gap-x-5">
-          <div className="flex items-center gap-x-5">
+          <div className="flex items-center gap-x-1">
             {menulist.map((item, idx) => (
               <Link
                 key={idx}
                 href={item.href}
-                className={`text-foreground text-base uppercase hover:font-medium transition-all duration-300 ${
-                  pathname === item.href && "font-medium"
+                className={`hover:text-brand-navy text-base uppercase hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex flex-col relative ${
+                  pathname === item.href ? "font-medium text-brand-navy bg-blue-50/80":"text-slate-700"
                 }`}
               >
-                {item.title}
+                <span>{item.title}</span>
+                <span className={`${pathname === item.href ? "scale-x-100":"scale-x-0"} w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}></span>
               </Link>
             ))}
           </div>
-
-          {/* LOGIN / SIGNUP BUTTONS */}
+        </nav>
+        {/* LOGIN / SIGNUP BUTTONS */}
           {isLoggedIn ? (
             <div className="dropdown dropdown-hover dropdown-end">
               <div
@@ -240,18 +241,17 @@ const Header = () => {
                 title="Login"
                 buttonType="primary"
                 onClick={() => setOpenLogin(true)}
-                customClassName="w-[132px]"
+                customClassName="w-20"
               />
 
               <RippleButton
                 title="Sign up"
                 buttonType="secondary"
                 onClick={() => setOpenSignup(true)}
-                customClassName="w-[132px]"
+                customClassName="w-20"
               />
             </div>
           )}
-        </nav>
 
         {/* Mobile Menu */}
         <div onClick={onPressMenuButton} className="block xl:hidden">

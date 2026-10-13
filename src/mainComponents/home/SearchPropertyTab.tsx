@@ -1,9 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
-import { Icons } from "@/src/app/exports";
 import CustomButton from "@/src/components/button/CustomButton";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MapPin, Search } from "lucide-react";
 import {
@@ -16,7 +15,7 @@ const SearchPropertyTab = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const tabList = ["Find Home", "Home Assessment", "Market Trends"];
+  const tabList = ["Buy a home", "Home value", "Market trends"];
   const [activeTab, setActiveTab] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -176,7 +175,7 @@ const SearchPropertyTab = () => {
               key={idx}
               label={item}
               buttonType={activeTab === idx ? "primary" : "disabled"}
-              customClasses="w-full"
+              customClasses="w-full whitespace-nowrap"
               onClick={() => {
                 if (idx !== 2) {
                   setActiveTab(idx);
@@ -192,14 +191,14 @@ const SearchPropertyTab = () => {
         </div>
         {activeTab === 0 && (
           <div
-            className={`border border-borderColor md:p-1.5 p-1 flex flex-row items-center justify-between relative  ${
+            className={`border border-borderColor md:p-1.5 p-1 flex flex-row items-center justify-between relative text-xs lg:text-base  ${
               showDropdown && ddfResults.length > 0
                 ? "rounded-t-xl rounded-b-0"
                 : "rounded-xl"
             }`}
           >
             <input
-              className="outline-0 px-3 cursor-pointer w-full h-12 bg-transparent"
+              className="outline-0 px-3 cursor-pointer lg:w-[80%] w-[60%] h-12 bg-transparent"
               placeholder="Enter address for Find Home"
               required
               value={ddfQuery}
@@ -217,7 +216,7 @@ const SearchPropertyTab = () => {
             <button
               type="button"
               onClick={handleFindHomeSearchSubmit}
-              className="md:w-13 md:h-13 w-10 h-10 bg-secondary md:p-3.5 p-2 text-center flex items-center justify-center-safe md:rounded-xl rounded-md cursor-pointer"
+              className=" bg-secondary md:p-3.5 p-2 text-center font-medium text-white flex items-center justify-center-safe md:rounded-xl rounded-md cursor-pointer"
             >
               {isFetchingDdf ? (
                 <div
@@ -229,14 +228,7 @@ const SearchPropertyTab = () => {
                   }}
                 />
               ) : (
-                <Image
-                  title="image title"
-                  src={Icons.searchLine}
-                  alt="Search"
-                  width={100}
-                  height={100}
-                  className="w-full h-full object-contain"
-                />
+                "Search homes"
               )}
             </button>
             {showDropdown && ddfResults.length > 0 && (
@@ -301,13 +293,13 @@ const SearchPropertyTab = () => {
         )}
         {activeTab === 1 && (
           <div
-            className={`border border-borderColor md:p-1.5 p-1 flex flex-row items-center justify-between relative  ${
+            className={`border border-borderColor md:p-1.5 p-1 flex flex-row items-center justify-between relative text-xs lg:text-base ${
               showDropdown && assessmentResults.length > 0
                 ? "rounded-t-xl rounded-b-0"
                 : "rounded-xl"
             }`}
           >
-            <div className="flex items-center w-full">
+            <div className="flex items-center md:w-[80%] w-[60%]">
               <Search
                 className="ml-3 shrink-0"
                 size={18}
@@ -334,8 +326,8 @@ const SearchPropertyTab = () => {
             <button
               type="button"
               onClick={handleAssessmentSearchSubmit}
-              className="md:w-13 md:h-13 w-10 h-10 bg-secondary md:p-3.5 p-2 text-center flex items-center justify-center-safe md:rounded-xl rounded-md cursor-pointer"
-            >
+              className="bg-secondary md:p-3.5 p-2 text-center font-medium text-white flex items-center justify-center-safe md:rounded-xl rounded-md cursor-pointer"
+        >
               {isFetchingAssessment ? (
                 <div
                   className="w-5 h-5 rounded-full"
@@ -346,14 +338,8 @@ const SearchPropertyTab = () => {
                   }}
                 />
               ) : (
-                <Image
-                  title="image title"
-                  src={Icons.searchLine}
-                  alt="Search"
-                  width={100}
-                  height={100}
-                  className="w-full h-full object-contain"
-                />
+                "See its value"
+              
               )}
             </button>
 

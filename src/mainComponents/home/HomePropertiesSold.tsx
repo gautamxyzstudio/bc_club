@@ -102,7 +102,7 @@ const HomePropertiesSold = () => {
   );
 
   return (
-    <section className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-13 px-6 xl:py-35 md:py-31 py-14 overflow-hidden flex flex-col items-end">
+    <section className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-9 px-6 xl:py-35 md:py-31 py-14 overflow-hidden flex flex-col items-end">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 w-full">
         <Heading
@@ -140,9 +140,9 @@ const HomePropertiesSold = () => {
               borderRadius: 3,
               width: 180,
               "& .MuiOutlinedInput-notchedOutline , & .Mui-focused.MuiOutlinedInput-notchedOutline":
-                {
-                  borderWidth: "0 !important",
-                },
+              {
+                borderWidth: "0 !important",
+              },
             }}
             className="shadow-[0_0_20px_0_rgba(0,0,0,0.12)]"
           >
@@ -194,11 +194,10 @@ const HomePropertiesSold = () => {
                       width="20"
                       height="20"
                       rx="2"
-                      className={`${
-                        property.changePercent >= 0
+                      className={`${property.changePercent >= 0
                           ? "fill-lightGreen"
                           : "fill-lightRed"
-                      }`}
+                        }`}
                     />
                     {property.changePercent >= 0 ? (
                       <path
@@ -221,17 +220,15 @@ const HomePropertiesSold = () => {
                       d="M4.16406 4.16663V13.7592C4.16406 14.4851 4.16406 14.8481 4.30536 15.1255C4.42964 15.3694 4.62794 15.5677 4.87184 15.692C5.14925 15.8333 5.51221 15.8333 6.23814 15.8333H15.8307"
                       strokeWidth="1.5"
                       strokeLinecap="round"
-                      className={`${
-                        property.changePercent >= 0
+                      className={`${property.changePercent >= 0
                           ? "stroke-green"
                           : "stroke-red"
-                      }`}
+                        }`}
                     />
                   </svg>
                   <span
-                    className={`text-sm font-medium ${
-                      property.changePercent >= 0 ? "text-green" : "text-red"
-                    }`}
+                    className={`text-sm font-medium ${property.changePercent >= 0 ? "text-green" : "text-red"
+                      }`}
                   >
                     {Math.abs(property.changePercent)}%{" "}
                     {property.changePercent >= 0 ? "More than" : "Less than"}

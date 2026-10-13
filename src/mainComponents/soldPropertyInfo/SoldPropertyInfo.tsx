@@ -71,7 +71,7 @@ const SoldPropertyInfo = ({ paramsId }: { paramsId: string }) => {
     </section>
   ) : (
     <>
-      <section className="xl:max-w-screen-2xl mx-auto w-full bg-background flex flex-col xl:px-16 md:px-13 px-6 xl:pt-35.5 xl:pb-28.25 md:pt-28 md:pb-25 pt-21 pb-13 items-center-safe">
+      <section className="xl:max-w-screen-2xl mx-auto w-full bg-background flex flex-col xl:px-16 md:px-9 px-6 xl:pt-35.5 xl:pb-28.25 md:pt-28 md:pb-25 pt-21 pb-13 items-center-safe">
         <PropertyTopAddressSection property={listing} />
         {listing?.media && listing.media.length > 0 ? (
           <PropertyGallery images={listing?.media} />

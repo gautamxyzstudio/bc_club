@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -454,11 +457,11 @@ export default function AiChatWidget() {
         <button
           onClick={() => setIsOpen(true)}
           aria-label="Open BC Real Estate AI Chat"
-          className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-[9999] focus:outline-none transition-transform hover:scale-105 active:scale-95"
+          className="fixed bottom-18 md:bottom-12 right-4 sm:right-6 z-9999 focus:outline-none transition-transform hover:scale-105 active:scale-95"
         >
-          <div className="relative w-14 h-14 rounded-full bg-gradient-to-tr from-[#122e4e] via-[#22558b] to-[#2c6dae] text-white flex items-center justify-center shadow-xl shadow-[#22558b]/35 ring-4 ring-white group">
-            <MessageSquare className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" />
-            <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full"></span>
+          <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full bg-linear-to-tr from-[#122e4e] via-[#22558b] to-[#2c6dae] text-white flex items-center justify-center shadow-xl shadow-[#22558b]/35 ring-4 ring-white group">
+            <MessageSquare className="w-3.5 h-3.5 md:w-4 md:h-4 text-white group-hover:scale-110 transition-transform duration-300" />
+            <span className="absolute md:top-1 md:right-1 top-2.5 right-2.5 w-1.5 h-1.5 md:w-2.5 md:h-2.5 bg-emerald-400 border md:border-2 border-white rounded-full"></span>
           </div>
         </button>
       )}
@@ -468,7 +471,7 @@ export default function AiChatWidget() {
         <div
           role="dialog"
           aria-label="BC Real Estate AI Assistant"
-          className="fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-[9999] w-[calc(100vw-24px)] sm:w-[395px] h-[515px] sm:h-[525px] max-h-[calc(100vh-40px)] flex flex-col bg-white rounded-3xl shadow-[0_24px_70px_-12px_rgba(18,48,82,0.4)] border border-slate-200 overflow-hidden font-sans transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
+          className="fixed bottom-18 md:bottom-5 right-3 sm:right-5 z-99 w-[calc(100vw-24px)] sm:w-98.75 h-98.75 sm:h-131.25 max-h-[calc(100vh-85px)] md:max-h-[calc(100vh-40px)] flex flex-col bg-white rounded-3xl shadow-[0_24px_70px_-12px_rgba(18,48,82,0.4)] border border-slate-200 overflow-hidden font-sans transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
         >
           {/* ================= HEADER ================= */}
           <div className="relative text-white px-5 pt-4 pb-3.5 shrink-0 shadow-md overflow-hidden">
@@ -480,7 +483,7 @@ export default function AiChatWidget() {
               }}
             />
             {/* Minimal soft vignette */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-black/65" />
+            <div className="absolute inset-0 bg-linear-to-b from-black/55 via-black/30 to-black/65" />
 
             {/* Top Bar inside Header */}
             <div className="relative z-10 flex items-center justify-between">
@@ -534,10 +537,10 @@ export default function AiChatWidget() {
                 {/* 1. Hero Card: Ask AI Assistant */}
                 <div
                   onClick={() => startNewConversation()}
-                  className="relative overflow-hidden bg-gradient-to-r from-white via-white to-blue-50/40 rounded-2xl p-4 shadow-xs border border-slate-200 hover:border-[#22558b]/50 hover:shadow-md transition-all duration-300 cursor-pointer group"
+                  className="relative overflow-hidden bg-linear-to-r from-white via-white to-blue-50/40 rounded-2xl p-4 shadow-xs border border-slate-200 hover:border-[#22558b]/50 hover:shadow-md transition-all duration-300 cursor-pointer group"
                 >
                   <div className="flex items-center gap-3.5">
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#122e4e] to-[#22558b] flex items-center justify-center text-white shadow-md shadow-[#22558b]/20 group-hover:scale-105 transition-transform shrink-0">
+                    <div className="w-11 h-11 rounded-2xl bg-linear-to-tr from-[#122e4e] to-[#22558b] flex items-center justify-center text-white shadow-md shadow-[#22558b]/20 group-hover:scale-105 transition-transform shrink-0">
                       <Sparkles className="w-5 h-5 text-[#eea500]" />
                     </div>
 
@@ -659,7 +662,7 @@ export default function AiChatWidget() {
                       </div>
 
                       {/* Conversations Cards List (Exact match to screenshot!) */}
-                      <div className="space-y-2.5 overflow-y-auto max-h-[310px] pr-1 scrollbar-none">
+                      <div className="space-y-2.5 overflow-y-auto max-h-77.5 pr-1 scrollbar-none">
                         {conversations.length > 0 ? (
                           conversations.map((conv) => (
                             <div
@@ -668,7 +671,7 @@ export default function AiChatWidget() {
                               className="bg-white rounded-2xl p-3.5 border border-slate-200/90 hover:border-[#22558b]/40 hover:shadow-sm transition-all duration-200 cursor-pointer flex items-center gap-3.5 group shadow-2xs"
                             >
                               {/* Purple / Blue Chat Bubble Icon */}
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#122e4e] to-[#22558b] text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                              <div className="w-10 h-10 rounded-full bg-linear-to-tr from-[#122e4e] to-[#22558b] text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
                                 <MessageSquare className="w-5 h-5 fill-white/20" />
                               </div>
 
@@ -690,7 +693,7 @@ export default function AiChatWidget() {
                           ))
                         ) : (
                           <div className="p-8 text-center text-xs text-slate-400">
-                            No recent conversations. Click "Ask a question" below to start!
+                            No recent conversations. Click &ldquo;Ask a question&rdquo; below to start!
                           </div>
                         )}
                       </div>
@@ -888,7 +891,7 @@ export default function AiChatWidget() {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50/80 to-slate-100 rounded-2xl p-4 border border-blue-100 text-xs space-y-2">
+                <div className="bg-linear-to-br from-blue-50/80 to-slate-100 rounded-2xl p-4 border border-blue-100 text-xs space-y-2">
                   <span className="font-bold text-slate-900 block">
                     Speak With a Licensed REALTOR®
                   </span>

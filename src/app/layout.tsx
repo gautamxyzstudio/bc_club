@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/src/mainComponents/header/Header";
 import Footer from "@/src/mainComponents/footer/Footer";
+import MobileBottomBar from "@/src/mainComponents/header/MobileBottomBar";
 import { AuthProvider } from "@/src/mainComponents/auth/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import QueryProvider from "@/src/providers/QueryProvider";
@@ -14,17 +15,17 @@ import { CanonicalURL } from "../components/colonical-tag-generator/ColonicalTag
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "BC Real Estate | Homes, Condos & Townhouses for Sale",
+  title: "BC Homes for Sale & Sold Prices | BC Real Estate Market",
   description:
-    "Find condos, townhouses, and houses for sale in British Columbia. Detailed property information, market insights, and expert guidance from BC Real Estate.",
+    "Search MLS® listings in Greater Vancouver and the Fraser Valley. See sold prices, lot lines, flood risk and monthly market reports. Free.",
   keywords:
     "BC Real Estate, British Columbia Real Estate, Condos for Sale BC, Houses for Sale BC, Townhouses for Sale BC, Vancouver Real Estate, Burnaby Real Estate, Surrey Real Estate, Richmond Real Estate, Coquitlam Real Estate, Victoria Real Estate, Kelowna Real Estate, Abbotsford Real Estate, White Rock Real Estate, Nanaimo Real Estate, New Westminster Real Estate, North Vancouver Real Estate, West Vancouver Real Estate, Langley Real Estate, Delta Real Estate, Maple Ridge Real Estate, Chilliwack Real Estate",
   robots: "index, follow",
   openGraph: {
-    title: "BC Real Estate | Homes, Condos & Townhouses for Sale",
-    description:
-      "Find condos, townhouses, and houses for sale in British Columbia. Detailed property information, market insights, and expert guidance from BC Real Estate.",
-    images: [
+   title: "BC Homes for Sale & Sold Prices | BC Real Estate Market",
+  description:
+    "Search MLS® listings in Greater Vancouver and the Fraser Valley. See sold prices, lot lines, flood risk and monthly market reports. Free.",
+     images: [
       {
         url: "https://bcrealestatemarket.com/BCRealEstateMarket.svg",
         width: 1200,
@@ -35,9 +36,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BC Real Estate | Homes, Condos & Townhouses for Sale",
-    description:
-      "Find condos, townhouses, and houses for sale in British Columbia. Detailed property information, market insights, and expert guidance from BC Real Estate.",
+    title: "BC Homes for Sale & Sold Prices | BC Real Estate Market",
+  description:
+    "Search MLS® listings in Greater Vancouver and the Fraser Valley. See sold prices, lot lines, flood risk and monthly market reports. Free.",
     images: ["https://bcrealestatemarket.com/BCRealEstateMarket.svg"],
   },
 };
@@ -87,6 +88,7 @@ export default function RootLayout({
               <Header />
               {children}
               <Footer />
+              <MobileBottomBar />
               <ToastContainer />
             </AuthProvider>
           </GoogleOAuthProvider>

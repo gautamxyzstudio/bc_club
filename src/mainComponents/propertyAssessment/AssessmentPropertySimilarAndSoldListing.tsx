@@ -70,10 +70,10 @@ const AssessmentPropertySimilarAndSoldListing = ({
     oldPrice: Number(listing?.old_price) || 0,
     assessedDiff: listing.price
       ? Number(
-          ((listing.price - (listing.annual_tax ?? 0)) / listing.price).toFixed(
-            1,
-          ),
-        )
+        ((listing.price - (listing.annual_tax ?? 0)) / listing.price).toFixed(
+          1,
+        ),
+      )
       : 0,
     mls: listing?.listing_id,
     realtor: listing?.office_name ?? getOfficeName(listing),
@@ -209,7 +209,7 @@ const AssessmentPropertySimilarAndSoldListing = ({
   };
   return (
     <div
-      className={`space-y-10 mb-20 h-auto xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-13 px-6  
+      className={`space-y-10 mb-20 h-auto xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-9 px-6  
       `}
     >
       <div className="flex flex-col gap-4 h-full">

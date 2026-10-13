@@ -684,7 +684,7 @@ export default function OpenStreetMapSearch() {
   return (
     <>
       <div className="flex flex-col overflow-hidden mt-20 w-full h-[calc(100vh-5px)]">
-        <div className="flex flex-row items-center gap-4 flex-wrap mb-6 justify-between w-full mx-auto xl:max-w-screen-2xl xl:px-16 md:px-13 px-6">
+        <div className="flex flex-row items-center gap-4 flex-wrap mb-6 justify-between w-full mx-auto xl:max-w-screen-2xl xl:px-16 md:px-9 px-6">
           {/* 🔍 CHIP SEARCH BAR (DESIGN SAME) */}
           <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-gray-200 w-full max-w-md">
             <input
@@ -741,9 +741,9 @@ export default function OpenStreetMapSearch() {
             totalPages={
               queryDataProperties?.meta
                 ? Math.ceil(
-                    queryDataProperties.meta.total /
-                      queryDataProperties.meta.pageSize,
-                  )
+                  queryDataProperties.meta.total /
+                  queryDataProperties.meta.pageSize,
+                )
                 : 1
             }
             onPageChange={handlePageChange}

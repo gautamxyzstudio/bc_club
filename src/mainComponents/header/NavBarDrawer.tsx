@@ -41,7 +41,7 @@ const NavBarDrawer: React.FC<INavBarDrawerProps> = ({ open, onClose }) => {
         },
       }}
     >
-      <nav className="w-full h-full flex flex-col justify-between md:pt-25 pt-22 md:px-13 px-6 md:pb-10 pb-5 bg-opacity-50 overflow-scroll backdrop-blur-lg">
+      <nav className="w-full h-full flex flex-col justify-between md:pt-25 pt-22 md:px-9 px-6 md:pb-10 pb-5 bg-opacity-50 overflow-scroll backdrop-blur-lg">
         <ul className="list-none m-0">
           {isLoggedIn && isAdminUser(username) && (
             <>
@@ -56,7 +56,7 @@ const NavBarDrawer: React.FC<INavBarDrawerProps> = ({ open, onClose }) => {
               <LineGradient customClasses="md:my-6 my-4" />
             </>
           )}
-          {menulist.map((item, idx) => (
+          {menulist.slice(4, menulist.length).map((item, idx) => (
             <React.Fragment key={idx}>
               <Link
                 href={item.href}
@@ -72,7 +72,7 @@ const NavBarDrawer: React.FC<INavBarDrawerProps> = ({ open, onClose }) => {
           ))}
         </ul>
 
-        <div className="flex flex-nowrap items-center gap-x-3">
+        <div className="flex-nowrap items-center gap-x-3 hidden">
           {isLoggedIn ? (
             <CustomButton
               label="Logout"

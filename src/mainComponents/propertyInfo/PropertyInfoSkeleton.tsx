@@ -48,7 +48,7 @@ const TableSkeleton = ({ rows = 4 }: { rows?: number }) => (
 /* ─── Main skeleton ───────────────────────────────────────────────────────── */
 const PropertyInfoSkeleton = () => (
   <>
-    <section className="xl:max-w-screen-2xl mx-auto w-full bg-background flex flex-col xl:px-16 md:px-13 px-6 xl:pt-35.5 xl:pb-28.25 md:pt-28 md:pb-25 pt-21 pb-13">
+    <section className="xl:max-w-screen-2xl mx-auto w-full bg-background flex flex-col xl:px-16 md:px-9 px-6 xl:pt-35.5 xl:pb-28.25 md:pt-28 md:pb-25 pt-21 pb-13">
       {/* ── TOP ADDRESS SECTION ────────────────────────────────────────────── */}
       <div className="xl:mb-8 mb-4 w-full flex md:flex-row flex-col md:items-center md:justify-between gap-y-4">
         {/* left */}

@@ -60,11 +60,10 @@ const PropertyInfo = ({
   return (
     <>
       <section
-        className={`xl:max-w-screen-2xl mx-auto w-full bg-background flex flex-col xl:px-16 md:px-13 px-6 xl:pb-28.25 md:pb-25 pb-13 items-center-safe ${
-          isDialog
+        className={`xl:max-w-screen-2xl mx-auto w-full bg-background flex flex-col xl:px-16 md:px-9 px-6 xl:pb-28.25 md:pb-25 pb-13 items-center-safe ${isDialog
             ? "pt-6 md:pt-8 xl:pt-10"
             : "xl:pt-35.5 md:pt-28 pt-21"
-        }`}
+          }`}
       >
         <PropertyTopAddressSection property={listing} />
         {listing?.media_url && listing.media_url.length > 0 ? (

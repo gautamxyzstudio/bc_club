@@ -42,8 +42,8 @@ const HomeAssessmentSearchSection = () => {
   const results: any[] = Array.isArray(assessmentListRes?.data)
     ? assessmentListRes.data
     : Array.isArray(assessmentListRes)
-    ? assessmentListRes
-    : [];
+      ? assessmentListRes
+      : [];
 
   useEffect(() => {
     if (debouncedQuery.length > 1 && results.length > 0 && isLoggedIn) {
@@ -126,14 +126,13 @@ const HomeAssessmentSearchSection = () => {
 
       <section
         id="bc-assessment-search-section"
-        className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-13 px-6 xl:py-12 md:py-10 py-8 relative overflow-visible"
+        className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-9 px-6 xl:py-12 md:py-10 py-8 relative overflow-visible"
       >
         <div
-          className={`w-full bg-gray rounded-3xl p-6 sm:p-8 md:p-12 lg:p-14 flex flex-col items-center justify-center text-center relative ${
-            !isLoggedIn
+          className={`w-full bg-gray rounded-3xl p-6 sm:p-8 md:p-12 lg:p-14 flex flex-col items-center justify-center text-center relative ${!isLoggedIn
               ? "min-h-96 md:min-h-114 overflow-hidden"
               : "overflow-visible"
-          } shadow-xs z-10`}
+            } shadow-xs z-10`}
         >
           {!isLoggedIn ? (
             /* Locked State: Solid bg-gray exactly like Properties Sold in Previous Month */
@@ -161,11 +160,10 @@ const HomeAssessmentSearchSection = () => {
               {/* Search Box Container */}
               <div className="w-full max-w-2xl mt-8 relative z-30">
                 <div
-                  className={`bg-background border flex items-center shadow-[0_10px_35px_-5px_rgba(0,0,0,0.08)] transition-all duration-200 ${
-                    showDropdown && results.length > 0
+                  className={`bg-background border flex items-center shadow-[0_10px_35px_-5px_rgba(0,0,0,0.08)] transition-all duration-200 ${showDropdown && results.length > 0
                       ? "rounded-t-2xl border-primary/50 shadow-xl"
                       : "rounded-2xl border-borderColor/80 hover:border-primary/50 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10"
-                  } p-1.5 md:p-2`}
+                    } p-1.5 md:p-2`}
                 >
                   <div className="flex items-center w-full pl-2 md:pl-3 pr-2">
                     <input
@@ -267,15 +265,15 @@ const HomeAssessmentSearchSection = () => {
                             item.neighbourhood ||
                             item.floorArea ||
                             item.sqft) && (
-                            <span className="text-xs text-lightWhite mt-0.5 flex items-center gap-1.5">
-                              {item.city || item.neighbourhood}
-                              {(item.floorArea || item.sqft) && (
-                                <span className="font-medium text-foreground/70">
-                                  • {item.floorArea || item.sqft} sq ft
-                                </span>
-                              )}
-                            </span>
-                          )}
+                              <span className="text-xs text-lightWhite mt-0.5 flex items-center gap-1.5">
+                                {item.city || item.neighbourhood}
+                                {(item.floorArea || item.sqft) && (
+                                  <span className="font-medium text-foreground/70">
+                                    • {item.floorArea || item.sqft} sq ft
+                                  </span>
+                                )}
+                              </span>
+                            )}
                         </div>
                         <ArrowRight
                           size={15}

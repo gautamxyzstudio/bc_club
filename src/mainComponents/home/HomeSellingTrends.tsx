@@ -27,7 +27,7 @@ const HomeSellingTrends = () => {
   };
 
   return (
-    <section className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-13 px-6 bg-gray md:py-20 py-8">
+    <section className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-9 px-6 bg-gray md:py-20 py-8">
       {/* Header */}
       <div className="flex flex-col gap-y-3">
         <Description type={IDescriptionTypes.dec16} content="Selling Trends" />
@@ -67,9 +67,9 @@ const HomeSellingTrends = () => {
                 borderRadius: 3,
                 width: 180,
                 "& .MuiOutlinedInput-notchedOutline , & .Mui-focused.MuiOutlinedInput-notchedOutline":
-                  {
-                    borderWidth: "0 !important",
-                  },
+                {
+                  borderWidth: "0 !important",
+                },
               }}
               className="shadow-[0_0_20px_0_rgba(0,0,0,0.12)]"
             >

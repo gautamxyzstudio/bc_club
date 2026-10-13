@@ -19,13 +19,13 @@ import RippleButton from "@/src/components/button/RippleButton";
 import { isAdminUser } from "@/src/utilities/authUtils";
 
 export const menulist = [
-  { title: "Evaluation", href: "/home-estimation" },
+  { title: "Homes for Sale", href: "/properties" },
+  { title: "Map", href: "/map-search" },
   { title: "Market Trends", href: "/market-trends" },
-  { title: "Map Search", href: "/map-search" },
-  { title: "Properties", href: "/properties" },
-  { title: "Blogs", href: "/blogs" },
+  { title: "Home Value", href: "/home-estimation" },
+  { title: "Blog", href: "/blogs" },
   { title: "Our Story", href: "/our-story" },
-  { title: "Contact Us", href: "/contact-us" },
+  { title: "Contact", href: "/contact-us" },
 ];
 
 const Header = () => {
@@ -120,13 +120,12 @@ const Header = () => {
         initial="hidden"
         animate={isVisible ? "visible" : "exit"}
         variants={navVariants as any}
-        className={`xl:max-w-screen-2xl mx-auto xl:px-16 md:px-13 px-6 xl:py-4 md:py-4 py-3 flex items-center justify-between w-full fixed top-0 left-0 right-0 z-999   ${
-          isLaptop
+        className={`xl:max-w-screen-2xl mx-auto xl:px-16 md:px-9 px-6 xl:py-4 md:py-4 py-3 flex items-center justify-between w-full fixed top-0 left-0 right-0 z-999 shadow-xs   ${isLaptop
             ? isScrolled
               ? "bg-background shadow"
               : "bg-white"
             : "shadow bg-background"
-        }`}
+          }`}
       >
         {/* Logo */}
         <Link
@@ -135,8 +134,8 @@ const Header = () => {
           className="xl:hidden block"
         >
           <Image
-            title="image title"
-            alt="logo"
+            title="BC Real Estate Market place"
+            alt="BC Real Estate Market place"
             src={Icons.bcClub}
             width={119}
             height={42}
@@ -146,8 +145,8 @@ const Header = () => {
 
         <Link href={"/"} className="xl:block hidden">
           <Image
-            title="image title"
-            alt="logo"
+            title="BC Real Estate Market place"
+            alt="BC Real Estate Market place"
             src={Icons.bcClub}
             width={119}
             height={42}
@@ -161,99 +160,98 @@ const Header = () => {
               <Link
                 key={idx}
                 href={item.href}
-                className={`hover:text-brand-navy text-sm uppercase hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex flex-col relative ${
-                  pathname === item.href ? "font-medium text-brand-navy bg-blue-50/80":"text-slate-700"
-                }`}
+                className={`hover:text-brand-navy text-sm font-medium capitalize hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex flex-col relative ${pathname === item.href ? "font-semibold text-brand-navy bg-blue-50/80" : "text-slate-700"
+                  }`}
               >
                 <span>{item.title}</span>
-                <span className={`${pathname === item.href ? "scale-x-100":"scale-x-0"} w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}></span>
+                <span className={`${pathname === item.href ? "scale-x-100" : "scale-x-0"} w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}></span>
               </Link>
             ))}
           </div>
         </nav>
         {/* LOGIN / SIGNUP BUTTONS */}
-          {isLoggedIn ? (
-            <div className="dropdown dropdown-hover dropdown-end hidden md:block">
-              <div
-                className="flex items-center gap-x-2 cursor-pointer"
-                tabIndex={0}
-                role="button"
-              >
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-primary"
-                  >
-                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                </div>
-                <span className="text-primary font-bold uppercase flex items-center gap-1.5">
-                  {username && username?.fullName}
-                  {isAdminUser(username) && (
-                    <span className="text-[10px] bg-primary text-white px-1.5 py-0.5 rounded font-medium tracking-wide">
-                      ADMIN
-                    </span>
-                  )}
-                </span>
+        {isLoggedIn ? (
+          <div className="dropdown dropdown-hover dropdown-end hidden xl:flex">
+            <div
+              className="flex items-center justify-end gap-x-2 cursor-pointer"
+              tabIndex={0}
+              role="button"
+            >
+              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-primary"
+                >
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
               </div>
-              <div
-                tabIndex={-1}
-                className="dropdown-content menu bg-white rounded-box z-1 px-4 py-3 shadow-sm gap-y-2 w-fit text-nowrap"
-              >
+              <span className="text-primary font-bold uppercase flex items-center gap-1.5">
+                {username && username?.fullName}
                 {isAdminUser(username) && (
-                  <>
-                    <Link
-                      href={"/admin/dashboard/active"}
-                      className="flex items-center gap-2 w-full cursor-pointer group text-primary font-bold hover:bg-background rounded-lg p-1 transition-colors duration-300 ease-in-out"
-                    >
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      Admin Dashboard
-                    </Link>
-                    <LineGradient />
-                  </>
+                  <span className="text-[10px] bg-primary text-white px-1.5 py-0.5 rounded font-medium tracking-wide">
+                    ADMIN
+                  </span>
                 )}
-                <Link
-                  href={"/wishlist"}
-                  className="flex items-center gap-1 w-full cursor-pointer group text-secondary-text hover:text-primary hover:bg-background hover:font-medium  rounded-lg transition-colors duration-300 ease-in-out"
-                >
-                  <Heart className="group-hover:text-primary" />
-                  Wishlist
-                </Link>
-                <LineGradient />
-                <span
-                  onClick={logoutUser}
-                  className="flex items-center gap-1 w-full cursor-pointer group text-secondary-text hover:text-primary hover:bg-background hover:font-medium  rounded-lg transition-colors duration-300 ease-in-out"
-                >
-                  <LogOut className="group-hover:text-primary" />
-                  Logout
-                </span>
-              </div>
+              </span>
             </div>
-          ) : (
-            <div className="hidden md:flex items-center gap-x-3">
-              <RippleButton
-                title="Login"
-                buttonType="primary"
-                onClick={() => setOpenLogin(true)}
-                customClassName="w-20"
-              />
+            <div
+              tabIndex={-1}
+              className="dropdown-content menu bg-white rounded-box z-1 px-4 py-3 shadow-sm gap-y-2 w-fit text-nowrap"
+            >
+              {isAdminUser(username) && (
+                <>
+                  <Link
+                    href={"/admin/dashboard/active"}
+                    className="flex items-center gap-2 w-full cursor-pointer group text-primary font-bold hover:bg-background rounded-lg p-1 transition-colors duration-300 ease-in-out"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Admin Dashboard
+                  </Link>
+                  <LineGradient />
+                </>
+              )}
+              <Link
+                href={"/wishlist"}
+                className="flex items-center gap-1 w-full cursor-pointer group text-secondary-text hover:text-primary hover:bg-background hover:font-medium  rounded-lg transition-colors duration-300 ease-in-out"
+              >
+                <Heart className="group-hover:text-primary" />
+                Wishlist
+              </Link>
+              <LineGradient />
+              <span
+                onClick={logoutUser}
+                className="flex items-center gap-1 w-full cursor-pointer group text-secondary-text hover:text-primary hover:bg-background hover:font-medium  rounded-lg transition-colors duration-300 ease-in-out"
+              >
+                <LogOut className="group-hover:text-primary" />
+                Logout
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="hidden md:flex items-center gap-x-3">
+            <RippleButton
+              title="Login"
+              buttonType="primary"
+              onClick={() => setOpenLogin(true)}
+              customClassName="w-20"
+            />
 
-              <RippleButton
-                title="Sign up"
-                buttonType="secondary"
-                onClick={() => setOpenSignup(true)}
-                customClassName="w-20"
-              />
-            </div>
-          )}
+            <RippleButton
+              title="Sign up free"
+              buttonType="secondary"
+              onClick={() => setOpenSignup(true)}
+              customClassName="w-fit"
+            />
+          </div>
+        )}
 
         {/* Mobile Menu */}
         <div onClick={onPressMenuButton} className="block xl:hidden">
@@ -299,4 +297,3 @@ const Header = () => {
 };
 
 export default Header;
- 

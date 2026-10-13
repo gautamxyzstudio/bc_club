@@ -36,18 +36,19 @@ const HomeHeroSection = () => {
   };
 
   return (
-    <section className="xl:max-w-screen-2xl mx-auto xl:px-0 md:px-13 px-6 flex flex-col gap-y-8 xl:flex-row xl:flex-nowrap justify-between relative h-auto overflow-x-clip bg-background">
-      <div className="flex flex-col h-auto xl:w-[42%] xl:pl-16 w-full lg:pt-49.5 pt-31.5">
-        <h1 className="xl:text-6xl xl:leading-17 md:text-5xl md:leading-14 text-[40px] leading-12 whitespace-break-spaces md:text-start text-center font-bold self-stretch">
-          {`Search BC Real Estate Market\nwith Better`}
-          <span className="text-primary"> Local</span>{" "}
-          <span className="text-secondary">Insights</span>
+    <section className="xl:max-w-screen-2xl mx-auto xl:px-0 md:px-9 px-6 flex flex-col gap-y-8 xl:flex-row xl:flex-nowrap justify-between relative h-auto overflow-x-clip bg-background">
+      <div className="flex flex-col h-auto xl:w-[48%] xl:pl-16 w-full xl:pt-49.5 pt-22">
+        <h1 className="xl:text-6xl md:text-5xl text-4xl whitespace-break-spaces lg:text-start text-center font-bold self-stretch">
+          BC homes for sale, with the{" "}
+          <span className="text-primary underline-offset-8 underline decoration-secondary">
+            sold prices other sites don&apos;t show
+          </span>
         </h1>
         <Heading
           tagType="h2"
           type={IHeadingTypes.heading16}
-          customClasses="md:text-start text-center md:mt-5 mt-2.5 w-full md:whitespace-break-spaces font-normal!"
-          content={`Don’t just browse listings. See price trends in each neighbourhood,\nexplore past sales, and find your perfect home with up-to-date \nMLS listings.`}
+          customClasses="lg:text-start text-center md:mt-5 mt-2.5 w-full md:whitespace-break-spaces font-normal!"
+          content={`Search MLS® listings in Greater Vancouver and the Fraser Valley`}
         />
         <div className="w-full xl:mt-8 md:mt-6 mt-5 relative">
           <React.Suspense fallback={null}>
@@ -55,21 +56,21 @@ const HomeHeroSection = () => {
           </React.Suspense>
         </div>
       </div>
-      <div className="xl:w-[58.5%] bg-gray h-auto xl:rounded-bl-[124px] md:rounded-bl-[108px] rounded-bl-3xl z-10">
+      <div className="xl:w-[52%] bg-gray h-auto xl:rounded-bl-[124px] md:rounded-bl-[108px] rounded-bl-3xl z-10 hidden xl:block">
         <div className="w-full xl:h-195 md:h-128.5 h-66.25 relative">
           <Image
-            title="image title"
+            title="Map of British Columbia, Canada"
             src={Images.map}
-            alt="Map Vector"
+            alt="Map of British Columbia, Canada"
             width={1400}
             height={1000}
             loading="eager"
-            className="w-full xl:h-195 md:h-128.5 h-66.25 relative object-fill xl:rounded-bl-[124px] md:rounded-bl-[108px] rounded-bl-3xl"
+            className="w-full xl:h-195 md:h-128.5 h-66.25 object-fill xl:rounded-bl-[124px] md:rounded-bl-[108px] rounded-bl-3xl"
           />
           <DotButton
             cityName="Whistler"
             isActive={hoveredCity === "Whistler"}
-            customClasses="absolute lg:top-[197px] lg:left-20 z-20 w-11!"
+            customClasses="absolute top-[25.3%] left-[9.1%] z-20 w-11!"
             onMouseEnter={() =>
               handleMouseEnter("Whistler", { top: "100px", left: "90px" })
             }
@@ -81,7 +82,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Squamish"
             isActive={hoveredCity === "Squamish"}
-            customClasses="absolute lg:top-[268px] lg:left-[127px] z-20 w-12!"
+            customClasses="absolute top-[34.3%] left-[14.2%] z-20 w-12!"
             onMouseEnter={() =>
               handleMouseEnter("Squamish", { top: "190px", left: "125px" })
             }
@@ -93,7 +94,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Vancouver"
             isActive={hoveredCity === "Vancouver"}
-            customClasses="absolute lg:top-[382px] lg:left-[95px] z-20 w-12!"
+            customClasses="absolute top-[48.9%] left-[10.6%] z-20 w-12!"
             onMouseEnter={() =>
               handleMouseEnter("Vancouver", { top: "90px", left: "100px" })
             }
@@ -105,7 +106,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Burnaby"
             isActive={hoveredCity === "Burnaby"}
-            customClasses="absolute lg:top-[380px] lg:left-[222px] z-20 w-10!"
+            customClasses="absolute top-[48.6%] left-[25.5%] z-20 w-10!"
             onMouseEnter={() =>
               handleMouseEnter("Burnaby", { top: "90px", left: "140px" })
             }
@@ -117,7 +118,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Coquitlam"
             isActive={hoveredCity === "Coquitlam"}
-            customClasses="absolute lg:top-[379px] lg:left-[313px] z-20 w-11!"
+            customClasses="absolute top-[48.6%] left-[36.2%] z-20 w-11!"
             onMouseEnter={() =>
               handleMouseEnter("Coquitlam", { top: "80px", left: "140px" })
             }
@@ -129,7 +130,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="New Westminster"
             isActive={hoveredCity === "New Westminster"}
-            customClasses="absolute w-10! lg:top-[422px] lg:left-[264px] z-20 w-17!"
+            customClasses="absolute w-10! top-[54.1%] left-[30.2%] z-20 w-17!"
             onMouseEnter={() =>
               handleMouseEnter("New Westminster", {
                 top: "100px",
@@ -147,7 +148,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Surrey"
             isActive={hoveredCity === "Surrey"}
-            customClasses="absolute lg:top-[454px] lg:left-[328px] z-20 w-8!"
+            customClasses="absolute top-[58.2%] left-[37.8%] z-20 w-8!"
             onMouseEnter={() =>
               handleMouseEnter("Surrey", { top: "50px", left: "140px" })
             }
@@ -159,7 +160,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Maple Ridge"
             isActive={hoveredCity === "Maple Ridge"}
-            customClasses="absolute w-9! lg:top-[422px] lg:right-87 z-20 w-14!"
+            customClasses="absolute w-9! top-[54.1%] right-[40.4%] z-20 w-14!"
             onMouseEnter={() =>
               handleMouseEnter("Maple Ridge", { top: "80px", left: "140px" })
             }
@@ -172,7 +173,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Langley"
             isActive={hoveredCity === "Langley"}
-            customClasses="absolute lg:bottom-[281px] lg:left-[398px] z-20 w-9!"
+            customClasses="absolute bottom-[36.2%] right-[49%] z-20 w-9!"
             onMouseEnter={() =>
               handleMouseEnter("Langley", { top: "100px", left: "160px" })
             }
@@ -184,7 +185,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Abbotsford"
             isActive={hoveredCity === "Abbotsford"}
-            customClasses="absolute lg:bottom-[250px] lg:right-74 z-20 w-12!"
+            customClasses="absolute bottom-[32.1%] right-[34.3%] z-20 w-12!"
             onMouseEnter={() =>
               handleMouseEnter("Abbotsford", { top: "170px", left: "140px" })
             }
@@ -196,7 +197,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Mission"
             isActive={hoveredCity === "Mission"}
-            customClasses="absolute lg:bottom-[246px] lg:right-47 z-20 w-9!"
+            customClasses="absolute bottom-[31.5%] right-[21.5%] z-20 w-9!"
             onMouseEnter={() =>
               handleMouseEnter("Mission", { bottom: "-10px", left: "200px" })
             }
@@ -208,7 +209,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Chilliwack"
             isActive={hoveredCity === "Chilliwack"}
-            customClasses="absolute lg:bottom-[257px] lg:right-29 z-20 w-11!"
+            customClasses="absolute bottom-[32.8%] right-[13.4%] z-20 w-11!"
             onMouseEnter={() =>
               handleMouseEnter("Chilliwack", {
                 bottom: "-10px",
@@ -226,7 +227,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Hope"
             isActive={hoveredCity === "Hope"}
-            customClasses="absolute lg:bottom-[318px] lg:right-6 z-20 w-7!"
+            customClasses="absolute bottom-[40.7%] right-5 z-20 w-7!"
             onMouseEnter={() =>
               handleMouseEnter("Hope", { bottom: "-10px", right: "50px" })
             }
@@ -238,7 +239,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Richmond"
             isActive={hoveredCity === "Richmond"}
-            customClasses="absolute lg:top-[435px] lg:left-[91px] z-20 w-12!"
+            customClasses="absolute bottom-[42.6%] left-[10.2%] z-20 w-12!"
             onMouseEnter={() =>
               handleMouseEnter("Richmond", { bottom: "-10px", left: "100px" })
             }
@@ -250,7 +251,7 @@ const HomeHeroSection = () => {
           <DotButton
             cityName="Delta"
             isActive={hoveredCity === "Delta"}
-            customClasses="absolute lg:bottom-[292px] lg:left-[183px] z-20 w-7!"
+            customClasses="absolute bottom-[37.5%] left-[21%] z-20 w-7!"
             onMouseEnter={() =>
               handleMouseEnter("Delta", { bottom: "-10px", left: "100px" })
             }

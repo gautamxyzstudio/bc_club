@@ -13,7 +13,7 @@ const TrendStepPage = () => {
 
   return (
     <>
-      <section className="xl:max-w-screen-2xl mx-auto w-full px-6 md:px-13 xl:px-16 space-y-10 py-30">
+      <section className="xl:max-w-screen-2xl mx-auto w-full px-6 md:px-9 xl:px-16 space-y-10 py-30">
         {/* ===== Header ===== */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <h1 className="font-bold max-w-xl text-base sm:text-lg w-85.5">
@@ -22,44 +22,40 @@ const TrendStepPage = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setActiveTab(1)}
-              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${
-                activeTab === 1
+              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${activeTab === 1
                   ? "bg-[#22558b] text-white border-[#22558b]"
                   : "border-borderColor text-gray-600"
-              }`}
+                }`}
             >
               Monthly Sales Chart
             </button>
 
             <button
               onClick={() => setActiveTab(2)}
-              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${
-                activeTab === 2
+              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${activeTab === 2
                   ? "bg-[#22558b] text-white border-[#22558b]"
                   : "border-borderColor text-gray-500"
-              }`}
+                }`}
             >
               Monthly Sales Reports
             </button>
 
             <button
               onClick={() => setActiveTab(3)}
-              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${
-                activeTab === 3
+              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${activeTab === 3
                   ? "bg-[#22558b] text-white border-[#22558b]"
                   : "border-borderColor text-gray-500"
-              }`}
+                }`}
             >
               Stats Map
             </button>
 
             <button
               onClick={() => setActiveTab(4)}
-              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${
-                activeTab === 4
+              className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${activeTab === 4
                   ? "bg-[#22558b] text-white border-[#22558b]"
                   : "border-borderColor text-gray-500"
-              }`}
+                }`}
             >
               Statistics Sales Table
             </button>

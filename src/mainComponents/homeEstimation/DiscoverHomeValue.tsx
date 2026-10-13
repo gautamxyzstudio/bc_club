@@ -35,7 +35,7 @@ const valueCard: ValueCardProps[] = [
 
 const DiscoverHomeValue = () => {
   return (
-    <section className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-13 px-6 bg-gray xl:pt-16 xl:pb-23 py-13">
+    <section className="xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-9 px-6 bg-gray xl:pt-16 xl:pb-23 py-13">
       <div className="xl:w-[55%] md:w-10/12 w-full flex flex-col gap-y-4">
         <Heading
           tagType="h2"

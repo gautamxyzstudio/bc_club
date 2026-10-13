@@ -130,10 +130,10 @@ const OurProperty = () => {
     oldPrice: Number(listing?.old_price) || 0,
     assessedDiff: listing.price
       ? Number(
-          ((listing.price - (listing.annual_tax ?? 0)) / listing.price).toFixed(
-            1,
-          ),
-        )
+        ((listing.price - (listing.annual_tax ?? 0)) / listing.price).toFixed(
+          1,
+        ),
+      )
       : 0,
     mls: listing?.listing_id,
     realtor: listing?.office_name ?? getOfficeName(listing),
@@ -571,7 +571,7 @@ const OurProperty = () => {
   };
 
   return (
-    <section className="xl:max-w-screen-2xl mx-auto xl:px-16 md:px-13 px-6 py-16 overflow-clip">
+    <section className="xl:max-w-screen-2xl mx-auto xl:px-16 md:px-9 px-6 py-16 overflow-clip">
       <Heading
         tagType="h2"
         type={IHeadingTypes.heading32}
@@ -712,11 +712,10 @@ const OurProperty = () => {
                 <button
                   type="button"
                   onClick={() => setIsShareOpen((prev) => !prev)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition cursor-pointer text-sm font-medium border ${
-                    isShareOpen
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition cursor-pointer text-sm font-medium border ${isShareOpen
                       ? "bg-primary text-white border-primary shadow-xs"
                       : "text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200"
-                  }`}
+                    }`}
                   title="Share Property"
                   aria-label="Share Property"
                 >
@@ -851,11 +850,10 @@ const OurProperty = () => {
                         <button
                           type="button"
                           onClick={handleCopyLink}
-                          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer shrink-0 ${
-                            copied
+                          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer shrink-0 ${copied
                               ? "bg-emerald-600 text-white"
                               : "bg-primary text-white hover:bg-primary/90"
-                          }`}
+                            }`}
                         >
                           {copied ? (
                             <>

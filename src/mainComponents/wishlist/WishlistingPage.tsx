@@ -56,8 +56,8 @@ const WishlistingPage = () => {
             : Array.isArray(listing?.media_url)
               ? listing.media_url[0]
               : (typeof listing?.media?.[0] === "string"
-                  ? listing.media[0]
-                  : listing?.media?.[0]?.MediaURL) || "",
+                ? listing.media[0]
+                : listing?.media?.[0]?.MediaURL) || "",
         title: listing?.property_sub_type || "Property",
         price: Number(listing?.price) || 0,
         daysAgo:
@@ -84,20 +84,20 @@ const WishlistingPage = () => {
         priceDrop:
           listing?.PreviousListPrice > listing?.ListPrice
             ? Number(
-                (
-                  (listing.PreviousListPrice - listing.ListPrice) /
-                  listing.ListPrice
-                ).toFixed(1),
-              )
+              (
+                (listing.PreviousListPrice - listing.ListPrice) /
+                listing.ListPrice
+              ).toFixed(1),
+            )
             : undefined,
         assessedDiff: listing?.price
           ? Number(
-              (
-                (Number(listing.price) -
-                  (listing?.annual_tax ?? listing?.TaxAssessedValue ?? 0)) /
-                Number(listing.price)
-              ).toFixed(1),
-            )
+            (
+              (Number(listing.price) -
+                (listing?.annual_tax ?? listing?.TaxAssessedValue ?? 0)) /
+              Number(listing.price)
+            ).toFixed(1),
+          )
           : 0,
         mls:
           listing?.listing_id ??
@@ -146,7 +146,7 @@ const WishlistingPage = () => {
   };
 
   return (
-    <div className="xl:max-w-screen-2xl mx-auto xl:px-16 md:px-13 px-6 pt-5 w-full h-full">
+    <div className="xl:max-w-screen-2xl mx-auto xl:px-16 md:px-9 px-6 pt-5 w-full h-full">
       <div className="h-full mt-24">
         {!isLoggedIn && (
           <div className="flex flex-col items-center justify-center py-20 gap-4">

@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["192.168.1.72"],
+  allowedDevOrigins: ["192.168.1.75"],
 
   images: {
     dangerouslyAllowLocalIP: true,

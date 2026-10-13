@@ -654,11 +654,11 @@ const MonthlySaleChartContent = () => {
                       <Line
                         yAxisId="price"
                         type="monotone"
-                        dataKey="averageSoldPrice"
+                        dataKey="medianPrice"
                         name={
                           filters.propertyType === "All Residential"
-                            ? "Avg Sold Price"
-                            : `${filters.propertyType} Avg Price`
+                            ? "Median Sold Price"
+                            : `${filters.propertyType} Median Sold Price`
                         }
                         stroke="#F5A623"
                         strokeWidth={2}

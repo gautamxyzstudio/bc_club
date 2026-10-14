@@ -306,6 +306,9 @@ const MonthlySaleChartContent = () => {
 
     if (!hidePropertyType && filters.propertyType && filters.propertyType !== "All Residential") {
       params.property_sub_type = filters.propertyType.toLowerCase();
+      if (filters.propertyType.toLowerCase() === "detached") {
+        params.property_sub_type = "single family";
+      }
     }
 
     if (!hideYears && filters.year && filters.year !== "Select Year") {

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/refs */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -42,10 +43,10 @@ import { useGetRealEstateListings } from "@/src/hooks/listing/useRealEstateListi
 import PropertyInfo from "@/src/mainComponents/propertyInfo/PropertyInfo";
 
 const tabList = [
-  "Newly Listed properties",
-  "Recent Priced Properties",
-  "Previously Listed Properties",
-  "Sold properties",
+  "New listings",
+  "Price drops",
+  "Sold",
+  "Off market",
 ];
 
 const OFFSET = 120;
@@ -86,10 +87,10 @@ const OurProperty = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
 
   const refs = {
-    "Newly Listed properties": useRef<HTMLDivElement>(null),
-    "Recent Priced Properties": useRef<HTMLDivElement>(null),
-    "Previously Listed Properties": useRef<HTMLDivElement>(null),
-    "Sold properties": useRef<HTMLDivElement>(null),
+    "New listings": useRef<HTMLDivElement>(null),
+    "Price drops": useRef<HTMLDivElement>(null),
+    "Sold": useRef<HTMLDivElement>(null),
+    "Off market": useRef<HTMLDivElement>(null),
   };
 
   const scrollToSection = (tabName: string) => {
@@ -576,20 +577,20 @@ const OurProperty = () => {
       <Heading
         tagType="h2"
         type={IHeadingTypes.heading32}
-        content="Explore Our Property"
+        content="Latest homes"
         customClasses="text-center"
       />
 
       {/* Tab  */}
       <div className="xl:mt-13 md:mt-6 mt-4 w-full flex items-center-safe justify-between flex-col gap-y-2 md:flex-row">
-        <div className="w-full md:w-[70%] xl:w-[80%] grid grid-cols-2 gap-3 xl:flex flex-nowrap flex-row h-auto shadow-[0_0_20px_0_rgba(0,0,0,0.12)] gap-x-2 rounded-xl p-2">
+        <div className="w-fit gap-3 xl:flex flex-nowrap flex-row h-auto shadow-[0_0_20px_0_rgba(0,0,0,0.12)] bg-[#F8FAFC] gap-x-2 rounded-xl p-1">
           {tabList.map((item, idx) => (
             <CustomButton
               buttonType={tab === item ? "primary" : "disabled"}
               key={idx}
               label={item}
               onClick={() => scrollToSection(item)}
-              customClasses="w-full"
+              customClasses="w-fit"
             />
           ))}
         </div>
@@ -619,7 +620,7 @@ const OurProperty = () => {
       {/* Sections */}
       <div className="space-y-10 mt-10 h-auto">
         <div
-          ref={refs["Newly Listed properties"]}
+          ref={refs["New listings"]}
           className="flex flex-col gap-4 h-full"
         >
           <Heading
@@ -630,7 +631,7 @@ const OurProperty = () => {
           {renderSlider(newList, isLoadingNew, true, "newly-listed")}
         </div>
         <div
-          ref={refs["Recent Priced Properties"]}
+          ref={refs["Price drops"]}
           className="flex flex-col gap-4 h-full"
         >
           <Heading
@@ -646,25 +647,25 @@ const OurProperty = () => {
           )}
         </div>
 
+        <div ref={refs["Sold"]} className="flex flex-col gap-4">
+          <Heading
+            tagType="h3"
+            type={IHeadingTypes.heading20}
+            content="Sold"
+          />
+          {renderSlider(soldList, isLoadingSold, isLoggedIn, "sold")}
+        </div>
+
         <div
-          ref={refs["Previously Listed Properties"]}
+          ref={refs["Off market"]}
           className="flex flex-col gap-4 "
         >
           <Heading
             tagType="h3"
             type={IHeadingTypes.heading20}
-            content="Previously Listed Properties"
+            content="Off Market"
           />
           {renderSlider(expiredList, isLoadingExpired, isLoggedIn, "expired")}
-        </div>
-
-        <div ref={refs["Sold properties"]} className="flex flex-col gap-4">
-          <Heading
-            tagType="h3"
-            type={IHeadingTypes.heading20}
-            content="Sold Properties"
-          />
-          {renderSlider(soldList, isLoadingSold, isLoggedIn, "sold")}
         </div>
       </div>
 
@@ -714,8 +715,8 @@ const OurProperty = () => {
                   type="button"
                   onClick={() => setIsShareOpen((prev) => !prev)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition cursor-pointer text-sm font-medium border ${isShareOpen
-                      ? "bg-primary text-white border-primary shadow-xs"
-                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200"
+                    ? "bg-primary text-white border-primary shadow-xs"
+                    : "text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200"
                     }`}
                   title="Share Property"
                   aria-label="Share Property"
@@ -852,8 +853,8 @@ const OurProperty = () => {
                           type="button"
                           onClick={handleCopyLink}
                           className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer shrink-0 ${copied
-                              ? "bg-emerald-600 text-white"
-                              : "bg-primary text-white hover:bg-primary/90"
+                            ? "bg-emerald-600 text-white"
+                            : "bg-primary text-white hover:bg-primary/90"
                             }`}
                         >
                           {copied ? (

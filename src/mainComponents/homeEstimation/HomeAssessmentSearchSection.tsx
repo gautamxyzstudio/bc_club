@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -5,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { Search, MapPin, ArrowRight, Building2 } from "lucide-react";
 import { useGetAssessmentPropertiesList } from "@/src/hooks/listing/useListingQueries";
 import { logPropertySearchActivity } from "@/src/api/activityLog/activityLogApi";
-import Heading, { IHeadingTypes } from "@/src/components/heading/Heading";
 import Description, {
   IDescriptionTypes,
 } from "@/src/components/description/Description";
@@ -141,7 +143,7 @@ const HomeAssessmentSearchSection = () => {
               content="Please login in to search BC Assessment properties."
               onSignIn={() => setOpenLogin(true)}
               bg="bg-gray"
-              className="!rounded-3xl"
+              className="rounded-3xl!"
             />
           ) : (
             <>

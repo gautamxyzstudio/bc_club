@@ -187,13 +187,13 @@ export function matchesPropertyFilter(
 
 export const monthName = (range: string) => {
   return range === "12D"
-    ? "previous 12 days"
+    ? "last 12 days"
     : range === "1M"
-      ? "previous month"
+      ? "last month"
       : range === "3M"
-        ? "previous 3 months"
+        ? "last 3 months"
         : range === "6M"
-          ? "previous 6 months"
+          ? "last 6 months"
           : range === "Custom"
             ? ""
             : "";

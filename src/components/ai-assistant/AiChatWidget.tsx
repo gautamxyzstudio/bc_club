@@ -457,7 +457,7 @@ export default function AiChatWidget() {
         <button
           onClick={() => setIsOpen(true)}
           aria-label="Open BC Real Estate AI Chat"
-          className="fixed bottom-18 md:bottom-12 right-4 sm:right-6 z-9999 focus:outline-none transition-transform hover:scale-105 active:scale-95"
+          className="hidden lg:block fixed bottom-18 md:bottom-12 right-4 sm:right-6 z-9999 focus:outline-none transition-transform hover:scale-105 active:scale-95"
         >
           <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full bg-linear-to-tr from-[#122e4e] via-[#22558b] to-[#2c6dae] text-white flex items-center justify-center shadow-xl shadow-[#22558b]/35 ring-4 ring-white group">
             <MessageSquare className="w-3.5 h-3.5 md:w-4 md:h-4 text-white group-hover:scale-110 transition-transform duration-300" />
@@ -471,7 +471,7 @@ export default function AiChatWidget() {
         <div
           role="dialog"
           aria-label="BC Real Estate AI Assistant"
-          className="fixed bottom-18 md:bottom-5 right-3 sm:right-5 z-99 w-[calc(100vw-24px)] sm:w-98.75 h-98.75 sm:h-131.25 max-h-[calc(100vh-85px)] md:max-h-[calc(100vh-40px)] flex flex-col bg-white rounded-3xl shadow-[0_24px_70px_-12px_rgba(18,48,82,0.4)] border border-slate-200 overflow-hidden font-sans transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
+          className="hidden fixed bottom-18 md:bottom-5 right-3 sm:right-5 z-99 w-[calc(100vw-24px)] sm:w-98.75 h-98.75 sm:h-131.25 max-h-[calc(100vh-85px)] md:max-h-[calc(100vh-40px)] lg:flex flex-col bg-white rounded-3xl shadow-[0_24px_70px_-12px_rgba(18,48,82,0.4)] border border-slate-200 overflow-hidden font-sans transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
         >
           {/* ================= HEADER ================= */}
           <div className="relative text-white px-5 pt-4 pb-3.5 shrink-0 shadow-md overflow-hidden">

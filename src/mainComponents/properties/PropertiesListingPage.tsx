@@ -53,6 +53,9 @@ export default function PropertiesListingPage() {
   useEffect(() => {
     const urlLocation = searchParams.get("location");
     const urlSearch = searchParams.get("search");
+    const urlPriceChange = searchParams.get("priceChange");
+    const urlSort = searchParams.get("sort");
+    const urlStatus = searchParams.get("status");
 
     if (urlLocation) {
       updateInstanceFilter("list", "location", urlLocation);
@@ -62,7 +65,19 @@ export default function PropertiesListingPage() {
       updateInstanceFilter("list", "search", urlSearch);
     }
 
-    if (urlLocation || urlSearch) {
+    if (urlPriceChange) {
+      updateInstanceFilter("list", "activePriceChange", urlPriceChange);
+    }
+
+    if (urlSort) {
+      updateInstanceFilter("list", "activePrice", urlSort);
+    }
+
+    if (urlStatus) {
+      updateInstanceFilter("list", "status", urlStatus);
+    }
+
+    if (urlLocation || urlSearch || urlPriceChange || urlSort || urlStatus) {
       window.scrollTo({
         top: 120,
         behavior: "smooth",

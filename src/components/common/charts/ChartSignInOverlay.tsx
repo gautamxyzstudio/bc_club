@@ -21,11 +21,11 @@ const ChartSignInOverlay: React.FC<ChartSignInOverlayProps> = ({
   return (
     <div
       onClick={onSignIn}
-      className={`absolute inset-0 z-40 flex items-center justify-center ${bg || "bg-white/20"} backdrop-blur-[6px] rounded-2xl transition-all h-full cursor-pointer ${className || ""}`}
+      className={`absolute inset-0 z-10 flex items-center justify-center ${bg || "bg-white/20"} backdrop-blur-[6px] rounded-2xl transition-all h-full cursor-pointer ${className || ""}`}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center gap-4 border border-gray-100 max-w-[280px] text-center cursor-default"
+        className="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center gap-4 border border-gray-100 max-w-70 text-center cursor-default"
       >
         <div className="w-12 h-12 bg-[#FFA500]/10 rounded-full flex items-center justify-center">
           <svg
@@ -43,13 +43,13 @@ const ChartSignInOverlay: React.FC<ChartSignInOverlayProps> = ({
             />
           </svg>
         </div>
-        <div>
+        <div className="flex flex-col items-center gap-1">
           <h3 className="text-lg font-bold text-black">
             {title || "Unlock Full Insights"}
           </h3>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 w-[70%]">
             {content ||
-              `Please login in to view historical data beyond ${monthContent || "1 month"}.`}
+              `Sign in to see data older than ${monthContent || "last month"}.`}
           </p>
         </div>
         <RippleButton

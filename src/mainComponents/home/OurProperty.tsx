@@ -53,11 +53,12 @@ const OFFSET = 120;
 const swiperConfig = {
   spaceBetween: 12,
   slidesPerView: 1,
-  autoplay: {
-    delay: 4000,
-    disableOnInteraction: false,
-    pauseOnMouseEnter: true,
-  },
+  // autoplay: {
+  //   delay: 4000,
+  //   disableOnInteraction: false,
+  //   pauseOnMouseEnter: true,
+  // },
+  autoplay: false,
   modules: [Pagination, Navigation, Autoplay],
   loop: false,
   pagination: {

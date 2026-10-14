@@ -1,3 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/preserve-manual-memoization */
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import "leaflet/dist/leaflet.css";
@@ -23,6 +27,7 @@ import {
 import { useListingStore } from "@/src/store/useListingStore";
 import { useAuthContext } from "@/src/mainComponents/auth/AuthContext";
 import { useMediaQuery } from "@/src/hooks/useMediaQuery";
+import { useSearchParams } from "next/navigation";
 import {
   boundsKey,
   formatMeter,
@@ -85,6 +90,7 @@ export default function OpenStreetMapSearch() {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const minParcelZoom = isMobile ? 16 : 18;
 
+  const searchParams = useSearchParams();
   const { data: me } = useGetMe();
   const { isLoggedIn, setOpenLogin } = useAuthContext();
   const { getInstanceFilters, updateInstanceFilter, clearInstanceFilters } =
@@ -95,10 +101,6 @@ export default function OpenStreetMapSearch() {
     search = "",
     location = "",
     status = "forSale",
-    minPrice,
-    maxPrice,
-    minSqft,
-    maxSqft,
   } = filters;
 
   const [map, setMap] = useState<L.Map | null>(null);
@@ -148,10 +150,10 @@ export default function OpenStreetMapSearch() {
   const lastLocationRef = useRef<string | null>(null);
 
   const setSearch = (val: string) => updateInstanceFilter("map", "search", val);
-  const setActiveBedRoom = (val: string) =>
-    updateInstanceFilter("map", "activeBedRoom", val);
-  const setActiveBathRoom = (val: string) =>
-    updateInstanceFilter("map", "activeBathRoom", val);
+  // const setActiveBedRoom = (val: string) =>
+  //   updateInstanceFilter("map", "activeBedRoom", val);
+  // const setActiveBathRoom = (val: string) =>
+  //   updateInstanceFilter("map", "activeBathRoom", val);
   const setLocation = (val: string) =>
     updateInstanceFilter("map", "location", val);
 
@@ -162,6 +164,36 @@ export default function OpenStreetMapSearch() {
     }
     updateInstanceFilter("map", "status", val);
   };
+
+  useEffect(() => {
+    if (!searchParams) return;
+
+    const statusParam = searchParams.get("status");
+    if (statusParam === "closed" || statusParam === "sold") {
+      if (!isLoggedIn) {
+        setOpenLogin(true);
+      }
+      updateInstanceFilter("map", "status", "closed");
+    }
+
+    if (searchParams.get("schools") === "true") {
+      setSchoolMode(true);
+    }
+
+    if (searchParams.get("flood") === "true") {
+      setShowFloodProvince(true);
+    }
+    console.log(searchParams.get("propertyLines"), "paramm");
+    const hasLotLines =
+      searchParams.get("propertyLines") === "true"
+    console.log(hasLotLines, map?.getZoom(), "map")
+    if (hasLotLines) {
+      if ((map?.getZoom() || 0) < 17) {
+        map?.setZoom(18)
+        setMapZoomVal(18)
+      }
+    }
+  }, [searchParams, map, isLoggedIn, setOpenLogin, updateInstanceFilter, setMapZoomVal]);
 
   useEffect(() => {
     setFitBoundsDone(false);
@@ -430,6 +462,10 @@ export default function OpenStreetMapSearch() {
     if (zoom >= 16) fetchParcels(newBounds);
   }, [map, fetchParcels]);
 
+  const isLotLines =
+    searchParams?.get("propertyLines") === "true";
+  const initZoom = isLotLines ? 18 : 13;
+
   const onMapReady = useCallback((mapInstance: L.Map) => {
     setMap(mapInstance);
     setMapLoaded(true);
@@ -444,7 +480,7 @@ export default function OpenStreetMapSearch() {
         const center = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserLocation(center);
         setLocationChecked(true);
-        mapInstance.setView([center.lat, center.lng], 13);
+        mapInstance.setView([center.lat, center.lng], initZoom);
 
         setTimeout(() => {
           const nextBounds = getBoundsPayload(mapInstance);
@@ -455,7 +491,7 @@ export default function OpenStreetMapSearch() {
       },
       () => {
         setLocationChecked(true);
-        mapInstance.setView(OpenStreetMapDefaultCenter, 13);
+        mapInstance.setView(OpenStreetMapDefaultCenter, initZoom);
 
         setTimeout(() => {
           const nextBounds = getBoundsPayload(mapInstance);
@@ -465,7 +501,7 @@ export default function OpenStreetMapSearch() {
         }, 700);
       },
     );
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!mapLoaded || !map || !locationChecked) return;
@@ -473,8 +509,8 @@ export default function OpenStreetMapSearch() {
     lastLocationRef.current = location;
 
     if (!location) {
-      if (userLocation) map.setView([userLocation.lat, userLocation.lng], 13);
-      else map.setView(OpenStreetMapDefaultCenter, 13);
+      if (userLocation) map.setView([userLocation.lat, userLocation.lng], initZoom);
+      else map.setView(OpenStreetMapDefaultCenter, initZoom);
       setTimeout(() => triggerSearch(), 300);
       return;
     }
@@ -483,7 +519,7 @@ export default function OpenStreetMapSearch() {
     const coords = cityCoords[firstCity];
 
     if (coords) {
-      map.setView(coords, 13);
+      map.setView(coords, initZoom);
       setTimeout(() => triggerSearch(), 300);
     }
   }, [location, mapLoaded, map, locationChecked, userLocation, triggerSearch]);
@@ -503,7 +539,7 @@ export default function OpenStreetMapSearch() {
     });
 
     if (hasValidPoints && bounds.isValid()) {
-      map.fitBounds(bounds, { maxZoom: 13 });
+      map.fitBounds(bounds, { maxZoom: initZoom });
       setFitBoundsDone(true);
     }
   }, [properties, mapLoaded, map, fitBoundsDone, location]);
@@ -545,7 +581,7 @@ export default function OpenStreetMapSearch() {
       (pos) => {
         const center = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserLocation(center);
-        map.setView([center.lat, center.lng], 13);
+        map.setView([center.lat, center.lng], initZoom);
         setTimeout(() => triggerSearch(), 300);
       },
       () => alert("Please enable location services to use this feature."),
@@ -707,14 +743,6 @@ export default function OpenStreetMapSearch() {
           <MapTopFilterBar
             status={status}
             setStatus={setStatus}
-            // price={price as [number, number]}
-            // setPrice={setPrice}
-            // sqft={sqft as [number, number]}
-            // setSqft={setSqft}
-            // activeBedRoom={activeBedRoom}
-            // setActiveBedRoom={setActiveBedRoom}
-            // activeBathRoom={activeBathRoom}
-            // setActiveBathRoom={setActiveBathRoom}
             location={location}
             setLocation={setLocation}
           />
@@ -758,7 +786,7 @@ export default function OpenStreetMapSearch() {
 
             <MapContainer
               center={OpenStreetMapDefaultCenter}
-              zoom={13}
+              zoom={initZoom}
               minZoom={8}
               maxZoom={22}
               zoomControl={false}

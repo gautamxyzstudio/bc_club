@@ -8,8 +8,10 @@ import PoweredBy from "@/src/components/common/poweredby/PoweredBy";
 import CityStatsPopup from "./CityStatsPopup";
 import Heading, { IHeadingTypes } from "@/src/components/heading/Heading";
 import DotButton from "./DotButton";
+import { useListingStore } from "@/src/store/useListingStore";
 
 const HomeHeroSection = () => {
+  const setSelectedCity = useListingStore((state) => state.setSelectedCity);
   const [hoveredCity, setHoveredCity] = React.useState<string | null>(null);
   const [popupPosition, setPopupPosition] = React.useState<{
     top?: string | number;
@@ -23,6 +25,7 @@ const HomeHeroSection = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     setHoveredCity(city);
     setPopupPosition(position);
+    setSelectedCity(city);
   };
 
   const handleMouseLeave = () => {

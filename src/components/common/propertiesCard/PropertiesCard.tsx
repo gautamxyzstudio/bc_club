@@ -247,7 +247,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
         }
       }}
     >
-      <article className="relative flex flex-col w-full h-full overflow-hidden rounded-3xl border border-slate-200/90 bg-[#F8FAFC] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
+      <article className="relative flex flex-col w-full h-full overflow-hidden rounded-xl md:rounded-3xl border border-slate-200/90 bg-[#F8FAFC] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
         {/* Image */}
         <div className="relative w-full aspect-4/3 overflow-hidden bg-slate-100">
           {imgSrc ? (
@@ -342,7 +342,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
         </div>
 
         {/* Card body */}
-        <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
+        <div className="flex flex-1 flex-col justify-between p-2.5 sm:p-4">
           <div>
             {/* Location and property type */}
             <div className="mb-3 flex min-w-0 items-center justify-between gap-2">
@@ -364,17 +364,17 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
 
             {/* Price */}
             <div className="mb-2 flex justify-between items-center">
-              <div className="flex items-baseline gap-x-2 gap-y-1 "><p className="text-2xl font-black tracking-tight text-slate-900 sm:text-[26px]">
+              <div className="flex items-baseline gap-x-1 md:gap-x-2 gap-y-1 "><p className="text-lg md:text-2xl font-black tracking-tight text-slate-900 sm:text-[26px]">
                 {displayPrice}
               </p>
 
                 {oldPrice !== 0 && oldPrice && (
-                  <p className="text-sm text-slate-400 line-through">
+                  <p className="text-xs md:text-sm text-slate-400 line-through">
                     ${Number(oldPrice).toLocaleString()}
                   </p>
                 )}</div>
               {lotSize && (
-                <div className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
+                <div className="flex items-center justify-between gap-1 md:gap-2 rounded-lg md:rounded-xl border border-slate-200 bg-white px-2 py-2 md:px-3 md:py-2.5 shadow-sm">
                   <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-medium text-slate-600">
                     <Image
                       src={Icons.lotSize}
@@ -396,41 +396,13 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
 
             {/* Title and address */}
             <div className="mb-4 min-w-0">
-              {/* <h3
-                className="line-clamp-1 text-sm font-bold leading-snug text-slate-800 sm:text-base"
-                title={displayTitle}
-              >
-                {displayTitle}
-              </h3> */}
-
               <p
-                className="mt-1 line-clamp-2 text-base leading-relaxed text-slate-500 truncate"
+                className="mt-1 line-clamp-1 text-base leading-relaxed text-slate-500 truncate"
                 title={displayAddress}
               >
                 {displayAddress}
               </p>
             </div>
-
-            {/* Lot size */}
-            {/* {lotSize && (
-              <div className="mb-3.5 flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
-                <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-medium text-slate-600">
-                  <Image
-                    src={Icons.lotSize}
-                    alt="Lot size"
-                    title="Lot size"
-                    width={100}
-                    height={100}
-                    className="h-4 w-4 shrink-0 object-contain"
-                  />
-                  Lot Size
-                </span>
-
-                <span className="truncate rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-right text-[11px] font-semibold text-slate-800">
-                  {displayLotSize} | {lotSize} sft
-                </span>
-              </div>
-            )} */}
 
             {/* Property stats */}
             <div className="mb-4 grid grid-cols-3 divide-x divide-slate-200 rounded-xl border border-slate-200/80 bg-white/90 py-3 shadow-sm">

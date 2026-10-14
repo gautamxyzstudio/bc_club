@@ -49,6 +49,9 @@ interface ListingState {
 
   viewMode: "grid" | "list";
   setViewMode: (mode: "grid" | "list") => void;
+
+  selectedCity: string;
+  setSelectedCity: (city: string) => void;
 }
 
 const DEFAULT_FILTERS: FilterState = {
@@ -122,4 +125,7 @@ export const useListingStore = create<ListingState>((set, get) => ({
 
   viewMode: "grid",
   setViewMode: (viewMode) => set({ viewMode }),
+
+  selectedCity: "Vancouver",
+  setSelectedCity: (city) => set({ selectedCity: city }),
 }));

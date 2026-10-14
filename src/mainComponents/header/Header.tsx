@@ -236,7 +236,7 @@ const Header = () => {
             </div>
           </div>
         ) : (
-          <div className="hidden md:flex items-center gap-x-3">
+          <div className="hidden xl:flex items-center gap-x-3">
             <RippleButton
               title="Login"
               buttonType="primary"

@@ -1,4 +1,6 @@
 import OpenStreetMapSearchWrapper from "@/src/mainComponents/openStreetMap/OpenStreetMapSearchWrapper";
+import MapLoading from "@/src/mainComponents/openStreetMap/MapLoading";
+import { Suspense } from "react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -31,5 +33,9 @@ export const metadata: Metadata = {
 };
 
 export default function MapSearchPage() {
-  return <OpenStreetMapSearchWrapper />;
+  return (
+    <Suspense fallback={<MapLoading />}>
+      <OpenStreetMapSearchWrapper />
+    </Suspense>
+  );
 }

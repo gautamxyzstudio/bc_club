@@ -160,7 +160,7 @@ const HomePropertiesSold = () => {
       <div className="w-full min-h-114 h-fit flex flex-row flex-wrap justify-between gap-y-6 relative">
         {!isLoggedIn ? (
           <ChartSignInOverlay
-            monthContent={"previous month"}
+            monthContent={"last month"}
             onSignIn={() => setOpenLogin(true)}
             bg="bg-gray"
           />

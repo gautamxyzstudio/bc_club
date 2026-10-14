@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useMemo, useEffect, useRef, Suspense } from "react";
@@ -305,9 +307,10 @@ const MonthlySaleChartContent = () => {
     }
 
     if (!hidePropertyType && filters.propertyType && filters.propertyType !== "All Residential") {
-      params.property_sub_type = filters.propertyType.toLowerCase();
       if (filters.propertyType.toLowerCase() === "detached") {
         params.property_sub_type = "single family";
+      } else {
+        params.property_sub_type = filters.propertyType.toLowerCase();
       }
     }
 
@@ -565,7 +568,7 @@ const MonthlySaleChartContent = () => {
       </div>
 
       {/* CHART */}
-      <div className="bg-white rounded-2xl shadow p-6 mt-10 min-h-130">
+      <div className="bg-white rounded-2xl shadow p-6 mt-10 h-130">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-2">
           <h3 className="text-sm font-medium text-gray-700">
             {chartTitle}
@@ -579,19 +582,19 @@ const MonthlySaleChartContent = () => {
         </div>
 
         {/* SCROLL WRAPPER */}
-        <div className="overflow-x-auto scrollbar-hide h-full">
+        <div className="overflow-x-auto scrollbar-hide w-[calc(100%+1rem)] md:w-full h-full">
           <div className="min-w-175 md:min-w-full h-full relative">
             {!isLoggedIn ? (
               <ChartSignInOverlay onSignIn={() => setOpenLogin(true)} />
             ) : isLoading && chartData.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[380px] gap-3 text-gray-500">
+              <div className="flex flex-col items-center justify-center h-95 gap-3 text-gray-500">
                 <Loader2 size={32} className="animate-spin text-primary" />
                 <span className="text-sm font-medium">
                   Loading sales data...
                 </span>
               </div>
             ) : chartData.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[380px] gap-2 text-gray-400">
+              <div className="flex flex-col items-center justify-center h-95 gap-2 text-gray-400">
                 <p className="text-base font-semibold text-gray-600">
                   No sales data available
                 </p>

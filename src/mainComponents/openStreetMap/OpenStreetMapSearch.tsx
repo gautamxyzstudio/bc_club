@@ -72,6 +72,7 @@ import {
   OpenStreetMapPropertyPopup,
 } from "./OpenStreetMapInfoWindows";
 import OpenStreetMapControls from "./OpenStreetMapControls";
+import { useGetForecloserMapZoomProperties, useGetForecloserMapZoomWithClusters } from "@/src/hooks/listing/useRealEstateListingQueries";
 
 /**
  * Fires a callback once the Leaflet Map container is loaded and ready.
@@ -228,7 +229,17 @@ export default function OpenStreetMapSearch() {
     isLoading: isLoadingActive,
     isFetching: isFetchingActive,
   } = useGetMapZoomWithClusters(mapZoomParams, {
-    enabled: !!mapBounds,
+    enabled: !!mapBounds && isForSale && !(filters.status === "forecloser" || filters.status === "forecloserSold"),
+    staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData: any) => previousData,
+  });
+
+  const {
+    data: queryDataForecloserActive,
+    isLoading: isLoadingForecloserActive,
+    isFetching: isFetchingForecloserActive,
+  } = useGetForecloserMapZoomWithClusters(mapZoomParams, {
+    enabled: !!mapBounds && (filters.status === "forecloser" || filters.status === "forecloserSold"),
     staleTime: 1000 * 60 * 5,
     placeholderData: (previousData: any) => previousData,
   });
@@ -252,7 +263,26 @@ export default function OpenStreetMapSearch() {
     isLoading: isLoadingProperties,
     isFetching: isFetchingProperties,
   } = useGetMapZoomProperties(mapZoomParamsWithPage, {
-    enabled: !!mapBounds,
+    enabled: !!mapBounds && isForSale && !(filters.status === "forecloser" || filters.status === "forecloserSold"),
+    staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData: any) => previousData,
+  });
+
+  const forecloserParams = useMemo(() => {
+    return {
+      ...mapZoomParams,
+      page: currentPage,
+      pageSize: 50,
+      isLogin: isLoggedIn,
+    };
+  }, [mapZoomParams, currentPage, isLoggedIn]);
+
+  const {
+    data: queryDataForecloserProperties,
+    isLoading: isLoadingForecloserProperties,
+    isFetching: isFetchingForecloserProperties,
+  } = useGetForecloserMapZoomProperties(forecloserParams, {
+    enabled: !!mapBounds && (filters.status === "forecloser" || filters.status === "forecloserSold"),
     staleTime: 1000 * 60 * 5,
     placeholderData: (previousData: any) => previousData,
   });
@@ -278,16 +308,19 @@ export default function OpenStreetMapSearch() {
     },
   );
 
+  const queryActiveData = filters.status === "forecloser" || filters.status === "forecloserSold" ? queryDataForecloserActive : queryDataActive;
+  const queryData = filters.status === "forecloser" || filters.status === "forecloserSold" ? queryDataForecloserProperties : queryDataProperties;
+ 
   const cleanData = useMemo(() => {
-    if (!queryDataProperties?.data) return [];
+    if (!queryData?.data) return [];
 
-    return queryDataProperties.data
+    return queryData.data
       .map((listing: any) => transformActiveListing(listing, me))
       .filter(
         (l: any) =>
           Number(l.price) > 0 && (hasValidCoordinates(l) || l.address),
       );
-  }, [queryDataProperties?.data, me]);
+  }, [queryData?.data, me]);
 
   const rawProperties = useMemo(() => cleanData || [], [cleanData]);
 
@@ -363,8 +396,8 @@ export default function OpenStreetMapSearch() {
       .filter(Boolean);
   }, [rawProperties, geocodedCache]);
 
-  const isFetching = isFetchingActive || isFetchingProperties;
-  const isLoadingData = isLoadingActive || isLoadingProperties;
+  const isFetching = isFetchingActive || isFetchingProperties || isFetchingForecloserActive || isFetchingForecloserProperties;
+  const isLoadingData = isLoadingActive || isLoadingProperties || isLoadingForecloserActive || isLoadingForecloserProperties;
   const isLoading =
     isLoadingData || isFetching || isLoadingSold || isFetchingSold;
 
@@ -958,7 +991,7 @@ export default function OpenStreetMapSearch() {
               ))}
 
               <OpenStreetMapMarkerLayer
-                clusters={queryDataActive}
+                clusters={queryActiveData}
                 map={map}
                 status={status}
                 hoveredPropertyId={hoveredPropertyId}

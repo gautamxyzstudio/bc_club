@@ -98,9 +98,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
         <FiChevronDown
           size={18}
-          className={`text-[#EEA500] transition-transform duration-200 ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`text-[#EEA500] transition-transform duration-200 ${open ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -113,9 +112,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 onChange(opt);
                 setOpen(false);
               }}
-              className={`px-4 py-2 text-sm cursor-pointer flex justify-between items-center hover:bg-gray-100 ${
-                value === opt ? "font-medium text-black" : "text-gray-600"
-              }`}
+              className={`px-4 py-2 text-sm cursor-pointer flex justify-between items-center hover:bg-gray-100 ${value === opt ? "font-medium text-black" : "text-gray-600"
+                }`}
             >
               {opt}
               {value === opt && (

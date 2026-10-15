@@ -54,12 +54,12 @@ export const Endpoints = {
   getRealEstatePropertiesListById: (id: string) =>
     `${BASE_URL}/api/real-estate-boards/${id}`,
   getSimilarRealEstateProperties: (id: string) =>
-    `${BASE_URL}/api/real-estate-board/${id}/similar?radiusKm=90&limit=20`,
+    `${BASE_URL}/api/real-estate-board/${id}/similar?radiusKm=5&limit=20`,
   getSimilarRealEstateSoldProperties: (id: string) =>
-    `${BASE_URL}/api/real-estate-board/${id}/similar-sold?radiusKm=90&limit=20`,
+    `${BASE_URL}/api/real-estate-board/${id}/similar-sold?radiusKm=5&limit=20`,
   getRealEstatePropertiesListByAddress: `${BASE_URL}/api/real-estate-board/search-by-address`,
   getNearbyRealEstatePlaces: (id: string) =>
-    `${BASE_URL}/api/real-estate-board/${id}/neighborhood?radius=9000&limit=6`,
+    `${BASE_URL}/api/real-estate-board/${id}/neighborhood?radius=5000&limit=6`,
   getMyRealEstateFavorites: `${BASE_URL}/api/real-estate-board/my-favorites`,
   getUserFavorites: (userId: string | number) =>
     `${BASE_URL}/api/real-estate-board/user-favorites/${userId}`,
@@ -83,11 +83,13 @@ export const Endpoints = {
   deleteForecloserProperty: (id: string) =>
     `${BASE_URL}/api/forecloser-properties/${id}`,
   getSimilarForecloserProperties: (id: string) =>
-    `${BASE_URL}/api/forecloser-properties/${id}/similar?radiusKm=90&limit=20`,
+    `${BASE_URL}/api/forecloser-properties/${id}/similar?radiusKm=5&limit=20`,
   getSimilarForecloserSoldProperties: (id: string) =>
-    `${BASE_URL}/api/forecloser-properties/${id}/similar-sold?radiusKm=90&limit=20`,
+    `${BASE_URL}/api/forecloser-properties/${id}/similar-sold?radiusKm=5&limit=20`,
   getNearbyForecloserPlaces: (id: string) =>
-    `${BASE_URL}/api/forecloser-properties/${id}/neighborhood?radius=9000&limit=6`,
+    `${BASE_URL}/api/forecloser-properties/${id}/neighborhood?radius=5000&limit=6`,
+  getForecloserMapZoomWithClusters: `${BASE_URL}/api/forecloser-properties/map-zoom-with-clusters`,
+  getForecloserMapZoomProperties: `${BASE_URL}/api/forecloser-properties/map-properties`,
 
   // Blog Management Endpoints
   getBlogs: `${BASE_URL}/api/blogs`,

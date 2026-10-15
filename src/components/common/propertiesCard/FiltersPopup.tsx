@@ -619,6 +619,7 @@ export default function FiltersPopup({
             { k: "sold", l: "Sold", i: Images.sold },
             { k: "expired", l: "Expired", i: Images.expired },
             { k: "forecloser", l: "Forecloser", i: Images.foreCloser },
+            { k: "forecloserSold", l: "Forecloser Sold", i: Images.foreCloser },
           ].map((s) => (
             <button
               key={s.k}
@@ -629,11 +630,10 @@ export default function FiltersPopup({
                 }
                 setStatus(s.k);
               }}
-              className={`border rounded-xl p-3 flex flex-col items-center gap-2 cursor-pointer transition ${
-                status === s.k
-                  ? "bg-[#7c7c7c33] border-[#0F0F0F33]"
-                  : "border-[#0F0F0F33]"
-              }`}
+              className={`border rounded-xl p-3 flex flex-col items-center gap-2 cursor-pointer transition ${status === s.k
+                ? "bg-[#7c7c7c33] border-[#0F0F0F33]"
+                : "border-[#0F0F0F33]"
+                }`}
             >
               <Image
                 title="image title"
@@ -657,9 +657,8 @@ export default function FiltersPopup({
               className="w-full border border-[#33333333] rounded-xl px-3 py-3 cursor-pointer text-sm flex justify-between items-center bg-white"
             >
               <span
-                className={`truncate ${
-                  selectedLocations.length > 0 ? "text-black" : "text-gray-500"
-                }`}
+                className={`truncate ${selectedLocations.length > 0 ? "text-black" : "text-gray-500"
+                  }`}
                 title={selectedLocations.join(", ")}
               >
                 {selectedLocations.length > 0
@@ -707,17 +706,16 @@ export default function FiltersPopup({
                       {POPULAR_CITIES.map((city) => (
                         <div
                           key={`pop-${city}`}
-                          className={`px-6 py-1.5 text-sm cursor-pointer hover:bg-gray-50 flex items-center gap-3 ${
-                            selectedLocations.includes(city)
-                              ? "bg-gray-100 font-medium"
-                              : ""
-                          }`}
+                          className={`px-6 py-1.5 text-sm cursor-pointer hover:bg-gray-50 flex items-center gap-3 ${selectedLocations.includes(city)
+                            ? "bg-gray-100 font-medium"
+                            : ""
+                            }`}
                           onClick={() => handleToggleLocation(city)}
                         >
                           <input
                             type="checkbox"
                             checked={selectedLocations.includes(city)}
-                            onChange={() => {}}
+                            onChange={() => { }}
                             className="cursor-pointer rounded border-gray-300 text-primary focus:ring-primary checkbox checkbox-sm checkbox-"
                           />
                           <span>{city}</span>
@@ -751,17 +749,16 @@ export default function FiltersPopup({
                       {ALL_CITIES.map((city) => (
                         <div
                           key={`all-${city}`}
-                          className={`px-6 py-1.5 text-sm cursor-pointer hover:bg-gray-50 flex items-center gap-3 ${
-                            selectedLocations.includes(city)
-                              ? "bg-gray-100 font-medium"
-                              : ""
-                          }`}
+                          className={`px-6 py-1.5 text-sm cursor-pointer hover:bg-gray-50 flex items-center gap-3 ${selectedLocations.includes(city)
+                            ? "bg-gray-100 font-medium"
+                            : ""
+                            }`}
                           onClick={() => handleToggleLocation(city)}
                         >
                           <input
                             type="checkbox"
                             checked={selectedLocations.includes(city)}
-                            onChange={() => {}}
+                            onChange={() => { }}
                             className="cursor-pointer rounded border-gray-300 text-primary focus:ring-primary checkbox-sm checkbox"
                           />
                           <span>{city}</span>
@@ -774,7 +771,7 @@ export default function FiltersPopup({
             )}
           </div>
         </div>
-        
+
         <LineGradient />
 
         {/* Neighborhood */}
@@ -787,29 +784,27 @@ export default function FiltersPopup({
                   setNeighborhoodDropdownOpen(!neighborhoodDropdownOpen);
                 }
               }}
-              className={`w-full border border-[#33333333] rounded-xl px-3 py-3 text-sm flex justify-between items-center bg-white ${
-                selectedLocations.length === 0
-                  ? "opacity-60 cursor-not-allowed"
-                  : "cursor-pointer"
-              }`}
+              className={`w-full border border-[#33333333] rounded-xl px-3 py-3 text-sm flex justify-between items-center bg-white ${selectedLocations.length === 0
+                ? "opacity-60 cursor-not-allowed"
+                : "cursor-pointer"
+                }`}
             >
               <span
-                className={`truncate ${
-                  selectedLocations.length === 0
-                    ? "text-gray-400"
-                    : selectedNeighborhoods.length > 0
+                className={`truncate ${selectedLocations.length === 0
+                  ? "text-gray-400"
+                  : selectedNeighborhoods.length > 0
                     ? "text-black"
                     : "text-gray-500"
-                }`}
+                  }`}
                 title={selectedNeighborhoods.join(", ")}
               >
                 {selectedLocations.length === 0
                   ? "Select a location first"
                   : selectedNeighborhoods.length > 0
-                  ? selectedNeighborhoods.length > 4
-                    ? `${selectedNeighborhoods.slice(0, 4).join(", ")}, more.....`
-                    : selectedNeighborhoods.join(", ")
-                  : "All Neighborhoods"}
+                    ? selectedNeighborhoods.length > 4
+                      ? `${selectedNeighborhoods.slice(0, 4).join(", ")}, more.....`
+                      : selectedNeighborhoods.join(", ")
+                    : "All Neighborhoods"}
               </span>
               <span className="text-gray-400 shrink-0 ml-2">
                 {neighborhoodDropdownOpen ? (
@@ -845,8 +840,8 @@ export default function FiltersPopup({
                     No neighborhoods found for selected location
                   </div>
                 ) : availableNeighborhoods.filter((nh) =>
-                    nh.toLowerCase().includes(neighborhoodSearch.toLowerCase().trim()),
-                  ).length === 0 ? (
+                  nh.toLowerCase().includes(neighborhoodSearch.toLowerCase().trim()),
+                ).length === 0 ? (
                   <div className="px-4 py-3 text-xs text-gray-400 text-center">
                     No matching neighborhoods
                   </div>
@@ -882,17 +877,16 @@ export default function FiltersPopup({
                         .map((nh) => (
                           <div
                             key={nh}
-                            className={`px-6 py-1.5 text-sm cursor-pointer hover:bg-gray-50 flex items-center gap-3 ${
-                              selectedNeighborhoods.includes(nh)
-                                ? "bg-gray-100 font-medium"
-                                : ""
-                            }`}
+                            className={`px-6 py-1.5 text-sm cursor-pointer hover:bg-gray-50 flex items-center gap-3 ${selectedNeighborhoods.includes(nh)
+                              ? "bg-gray-100 font-medium"
+                              : ""
+                              }`}
                             onClick={() => handleToggleNeighborhood(nh)}
                           >
                             <input
                               type="checkbox"
                               checked={selectedNeighborhoods.includes(nh)}
-                              onChange={() => {}}
+                              onChange={() => { }}
                               className="cursor-pointer rounded border-gray-300 text-primary focus:ring-primary checkbox-sm checkbox"
                             />
                             <span>{nh}</span>
@@ -956,11 +950,10 @@ export default function FiltersPopup({
                     ].map((option) => (
                       <div
                         key={option.value}
-                        className={`px-6 py-2.5 text-sm cursor-pointer hover:bg-gray-50 flex items-center transition ${
-                          whenListed === option.value
-                            ? "bg-gray-100 font-medium text-primary"
-                            : "text-gray-700"
-                        }`}
+                        className={`px-6 py-2.5 text-sm cursor-pointer hover:bg-gray-50 flex items-center transition ${whenListed === option.value
+                          ? "bg-gray-100 font-medium text-primary"
+                          : "text-gray-700"
+                          }`}
                         onClick={() => {
                           setWhenListed(option.value);
                           setWhenListedDropdownOpen(false);
@@ -1002,11 +995,10 @@ export default function FiltersPopup({
                     onClick={() => handleToggleStructureType(prop.value)}
                   >
                     <div
-                      className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
-                        selectedStructureTypes.includes(prop.value)
-                          ? "bg-primary border-primary"
-                          : "border-gray-300 group-hover:border-primary"
-                      }`}
+                      className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${selectedStructureTypes.includes(prop.value)
+                        ? "bg-primary border-primary"
+                        : "border-gray-300 group-hover:border-primary"
+                        }`}
                     >
                       {selectedStructureTypes.includes(prop.value) && (
                         <svg
@@ -1134,12 +1126,12 @@ export default function FiltersPopup({
               }}
               disableSwap
               valueLabelDisplay="auto"
-              // marks={[
-              //   { value: 0, label: "$0" },
-              //   { value: 1000, label: "$1K" },
-              //   { value: 2000, label: "$2K" },
-              //   { value: 3000, label: "$3K" },
-              // ]}
+            // marks={[
+            //   { value: 0, label: "$0" },
+            //   { value: 1000, label: "$1K" },
+            //   { value: 2000, label: "$2K" },
+            //   { value: 3000, label: "$3K" },
+            // ]}
             />
             {/* Input Boxes */}
             <div className="flex items-center justify-between gap-2 sm:gap-4 mt-3">
@@ -1248,7 +1240,7 @@ export default function FiltersPopup({
                   placeholder="Min"
                   className="w-full bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <span className="text-secondary">sft</span>
+                <span className="text-secondary">sq ft</span>
               </div>
             </div>
 
@@ -1280,7 +1272,7 @@ export default function FiltersPopup({
                   placeholder="Max"
                   className="w-full bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <span className="text-secondary">sft</span>
+                <span className="text-secondary">sq ft</span>
               </div>
             </div>
           </div>
@@ -1329,7 +1321,7 @@ export default function FiltersPopup({
                   placeholder="Min"
                   className="w-full bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <span className="text-secondary">sft</span>
+                <span className="text-secondary">sq ft</span>
               </div>
             </div>
 
@@ -1361,7 +1353,7 @@ export default function FiltersPopup({
                   placeholder="Max"
                   className="w-full bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <span className="text-secondary">sft</span>
+                <span className="text-secondary">sq ft</span>
               </div>
             </div>
           </div>
@@ -1596,11 +1588,10 @@ export default function FiltersPopup({
               <div
                 key={f.value}
                 onClick={() => handleToggleFeature(f.value)}
-                className={`text-center py-3 rounded-xl border cursor-pointer text-sm transition-all ${
-                  selectedFeatures.includes(f.value)
-                    ? "bg-primary border-primary text-white"
-                    : "border-[#0F0F0F1F] text-gray-400 hover:border-primary hover:text-primary"
-                }`}
+                className={`text-center py-3 rounded-xl border cursor-pointer text-sm transition-all ${selectedFeatures.includes(f.value)
+                  ? "bg-primary border-primary text-white"
+                  : "border-[#0F0F0F1F] text-gray-400 hover:border-primary hover:text-primary"
+                  }`}
               >
                 {f.label}
               </div>

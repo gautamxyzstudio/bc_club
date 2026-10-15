@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useRef } from "react";
 import PropertyTopAddressSection from "./PropertyTopAddressSection";
@@ -60,9 +61,9 @@ const PropertyInfo = ({
   return (
     <>
       <section
-        className={`xl:max-w-screen-2xl mx-auto w-full bg-background flex flex-col xl:px-16 md:px-9 px-6 xl:pb-28.25 md:pb-25 pb-13 items-center-safe ${isDialog
-            ? "pt-6 md:pt-8 xl:pt-10"
-            : "xl:pt-35.5 md:pt-28 pt-21"
+        className={`xl:max-w-screen-2xl mx-auto w-full bg-background flex flex-col tems-center-safe ${isDialog
+            ? "pt-6 md:pt-8 xl:pt-10 md:px-9 px-6"
+            : "xl:pt-35.5 md:pt-28 pt-21 xl:px-16 md:px-9 px-6 xl:pb-28.25 md:pb-25 pb-13 "
           }`}
       >
         <PropertyTopAddressSection property={listing} />
@@ -87,6 +88,7 @@ const PropertyInfo = ({
 
       {/* Sections */}
       <PropertySimilarAndSoldListing
+        isDialog={isDialog}
         propertyId={listing.documentId}
         city={listing?.city}
         beds={listing.bedrooms}

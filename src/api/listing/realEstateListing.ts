@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { Endpoints } from "../endpoints";
@@ -574,5 +575,59 @@ export async function getBridgeCities(): Promise<{ count: number; data: string[]
       );
     }
     throw new Error("An unexpected error occurred while fetching bridge cities");
+  }
+}
+
+export async function getNeighborhoods(city: string): Promise<string[]> {
+  try {
+    const res = await axios.get(Endpoints.getNeighborhoods(city));
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
+        "Failed to fetch bridge cities"
+      );
+    }
+    throw new Error("An unexpected error occurred while fetching bridge cities");
+  }
+}
+
+// Map Zoom With Cluster
+export async function getForecloserMapZoomWithClusters(
+  params?: any
+): Promise<any> {
+  try {
+    const res = await axios.get(
+      Endpoints.getForecloserMapZoomWithClusters,
+      { params }
+    );
+
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.error?.message || "API error");
+    }
+    throw new Error("An unexpected error occurred");
+  }
+}
+
+// Map Zoom Properties
+export async function getForecloserMapZoomProperties(
+  params?: any
+): Promise<any> {
+  try {
+    const res = await axios.get(
+      Endpoints.getForecloserMapZoomProperties,
+      { params }
+    );
+
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.error?.message || "API error");
+    }
+    throw new Error("An unexpected error occurred");
   }
 }

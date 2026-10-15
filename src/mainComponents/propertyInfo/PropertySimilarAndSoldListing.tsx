@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { getOfficeName } from "@/src/utilities/utilities";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
@@ -49,6 +50,7 @@ const PropertySimilarAndSoldListing = ({
   price,
   baths,
   livingArea,
+  isDialog =false,
 }: {
   city?: string;
   beds: number;
@@ -57,6 +59,7 @@ const PropertySimilarAndSoldListing = ({
   price?: number;
   baths?: number;
   livingArea?: number;
+  isDialog?: boolean;
 }) => {
   const { isLoggedIn } = useAuthContext();
   const { data: me } = useGetMe();
@@ -255,8 +258,8 @@ const PropertySimilarAndSoldListing = ({
   };
   return (
     <div
-      className={`space-y-10 lg:mb-20 mb-10 h-auto xl:max-w-screen-2xl mx-auto w-full xl:px-16 md:px-9 px-6  
-      `}
+      className={`space-y-10 lg:mb-20 mb-10 h-auto xl:max-w-screen-2xl mx-auto w-full ${isDialog ? "md:px-9 px-6" : "xl:px-16 md:px-9 px-6"
+        }`}
     >
       <div className="flex flex-col gap-4 h-full">
         <Heading

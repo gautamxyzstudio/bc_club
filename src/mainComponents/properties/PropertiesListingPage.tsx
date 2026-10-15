@@ -2,7 +2,7 @@
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef} from "react";
 import {
   FiSearch,
   FiX,
@@ -182,7 +182,7 @@ export default function PropertiesListingPage() {
 
   const search = filters.search || "";
   // const isChip = filters.isChip || false;
-  const activePrice = filters.activePrice || "newest";  
+  const activePrice = filters.activePrice || "newest";
   const activeBathRoom = filters.activeBathRoom || "any";
   const activeBedRoom = filters.activeBedRoom || "any";
   const activePriceChange = filters.activePriceChange || "any";
@@ -451,30 +451,25 @@ export default function PropertiesListingPage() {
   const { data: queryDataNormal, isLoading: isLoadingNormal } =
     useGetRealEstateListings(params, {
       select,
-      enabled: !isForSale,
+      enabled: isForSale && !(status === "forecloser" || status === "forecloserSold"),
     });
 
-  const { data: queryDataActive, isLoading: isLoadingActive } =
-    useGetRealEstateListings(params, {
-      select,
-      enabled: isForSale,
-    });
-
+  const forecloserParams = { ...params, standard_status: status === "forecloserSold" ? "Closed" : "Active" };
   const { data: queryDataForeClose, isLoading: isLoadingForeClose } =
-    useGetForecloserProperties(params, {
+    useGetForecloserProperties(forecloserParams, {
       select,
-      enabled: status === "forecloser" || status === "forcecloser",
+      enabled: status === "forecloser" || status === "forecloserSold",
     });
 
   const queryData = isForSale
-    ? queryDataActive
-    : status === "forecloser" || status === "forcecloser"
+    ? queryDataNormal
+    : status === "forecloser" || status === "forecloserSold"
       ? queryDataForeClose
       : queryDataNormal;
   const loading =
     isForSale
-      ? isLoadingActive
-      : status === "forecloser" || status === "forcecloser"
+      ? isLoadingNormal
+      : status === "forecloser" || status === "forecloserSold"
         ? isLoadingForeClose
         : isLoadingNormal;
 
@@ -696,9 +691,9 @@ export default function PropertiesListingPage() {
       action = "Off-Market & Expired Listings";
     } else if (
       filters.status === "forecloser" ||
-      filters.status === "forcecloser"
+      filters.status === "forecloserSold"
     ) {
-      action = "Foreclosure Properties";
+      action = filters.status === "forecloserSold" ? "Foreclosure Properties Sold" : "Foreclosure Properties";
     } else if (filters.activePriceChange === "drop") {
       action = "Homes with Price Drops";
     }
@@ -847,7 +842,7 @@ export default function PropertiesListingPage() {
   };
 
   const hasActiveFilters = Boolean(
-    (activePrice !=="newest" && activePrice !=="any") ||
+    (activePrice !== "newest" && activePrice !== "any") ||
     (search && search.trim() !== "") ||
     (filters.status && filters.status !== "forSale") ||
     (activeBedRoom && activeBedRoom !== "any") ||
@@ -889,7 +884,7 @@ export default function PropertiesListingPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search city, neighborhood, or address..."
+              placeholder="Search city, neighbourhood, address or MLS® number"
               className="flex-1 text-sm outline-none bg-transparent"
             />
 
@@ -926,11 +921,10 @@ export default function PropertiesListingPage() {
                   behavior: "smooth",
                 });
               }}
-              className={`px-4 py-3 text-sm rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] lg:hidden flex flex-nowrap flex-row items-center gap-2 border border-[#30548733] cursor-pointer w-full justify-center text-nowrap ${
-                hasActiveFilters
+              className={`px-4 py-3 text-sm rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] lg:hidden flex flex-nowrap flex-row items-center gap-2 border border-[#30548733] cursor-pointer w-full justify-center text-nowrap ${hasActiveFilters
                   ? "bg-primary text-white"
                   : "bg-white text-gray-800"
-              }`}
+                }`}
             >
               <FiX size={16} />
               <span className="font-medium">Reset Filters</span>
@@ -1013,11 +1007,10 @@ export default function PropertiesListingPage() {
                 behavior: "smooth",
               });
             }}
-            className={`px-4 py-3 text-sm rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] hidden lg:flex flex-nowrap flex-row items-center gap-2 border border-[#30548733] cursor-pointer w-auto text-nowrap ${
-              hasActiveFilters
+            className={`px-4 py-3 text-sm rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] hidden lg:flex flex-nowrap flex-row items-center gap-2 border border-[#30548733] cursor-pointer w-auto text-nowrap ${hasActiveFilters
                 ? "bg-primary text-white"
                 : "bg-white text-gray-800"
-            }`}
+              }`}
           >
             <FiX size={16} />
             <span className="font-medium">Reset Filters</span>
@@ -1270,11 +1263,10 @@ export default function PropertiesListingPage() {
             <button
               type="button"
               onClick={() => setIsFilterShareOpen((prev) => !prev)}
-              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer border ${
-                isFilterShareOpen
+              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer border ${isFilterShareOpen
                   ? "bg-primary text-white border-primary shadow-md"
                   : "bg-white hover:bg-gray-50 text-gray-700 border-gray-200 shadow-2xs hover:border-gray-300"
-              }`}
+                }`}
               title="Share this search with filters"
               aria-label="Share this search with filters"
             >
@@ -1426,11 +1418,10 @@ export default function PropertiesListingPage() {
                     />
                     <button
                       onClick={handleCopyFilterLink}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer ${
-                        filterCopied
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer ${filterCopied
                           ? "bg-emerald-600 text-white"
                           : "bg-primary text-white hover:bg-primary/90"
-                      }`}
+                        }`}
                     >
                       {filterCopied ? (
                         <>
@@ -1482,7 +1473,7 @@ export default function PropertiesListingPage() {
                     key={property.id}
                     {...property}
                     isLogin
-                    isSold={status === "sold"}
+                    isSold={status === "sold" || status === "forecloserSold"}
                     isExpired={status === "expired"}
                     isDdf={property.isDdf}
                     onCardClick={(id) => setSelectedPropertyId(id)}
@@ -1568,8 +1559,8 @@ export default function PropertiesListingPage() {
                   type="button"
                   onClick={() => setIsShareOpen((prev) => !prev)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition cursor-pointer text-sm font-medium border ${isShareOpen
-                      ? "bg-primary text-white border-primary shadow-xs"
-                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200"
+                    ? "bg-primary text-white border-primary shadow-xs"
+                    : "text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200"
                     }`}
                   title="Share Property"
                   aria-label="Share Property"
@@ -1706,8 +1697,8 @@ export default function PropertiesListingPage() {
                           type="button"
                           onClick={handleCopyLink}
                           className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer shrink-0 ${copied
-                              ? "bg-emerald-600 text-white"
-                              : "bg-primary text-white hover:bg-primary/90"
+                            ? "bg-emerald-600 text-white"
+                            : "bg-primary text-white hover:bg-primary/90"
                             }`}
                         >
                           {copied ? (

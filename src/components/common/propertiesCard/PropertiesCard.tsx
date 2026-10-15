@@ -135,7 +135,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
       const unitLabel = units === "square feet" ? "acres" : "Acres";
       return `${sqftToAcresFormatted(numericArea)} ${unitLabel}`;
     }
-    return `${lotSize} ${units || "sft"}`;
+    return `${lotSize} ${units || "sq ft"}`;
   };
 
   const isFavourite =
@@ -201,7 +201,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
       ? structureType
       : title
     : "Property Details Restricted";
-  const displaySqft = isLogin ? `${sqft} sft` : "---- sft";
+  const displaySqft = isLogin ? `${sqft} sq ft` : "---- sq ft";
   const displayBeds = isLogin ? beds : "---";
   const displayBaths = isLogin ? baths : "---";
   const displayLotSize = isLogin ? getLotSizeDisplay() : "---- acres";
@@ -388,7 +388,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
                   </span>
 
                   <span className="truncate rounded-lg text-right text-[11px] font-semibold text-slate-800">
-                    {displayLotSize} | {lotSize} sft
+                    {displayLotSize} | {lotSize} sq ft
                   </span>
                 </div>
               )}

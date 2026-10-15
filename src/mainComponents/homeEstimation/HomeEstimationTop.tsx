@@ -675,7 +675,7 @@ const HomeEstimationTop = () => {
 
         <Description
           type={IDescriptionTypes.dec16}
-          content="Fill out form below to receive your personalized property valuation report."
+          content="Fill out the form below to receive your personalized property valuation report."
           customClasses="xl:mt-5 mt-4 text-center mx-6"
         />
 

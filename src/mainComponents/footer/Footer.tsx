@@ -49,7 +49,7 @@ const Footer = () => {
           </Link>
           <Description
             content="BC Real Estate Market helps you explore, buy, and sell properties across British Columbia with confidence and ease.
-From market insights to home valuation, we guide you every step of your real estate journey...."
+From market insights to home valuation, every step of your real estate journey"
             type={IDescriptionTypes.dec16}
             customClasses="text-lightWhite"
           />
@@ -107,15 +107,14 @@ From market insights to home valuation, we guide you every step of your real est
       {/* CopyRight */}
       <div className="w-full h-auto flex flex-col gap-y-1.5 md:flex-row justify-center md:justify-between items-center md:py-6 py-4  text-sm text-lightWhite text-center border-t border-white">
         <span>
-          &copy; {currentYear}, All Rights Reserved. Presented by Harjit Sidhu
-          Personal Real Estate Corporation/
+          &copy; {currentYear}, All Rights Reserved. Harjit Sidhu Personal Real Estate Corporation, {" "}
           <Link href={"https://thesidhuteam.ca"} className="underline">
-            The Sidhu Team
+            The Sidhu Team,
           </Link>{" "}
-          Planet Group Realty Inc Surrey
+          Planet Group Realty Inc., Surrey, BC
         </span>
         <Link href={"https://www.xyz.studio/"}>
-          Design & Develop By <b>XYZ Studio</b>
+          Designed and developed by <b>XYZ Studio</b>
         </Link>
       </div>
     </footer>

@@ -9,11 +9,6 @@ const faqs = [
       "Buying a home helps you build equity over time, while rent payments do not create ownership. Homeownership can also provide long-term financial stability and freedom to personalize your space.",
   },
   {
-    question: "Is buying a home a good investment?",
-    answer:
-      "Yes, real estate often appreciates in value over time. A home can build wealth through property appreciation and mortgage principal repayment.",
-  },
-  {
     question: "What are the financial benefits of owning a home?",
     answer:
       "Homeowners can benefit from fixed mortgage payments, potential tax advantages, property appreciation, and the ability to build equity instead of paying rent.",

@@ -199,7 +199,7 @@ const SearchPropertyTab = () => {
           >
             <input
               className="outline-0 px-3 cursor-pointer lg:w-[80%] w-[60%] h-12 bg-transparent"
-              placeholder="Enter address for Find Home"
+              placeholder="City, neighbourhood, address or MLS®"
               required
               value={ddfQuery}
               onChange={(e) => setDdfQuery(e.target.value)}
@@ -307,7 +307,7 @@ const SearchPropertyTab = () => {
               />
               <input
                 className="outline-0 px-3 cursor-pointer w-full h-12 bg-transparent"
-                placeholder={`Enter address for Home Assessment`}
+                placeholder={`City, neighbourhood, address or MLS®`}
                 required
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}

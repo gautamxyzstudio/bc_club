@@ -235,7 +235,7 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
       const unitLabel = units === "square feet" ? "acres" : "Acres";
       return `${sqftToAcresFormatted(numericArea)} ${unitLabel}`;
     }
-    return `${lotSize} ${units || "sft"}`;
+    return `${lotSize} ${units || "sq ft"}`;
   };
 
   React.useEffect(() => {
@@ -300,7 +300,7 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
     ? `$${Number(price || 0).toLocaleString()}`
     : "$*,***,***";
   const displayAddress = isLogin ? address : "Sign in to view address";
-  const displaySqft = isLogin ? `${sqft} sft` : "---- sft";
+  const displaySqft = isLogin ? `${sqft} sq ft` : "---- sq ft";
   const displayBeds = isLogin ? beds : "---";
   const displayBaths = isLogin ? baths : "---";
   const displayLotSize = isLogin ? getLotSizeDisplay() : "--- acres";
@@ -331,9 +331,8 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
       }}
     >
       <div
-        className={`relative rounded-[20px] flex overflow-hidden shadow-[0_0_5px_0_rgba(21,21,21,0.19)] transition h-auto w-full ${
-          isLogin ? "group" : ""
-        }`}
+        className={`relative rounded-[20px] flex overflow-hidden shadow-[0_0_5px_0_rgba(21,21,21,0.19)] transition h-auto w-full ${isLogin ? "group" : ""
+          }`}
       >
         <div className="flex flex-col justify-between w-full h-full">
           <div className="relative flex items-center">
@@ -343,9 +342,8 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
                   title="image title"
                   src={imgSrc}
                   alt={title}
-                  className={`w-full h-full object-cover rounded-t-2xl transition duration-300 ease-in-out ${
-                    isLogin ? "group-hover:scale-125" : "blur-sm"
-                  }`}
+                  className={`w-full h-full object-cover rounded-t-2xl transition duration-300 ease-in-out ${isLogin ? "group-hover:scale-125" : "blur-sm"
+                    }`}
                   width={700}
                   height={403}
                   loading="eager"
@@ -438,8 +436,8 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
                   {!isLoggedIn
                     ? "****"
                     : dayjs(listingDate)
-                        .tz("America/Vancouver")
-                        .format("DD MMM, YYYY")}
+                      .tz("America/Vancouver")
+                      .format("DD MMM, YYYY")}
                 </span>
               </div>
               <LineGradient />

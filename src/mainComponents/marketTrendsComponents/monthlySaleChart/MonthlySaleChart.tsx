@@ -30,10 +30,12 @@ import {
   REGION_DATA,
   YEAR_OPTIONS,
 } from "..";
+import { cities } from "@/src/mainComponents/home";
 import { useGetMonthlySalesChart } from "@/src/hooks/listing/useListingQueries";
 import {
   MonthlySalesChartParams,
 } from "@/src/api/listing/listingApi";
+import { useGetBridgeCities, useGetNeighborhoodByCity } from "@/src/hooks/listing/useRealEstateListingQueries";
 
 interface CustomSelectProps {
   label: string;
@@ -42,7 +44,7 @@ interface CustomSelectProps {
   onChange: (value: string) => void;
 }
 
-const REGION_OPTIONS = REGION_DATA.map((r) => r.region);
+
 
 const isGrouped = (
   opts: string[] | OptionGroup[]
@@ -87,9 +89,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         <span className="truncate">{value}</span>
         <FiChevronDown
           size={18}
-          className={`text-[#EEA500] shrink-0 transition-transform ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`text-[#EEA500] shrink-0 transition-transform ${open ? "rotate-180" : ""
+            }`}
         />
       </button>
       {open && (
@@ -107,11 +108,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                       onChange(opt);
                       setOpen(false);
                     }}
-                    className={`px-4 py-2 pl-6 text-sm cursor-pointer hover:bg-gray-100 transition-colors ${
-                      value === opt
+                    className={`px-4 py-2 pl-6 text-sm cursor-pointer hover:bg-gray-100 transition-colors ${value === opt
                         ? "font-semibold text-[#EEA500] bg-amber-50/50"
                         : "text-gray-700"
-                    }`}
+                      }`}
                   >
                     {opt}
                   </div>
@@ -126,11 +126,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                   onChange(opt);
                   setOpen(false);
                 }}
-                className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 transition-colors ${
-                  value === opt
+                className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 transition-colors ${value === opt
                     ? "font-semibold text-[#EEA500] bg-amber-50/50"
                     : "text-gray-700"
-                }`}
+                  }`}
               >
                 {opt}
               </div>
@@ -154,17 +153,28 @@ const AREA_COLORS = [
 
 /* ================= MAIN COMPONENT ================= */
 const MonthlySaleChartContent = () => {
+  const { data: bridgeCitiesRes } = useGetBridgeCities();
+  const citiesList: string[] = useMemo(() => {
+    if (Array.isArray(bridgeCitiesRes?.data) && bridgeCitiesRes.data.length > 0) {
+      return bridgeCitiesRes.data;
+    }
+    if (Array.isArray(bridgeCitiesRes) && bridgeCitiesRes.length > 0) {
+      return bridgeCitiesRes;
+    }
+    return cities;
+  }, [bridgeCitiesRes]);
+
   const searchParams = useSearchParams();
   const urlCity = searchParams?.get("city");
   const urlType = searchParams?.get("propertyType");
 
   const [filters, setFilters] = useState({
-    region: "Vancouver West",
+    region: "Vancouver",
     data: "Sold Prices by Month",
     propertyType: "All Residential",
     neighborhood: "All Neighborhoods",
     year: "Select Year",
-    compareRegion: "Vancouver East",
+    compareRegion: "Burnaby",
     compareNeighborhood: "All Neighborhoods",
   });
 
@@ -172,6 +182,34 @@ const MonthlySaleChartContent = () => {
   const isCompareChart =
     filters.data === "Sold Prices by Month (Compare)" ||
     filters.data === "Sold Count by Month (Compare)";
+
+  const { data: neighborhoodRes } = useGetNeighborhoodByCity(filters.region);
+  const neighborhoodsList: string[] = useMemo(() => {
+    if (Array.isArray(neighborhoodRes?.data) && neighborhoodRes.data.length > 0) {
+      return neighborhoodRes.data;
+    }
+    if (Array.isArray(neighborhoodRes) && neighborhoodRes.length > 0) {
+      return neighborhoodRes;
+    }
+    return [];
+  }, [neighborhoodRes]);
+
+  const { data: compareNeighborhoodRes } = useGetNeighborhoodByCity(
+    filters.compareRegion,
+    { enabled: isCompareChart && !!filters.compareRegion }
+  );
+  const compareNeighborhoodsList: string[] = useMemo(() => {
+    if (
+      Array.isArray(compareNeighborhoodRes?.data) &&
+      compareNeighborhoodRes.data.length > 0
+    ) {
+      return compareNeighborhoodRes.data;
+    }
+    if (Array.isArray(compareNeighborhoodRes) && compareNeighborhoodRes.length > 0) {
+      return compareNeighborhoodRes;
+    }
+    return [];
+  }, [compareNeighborhoodRes]);
 
   const isTypeChart =
     filters.data === "Sold Prices by Type YTD" ||
@@ -255,15 +293,13 @@ const MonthlySaleChartContent = () => {
 
   // Primary neighborhoods depend dynamically upon the selected region
   const neighborhoodOptions = useMemo(() => {
-    const selectedRegion = REGION_DATA.find((r) => r.region === filters.region);
-    return ["All Neighborhoods", ...(selectedRegion?.neighborhoods || [])];
-  }, [filters.region]);
+    return ["All Neighborhoods", ...neighborhoodsList];
+  }, [neighborhoodsList]);
 
   // Compare neighborhoods depend dynamically upon the selected compareRegion
   const compareNeighborhoodOptions = useMemo(() => {
-    const selectedRegion = REGION_DATA.find((r) => r.region === filters.compareRegion);
-    return ["All Neighborhoods", ...(selectedRegion?.neighborhoods || [])];
-  }, [filters.compareRegion]);
+    return ["All Neighborhoods", ...compareNeighborhoodsList];
+  }, [compareNeighborhoodsList]);
 
   const updateFilter = (key: keyof typeof filters, value: string) => {
     if (key === "region") {
@@ -414,13 +450,6 @@ const MonthlySaleChartContent = () => {
         ...item,
         rawMonth,
         month: displayMonth,
-        // soldCount: item.soldCount != null ? Number(item.soldCount) : undefined,
-        // averageSoldPrice:
-        //   item.averageSoldPrice != null ? Number(item.averageSoldPrice) : undefined,
-        // "12MonthAvgPrice":
-        //   item["12MonthAvgPrice"] != null ? Number(item["12MonthAvgPrice"]) : undefined,
-        // "12MonthAvgCount":
-        //   item["12MonthAvgCount"] != null ? Number(item["12MonthAvgCount"]) : undefined,
       };
     });
   }, [apiResponse]);
@@ -465,11 +494,10 @@ const MonthlySaleChartContent = () => {
     }
 
     if (isAreaChart) {
-      return `${filters.region} ${filters.data} in ${
-        filters.propertyType === "All Residential"
+      return `${filters.region} ${filters.data} in ${filters.propertyType === "All Residential"
           ? "All Property Types"
           : filters.propertyType
-      }*`;
+        }*`;
     }
 
     const neighPart =
@@ -492,7 +520,7 @@ const MonthlySaleChartContent = () => {
         <div className="w-full md:w-[calc(33.333%-1rem)]">
           <CustomSelect
             label="Region"
-            options={REGION_OPTIONS}
+            options={citiesList}
             value={filters.region}
             onChange={(v) => updateFilter("region", v)}
           />
@@ -550,7 +578,7 @@ const MonthlySaleChartContent = () => {
             <div className="w-full md:w-[calc(50%-1rem)]">
               <CustomSelect
                 label="Compare Region"
-                options={REGION_OPTIONS}
+                options={citiesList}
                 value={filters.compareRegion}
                 onChange={(v) => updateFilter("compareRegion", v)}
               />

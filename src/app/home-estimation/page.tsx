@@ -37,8 +37,8 @@ const page = () => {
   return (
     <>
       <HomeEstimationTop />
-      {/* <DiscoverHomeValue /> */}
-      <HomeAssessmentSearchSection />
+      <DiscoverHomeValue />
+      {/* <HomeAssessmentSearchSection /> */}
       <HomePropertiesSold />
       <GetInTouch />
     </>

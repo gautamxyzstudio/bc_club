@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   useQuery,
   UseQueryOptions,
@@ -22,6 +23,9 @@ import {
   copyToForecloserList,
   deleteForecloserProperty,
   getBridgeCities,
+  getNeighborhoods,
+  getForecloserMapZoomWithClusters,
+  getForecloserMapZoomProperties,
 } from "@/src/api/listing/realEstateListing";
 import { listingKeys } from "@/src/hooks/listing/useListingQueries";
 
@@ -401,3 +405,47 @@ export function useGetBridgeCities<TData = any>(
   });
 }
 
+export function useGetNeighborhoodByCity<TData = any>(
+  city: string,
+  options?: Omit<
+    UseQueryOptions<any, Error, TData, any>,
+    "queryKey" | "queryFn"
+  >,
+) {
+  return useQuery<any, Error, TData, any>({
+    queryKey: ["neighborhoodByCity", city],
+    queryFn: () => getNeighborhoods(city),
+    enabled: !!city,
+    ...options,
+  });
+}
+
+// Map Zoom With Clusters
+export function useGetForecloserMapZoomWithClusters<TData = any>(
+  params?: any,
+  options?: Omit<
+    UseQueryOptions<any, Error, TData, any>,
+    "queryKey" | "queryFn"
+  >,
+) {
+  return useQuery<any, Error, TData, any>({
+    queryKey: ["mapZoomWithClusters", params || {}],
+    queryFn: () => getForecloserMapZoomWithClusters(params),
+    ...options,
+  });
+}
+
+// Map Zoom Properties
+export function useGetForecloserMapZoomProperties<TData = any>(
+  params?: any,
+  options?: Omit<
+    UseQueryOptions<any, Error, TData, any>,
+    "queryKey" | "queryFn"
+  >,
+) {
+  return useQuery<any, Error, TData, any>({
+    queryKey: ["mapZoomProperties", params || {}],
+    queryFn: () => getForecloserMapZoomProperties(params),
+    ...options,
+  });
+}

@@ -577,20 +577,20 @@ const OurProperty = () => {
       <Heading
         tagType="h2"
         type={IHeadingTypes.heading32}
-        content="Latest homes"
+        content="Explore listings"
         customClasses="text-center"
       />
 
       {/* Tab  */}
       <div className="xl:mt-13 md:mt-6 mt-4 w-full flex items-center-safe justify-between flex-col gap-y-2 md:flex-row">
-        <div className="w-fit gap-3 xl:flex flex-nowrap flex-row h-auto shadow-[0_0_20px_0_rgba(0,0,0,0.12)] bg-[#F8FAFC] gap-x-2 rounded-xl p-1">
+        <div className="w-min gap-3 xl:flex flex-nowrap flex-row h-auto shadow-[0_0_20px_0_rgba(0,0,0,0.12)] bg-[#F8FAFC] gap-x-2 rounded-xl p-1">
           {tabList.map((item, idx) => (
             <CustomButton
               buttonType={tab === item ? "primary" : "disabled"}
               key={idx}
               label={item}
               onClick={() => scrollToSection(item)}
-              customClasses="w-fit"
+              customClasses="w-min min-w-[130px]"
             />
           ))}
         </div>
@@ -626,7 +626,7 @@ const OurProperty = () => {
           <Heading
             tagType="h3"
             type={IHeadingTypes.heading20}
-            content="Newly Listed Properties"
+            content="New Listings"
           />
           {renderSlider(newList, isLoadingNew, true, "newly-listed")}
         </div>
@@ -637,7 +637,7 @@ const OurProperty = () => {
           <Heading
             tagType="h3"
             type={IHeadingTypes.heading20}
-            content="Recent Price Properties"
+            content="Price drops"
           />
           {renderSlider(
             priceUpdateList,

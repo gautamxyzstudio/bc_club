@@ -614,8 +614,7 @@ const SignupPopup = ({
                   Board, the Chilliwack and District Real Estate Board, the
                   Vancouver Island Real Estate Board, or the Canadian Real
                   Estate Association, which assume no responsibility for its
-                  accuracy. This information is deemed highly reliable but is
-                  not guaranteed accurate by those organizations or the platform
+                  accuracy. This information is deemed reliable but not guaranteed accurate by those organizations or the platform
                   operators.
                 </p>
               </div>
@@ -628,8 +627,7 @@ const SignupPopup = ({
                 </p>
                 <p>
                   By registering an account, verifying your email address, and
-                  creating secure access credentials on this Platform, you (the
-                  "Registrant") solemnly swear, acknowledge, and agree to the
+                  creating secure access credentials on this Platform, you agree, acknowledge, and agree to the
                   following terms mandated by FVREB, GVR, CADREB, and VIREB:
                 </p>
                 <ol className="list-decimal list-outside ml-9">

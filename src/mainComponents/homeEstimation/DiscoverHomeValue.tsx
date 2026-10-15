@@ -1,4 +1,5 @@
-import { Icons } from "@/src/app/exports";
+import type { LucideIcon } from "lucide-react";
+import { TrendingUp, Clock, ShieldCheck } from "lucide-react";
 import Description, {
   IDescriptionTypes,
 } from "@/src/components/description/Description";
@@ -7,29 +8,29 @@ import Image from "next/image";
 import React from "react";
 
 interface ValueCardProps {
-  icon: string;
+  icon: LucideIcon | string;
   label: string;
   description: string;
 }
 
 const valueCard: ValueCardProps[] = [
   {
-    icon: Icons.accurate,
-    label: "Accurate Valuation",
+    icon: TrendingUp,
+    label: "Based on real sales",
     description:
-      "Considers recent comparable sales, market trends, and property details.",
+      "Uses recent sales near you, current listings and your home's details.",
   },
   {
-    icon: Icons.instantResult,
-    label: "Instant Results",
+    icon: Clock,
+    label: "Quick",
     description:
-      "Delivered instantly to your email inbox. No waiting required.",
+      "Your estimate arrives by email within 24 hours.",
   },
   {
-    icon: Icons.free,
-    label: "Completely Free",
+    icon: ShieldCheck,
+    label: "Free, no obligation",
     description:
-      "Our home evaluation service is 100% free with no obligations.",
+      "No cost, and no pressure to list.",
   },
 ];
 
@@ -48,28 +49,37 @@ const DiscoverHomeValue = () => {
         />
       </div>
       <div className="xl:mt-17.75 md:mt-8 mt-6 flex flex-row flex-wrap items-center xl:justify-between gap-5 justify-center h-full">
-        {valueCard.map((card, idx) => (
-          <div
-            key={idx}
-            className="p-6 rounded-[20px] xl:w-[32%] md:w-[48%] w-full border border-[#00000033] xl:hover:shadow-[0_0_32px_0_rgba(0,0,0,0.12)] hover:border-none transition-shadow duration-300 flex flex-col items-start h-auto"
-          >
-            <Image
-              title="image title"
-              src={card.icon}
-              alt={card.label}
-              width={80}
-              height={80}
-              className="w-16 h-16 object-contain p-2.5 rounded-md bg-secondary"
-            />
-            <h6 className="font-bold xl:text-xl text-lg mt-3">{card.label}</h6>
+        {valueCard.map((card, idx) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={idx}
+              className="p-6 rounded-[20px] xl:w-[32%] md:w-[48%] w-full border border-[#00000033] xl:hover:shadow-[0_0_32px_0_rgba(0,0,0,0.12)] hover:border-none transition-shadow duration-300 flex flex-col items-start h-auto"
+            >
+              <div className="w-16 h-16 rounded-md bg-secondary flex items-center justify-center p-2.5 shrink-0">
+                {typeof Icon === "string" ? (
+                  <Image
+                    title={card.label}
+                    src={Icon}
+                    alt={card.label}
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 object-contain"
+                  />
+                ) : (
+                  <Icon className="w-8 h-8 text-white stroke-[2.2]" />
+                )}
+              </div>
+              <h6 className="font-bold xl:text-xl text-lg mt-3">{card.label}</h6>
 
-            <Description
-              content={card.description}
-              type={IDescriptionTypes.dec16}
-              customClasses="mt-2"
-            />
-          </div>
-        ))}
+              <Description
+                content={card.description}
+                type={IDescriptionTypes.dec16}
+                customClasses="mt-2"
+              />
+            </div>
+          );
+        })}
       </div>
     </section>
   );

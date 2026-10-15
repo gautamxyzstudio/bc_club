@@ -149,7 +149,7 @@ const BlogPage = () => {
         </>
       ) : blogs.length === 0 ? (
         /* Empty State */
-        <section className="xl:max-w-screen-2xl mx-auto xl:px-16 md:px-9 px-6 py-5 sm:p-7 lg:p-8 rounded-t-3xl text-center relative z-20">
+        <section className="xl:max-w-screen-2xl mx-auto xl:px-16 md:px-9 px-6 py-5 sm:p-7 lg:py-10 rounded-t-3xl text-center relative z-20">
           <div className="max-w-md mx-auto">
             <div className="w-16 h-16 bg-amber-50 text-[#F4A51C] rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-200">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +157,7 @@ const BlogPage = () => {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">No Blogs Published Yet</h3>
-            <p className="text-gray-500 text-sm">Check back soon for latest real estate updates and articles.</p>
+            <p className="text-gray-500 text-sm mb-10">Check back soon for latest real estate updates and articles.</p>
           </div>
         </section>
       ) : (

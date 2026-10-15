@@ -31,7 +31,7 @@ const PropertyInformation = ({ property }: { property: any }) => {
       const unitLabel = units === "square feet" ? "acres" : "Acres";
       return `${sqftToAcresFormatted(numericArea)} ${unitLabel}`;
     }
-    return `${property?.lot_size_area} ${units || "sft"}`;
+    return `${property?.lot_size_area} ${units || "sq ft"}`;
   };
 
   const featuresList = [
@@ -66,7 +66,7 @@ const PropertyInformation = ({ property }: { property: any }) => {
       label: "Living Area Size",
       value:
         property?.Living_area && property?.Living_area !== 0
-          ? `${property?.Living_area} sft`
+          ? `${property?.Living_area} sq ft`
           : "Na",
     },
     ...(property?.lot_size_area != null && property?.lot_size_area !== ""

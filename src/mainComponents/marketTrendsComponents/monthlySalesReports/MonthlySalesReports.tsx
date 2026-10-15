@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
@@ -63,9 +64,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         <span className="truncate">{value}</span>
         <FiChevronDown
           size={18}
-          className={`text-[#EEA500] shrink-0 transition-transform ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`text-[#EEA500] shrink-0 transition-transform ${open ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -145,7 +145,7 @@ const YEAR_BACK_OPTIONS = [
 
 const PRICE_COLUMNS: HeaderCol[] = [
   { label: "Price Range $", key: "priceRange" },
-  { label: "Solds", key: "sold" },
+  { label: "Homes sold", key: "sold" },
   { label: "Inventory", key: "inventory" },
   { label: "Ratio", key: "ratio" },
   { label: "New", key: "new" },
@@ -153,7 +153,7 @@ const PRICE_COLUMNS: HeaderCol[] = [
 
 const BEDS_COLUMNS: HeaderCol[] = [
   { label: "Bedrooms", key: "bedroomRange" },
-  { label: "Solds", key: "sold" },
+  { label: "Homes sold", key: "sold" },
   { label: "Inventory", key: "inventory" },
   { label: "Ratio", key: "ratio" },
   { label: "New", key: "new" },
@@ -161,7 +161,7 @@ const BEDS_COLUMNS: HeaderCol[] = [
 
 const NEIGHBOR_COLUMNS: HeaderCol[] = [
   { label: "Neighbourhood", key: "neighborhood" },
-  { label: "Solds", key: "sold" },
+  { label: "Homes sold", key: "sold" },
   { label: "Inventory", key: "inventory" },
   { label: "Ratio", key: "ratio" },
   { label: "New", key: "new" },
@@ -843,13 +843,12 @@ const MonthlySalesReports = () => {
                           <td className="px-4 py-3">
                             {trend && trend.percent !== null ? (
                               <span
-                                className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ${
-                                  isUp
+                                className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ${isUp
                                     ? "bg-green-100 text-green-700"
                                     : isDown
                                       ? "bg-red-100 text-red-700"
                                       : "bg-gray-100 text-gray-600"
-                                }`}
+                                  }`}
                               >
                                 {isUp && (
                                   <FiArrowUpRight className="text-green-600" />

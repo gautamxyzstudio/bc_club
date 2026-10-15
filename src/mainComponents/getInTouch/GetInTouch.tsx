@@ -105,7 +105,7 @@ const GetInTouch = () => {
           <Heading
             tagType={path == "/contact-us" ? "h1" : "h2"}
             type={IHeadingTypes.heading48}
-            content={`Love To Hear From You,\nGet In Touch`}
+            content={`We'd love to hear from you, Get in touch`}
             customClasses="whitespace-break-spaces md:text-start text-center"
           />
           <Description

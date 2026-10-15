@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from "dayjs";
 import { TableHeader } from "../../components/common/dynamicTable/DynamicTable";
 import {
@@ -11,7 +12,7 @@ export const propertyDetailsHeaders: TableHeader[] = [
 ];
 
 export const calculatePropertyAge = (yearBuilt: number | string) => {
-  if (!yearBuilt) return null;
+  if (!yearBuilt) return 0;
 
   const currentYear = new Date().getFullYear();
   return currentYear - Number(yearBuilt);
@@ -138,13 +139,13 @@ export const getPropertyDetailsRows = (
             label: "Floor Area",
             value:
               property?.Living_area || property?.area
-                ? `${property?.Living_area || property?.area} sft`
+                ? `${property?.Living_area || property?.area} sq ft`
                 : "-",
           },
           subRows: [
             {
               data: {
-                label: "Price per sft",
+                label: "Price per sq ft",
                 value:
                   property?.price && (property?.Living_area || property?.area)
                     ? `$${Math.round(property.price / (property?.Living_area || property?.area))}`
@@ -161,7 +162,7 @@ export const getPropertyDetailsRows = (
           data: {
             label: "Lot Size Area",
             value: property?.lot_size_area
-              ? `${sqftToAcresFormatted(property.lot_size_area)} ac (${property?.lot_size_area} sft)`
+              ? `${sqftToAcresFormatted(property.lot_size_area)} ac (${property?.lot_size_area} sq ft)`
               : "-",
           },
         },
@@ -183,7 +184,9 @@ export const getPropertyDetailsRows = (
           data: {
             label: "Age",
             value: property?.raw_data?.YearBuilt
-              ? `${calculatePropertyAge(property.raw_data.YearBuilt)} Years Old`
+              ?  calculatePropertyAge(property.raw_data.YearBuilt) > 1
+                ? `${calculatePropertyAge(property.raw_data.YearBuilt)} years old`
+                : `${calculatePropertyAge(property.raw_data.YearBuilt)} year old`
               : "-",
           },
         },

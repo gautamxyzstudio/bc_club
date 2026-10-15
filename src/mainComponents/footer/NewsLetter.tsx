@@ -1,7 +1,6 @@
 "use client";
 import { Icons } from "@/src/app/exports";
 import { newsletterApi } from "@/src/api/newsletter/newsletterApi";
-import { AxiosError } from "axios";
 import Image from "next/image";
 import React, { useState } from "react";
 import RippleButton from "@/src/components/button/RippleButton";
@@ -49,7 +48,7 @@ const NewsLetter = () => {
       <div className="w-full xl:w-[55%] flex flex-col md:gap-y-2 gap-y-1.5">
         <span className="text-2xl font-bold">NewsLetter</span>
         <span className="opacity-80 md:text-base text-sm">
-          Be the first one to know about discounts, offers and events
+           Monthly market numbers for your city, free
         </span>
       </div>
       <div className="w-full xl:w-[35%] flex flex-col relative">

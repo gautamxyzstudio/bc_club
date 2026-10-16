@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useRef, useEffect } from "react";
 import { FiLoader } from "react-icons/fi";
 import PropertiesCard from "@/src/components/common/propertiesCard/PropertiesCard";
@@ -231,7 +232,12 @@ export default function OpenStreetMapSidebar({
                 <PropertiesCard
                   {...p}
                   isLogin={isLoggedIn || p.status === "Active"}
-                  isSold={status === "closed"}
+                  isSold={
+                    status === "closed" ||
+                    status === "sold" ||
+                    status === "forecloserSold" ||
+                    status === "forcecloserSold"
+                  }
                   isExpired={status === "expired"}
                   isDdf={p.isDdf}
                 />

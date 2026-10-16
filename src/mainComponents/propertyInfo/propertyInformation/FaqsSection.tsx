@@ -33,15 +33,15 @@ const faqs = [
 const FaqsSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   return (
-    <section className="max-w-244.75 mx-auto py-12 px-6 sm:px-13 lg:px-8 lg:mb-20 mb-10">
+    <section className="max-w-screen-2xl mx-auto py-12 xl:px-16 md:px-13 px-6 lg:px-8">
       <div className="w-full flex flex-col space-y-8 lg:space-y-13 items-center text-center">
         <Heading
-          content="Everything You Need to Know About BC Club"
+          content="Everything You Need to Know About BC Real Estate Market"
           tagType="h2"
           type={IHeadingTypes.heading48}
-          customClasses="md:w-[535px] capitalize"
+          customClasses="md:w-[70%] capitalize"
         />
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 max-w-235">
           {faqs.map((faq, index) => {
             const isOpen = activeIndex === index;
 
@@ -57,30 +57,27 @@ const FaqsSection = () => {
                   aria-expanded={isOpen}
                 >
                   <span
-                    className={`lg:font-bold lg:text-xl font-medium text-base leading-snug transition-colors ${
-                      isOpen ? "text-secondary" : "text-foreground"
-                    }`}
+                    className={`lg:font-bold lg:text-xl font-medium text-base leading-snug transition-colors ${isOpen ? "text-secondary" : "text-foreground"
+                      }`}
                   >
                     {faq.question}
                   </span>
 
                   <span
-                    className={`shrink-0 lg:w-8.5 lg:h-8.5 md:w-7.5 md:h-7.5 w-6 h-6 rounded-md flex items-center justify-center transition-all duration-300 ${
-                      isOpen
+                    className={`shrink-0 lg:w-8.5 lg:h-8.5 md:w-7.5 md:h-7.5 w-6 h-6 rounded-md flex items-center justify-center transition-all duration-300 ${isOpen
                         ? "bg-secondary text-white rotate-180"
                         : "bg-secondary/10 text-secondary -rotate-90"
-                    }`}
+                      }`}
                   >
                     <FiChevronDown className=" text-2xl" />
                   </span>
                 </button>
 
                 <div
-                  className={`grid transition-all duration-300 ease-in-out ${
-                    isOpen
+                  className={`grid transition-all duration-300 ease-in-out ${isOpen
                       ? "grid-rows-[1fr] opacity-100 mt-6"
                       : "grid-rows-[0fr] opacity-0"
-                  }`}
+                    }`}
                 >
                   <div className="overflow-hidden">
                     <p className="text-black70 md:text-base text-sm text-start">

@@ -451,7 +451,7 @@ export default function PropertiesListingPage() {
   const { data: queryDataNormal, isLoading: isLoadingNormal } =
     useGetRealEstateListings(params, {
       select,
-      enabled: isForSale && !(status === "forecloser" || status === "forecloserSold"),
+      enabled: !(status === "forecloser" || status === "forecloserSold"),
     });
 
   const forecloserParams = { ...params, standard_status: status === "forecloserSold" ? "Closed" : "Active" };

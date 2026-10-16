@@ -74,7 +74,7 @@ const PropertySimilarAndSoldListing = ({
     title: listing?.property_sub_type,
     price: listing?.price,
     daysAgo:
-      Number(listing?.old_price) > 0
+      Number(listing?.old_price) > 0 || listing?.standard_status === "Closed"
         ? listing?.ModificationTimestamp
         : (listing?.OriginalEntryTimestamp ??
           listing?.raw_data?.BridgeModificationTimestamp ??
@@ -113,15 +113,15 @@ const PropertySimilarAndSoldListing = ({
       select(data) {
         return data?.data
           ?.sort((a: any, b: any) => {
-            const aTime = a?.OriginalEntryTimestamp
-              ? Date.parse(a.OriginalEntryTimestamp)
+            const aTime = a?.distanceKm
+              ? parseFloat(a.distanceKm)
               : 0;
 
-            const bTime = b?.OriginalEntryTimestamp
-              ? Date.parse(b.OriginalEntryTimestamp)
+            const bTime = b?.distanceKm
+              ? parseFloat(b.distanceKm)
               : 0;
 
-            return bTime - aTime; // newest first
+            return aTime - bTime; // closest first
           })
           .map((item: any) => mapProperty(item, true));
       },
@@ -151,6 +151,7 @@ const PropertySimilarAndSoldListing = ({
     isLoading: boolean,
     isLoginOverride?: boolean,
     navId?: string,
+    typeProperty?: string
   ) => {
     if (isLoading) {
       return (
@@ -164,7 +165,7 @@ const PropertySimilarAndSoldListing = ({
 
     if (!list.length) {
       return (
-        <p className="text-center py-10 font-semibold">{`No Properties Found in ${city}`}</p>
+        <p className="text-center py-10 font-semibold">{`No ${typeProperty} Properties Found in ${city}`}</p>
       );
     }
 
@@ -267,7 +268,7 @@ const PropertySimilarAndSoldListing = ({
           type={IHeadingTypes.heading20}
           content="Similar Properties"
         />
-        {renderSlider(similarList, isLoadingSimilar, true, "newly-listed")}
+        {renderSlider(similarList, isLoadingSimilar, true, "newly-listed", "Similar")}
       </div>
 
       <div className="flex flex-col gap-4">
@@ -281,6 +282,7 @@ const PropertySimilarAndSoldListing = ({
           isLoadingSimilarSold,
           isLoggedIn,
           "sold",
+          "Sold"
         )}
       </div>
     </div>

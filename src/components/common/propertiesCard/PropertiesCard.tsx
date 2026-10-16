@@ -192,6 +192,25 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
     removeFromWishlist.mutate(id);
   };
 
+
+  const isValidNumber = (value: unknown): boolean => {
+    if (value === null || value === undefined || value === "") return false;
+
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0;
+  };
+
+  const hasSqft = isValidNumber(sqft);
+  const hasBeds = isValidNumber(beds);
+  const hasBaths = isValidNumber(baths);
+
+  const visibleDetailsCount = [
+    hasSqft,
+    hasBeds,
+    hasBaths,
+  ].filter(Boolean).length;
+
+
   const displayPrice = isLogin
     ? `$${Number(price || 0).toLocaleString()}`
     : "$*,***,***";
@@ -405,55 +424,70 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
             </div>
 
             {/* Property stats */}
-            <div className="mb-4 grid grid-cols-3 divide-x divide-slate-200 rounded-xl border border-slate-200/80 bg-white/90 py-3 shadow-sm">
-              {/* Living area */}
-              <div className="flex min-w-0 items-center-safe justify-center gap-1 px-1">
-                <Image
-                  src={Icons.square}
-                  alt="Living area"
-                  title="Living area"
-                  width={100}
-                  height={100}
-                  className="h-4 w-4 object-contain"
-                />
-                <span className="max-w-full truncate text-xs font-extrabold text-slate-900">
-                  {displaySqft}
-                </span>
-                <span className="text-[10px] text-slate-500 text-end">Area</span>
-              </div>
 
-              {/* Bedrooms */}
-              <div className="flex min-w-0 items-center justify-center gap-1 px-1">
-                <Image
-                  src={Icons.bed}
-                  alt="Bedrooms"
-                  title="Bedrooms"
-                  width={100}
-                  height={100}
-                  className="h-4 w-4 object-contain"
-                />
-                <span className="max-w-full truncate text-xs font-extrabold text-slate-900">
-                  {displayBeds}
-                </span>
-                <span className="text-[10px] text-slate-500">Beds</span>
-              </div>
+            {visibleDetailsCount > 0 ? (
+              <div
+                className={`mb-4 grid grid-cols-${visibleDetailsCount} divide-x divide-slate-200 rounded-xl border border-slate-200/80 bg-white/90 py-3 shadow-sm`}
+              >
+                {hasSqft && (
+                  <div className="flex min-w-0 items-center justify-center gap-1 px-1">
+                    <Image
+                      src={Icons.square}
+                      alt="Living area"
+                      title="Living area"
+                      width={100}
+                      height={100}
+                      className="h-4 w-4 object-contain"
+                    />
+                    <span className="max-w-full truncate text-xs font-extrabold text-slate-900">
+                      {displaySqft}
+                    </span>
+                    <span className="text-[10px] text-slate-500">Area</span>
+                  </div>
+                )}
 
-              {/* Bathrooms */}
-              <div className="flex min-w-0 items-center justify-center gap-1 px-1">
-                <Image
-                  src={Icons.bath}
-                  alt="Bathrooms"
-                  title="Bathrooms"
-                  width={100}
-                  height={100}
-                  className="h-4 w-4 object-contain"
-                />
-                <span className="max-w-full truncate text-xs font-extrabold text-slate-900">
-                  {displayBaths}
-                </span>
-                <span className="text-[10px] text-slate-500">Baths</span>
+                {hasBeds && (
+                  <div className="flex min-w-0 items-center justify-center gap-1 px-1">
+                    <Image
+                      src={Icons.bed}
+                      alt="Bedrooms"
+                      title="Bedrooms"
+                      width={100}
+                      height={100}
+                      className="h-4 w-4 object-contain"
+                    />
+                    <span className="max-w-full truncate text-xs font-extrabold text-slate-900">
+                      {displayBeds}
+                    </span>
+                    <span className="text-[10px] text-slate-500">Beds</span>
+                  </div>
+                )}
+
+                {hasBaths && (
+                  <div className="flex min-w-0 items-center justify-center gap-1 px-1">
+                    <Image
+                      src={Icons.bath}
+                      alt="Bathrooms"
+                      title="Bathrooms"
+                      width={100}
+                      height={100}
+                      className="h-4 w-4 object-contain"
+                    />
+                    <span className="max-w-full truncate text-xs font-extrabold text-slate-900">
+                      {displayBaths}
+                    </span>
+                    <span className="text-[10px] text-slate-500">Baths</span>
+                  </div>
+                )}
               </div>
-            </div>
+            ) : (
+              <div className="mb-4 rounded-xl border border-slate-200/80 bg-white/90 py-3 text-center shadow-sm">
+                <span className="text-sm font-extrabold text-slate-900">
+                  This is {displayTitle} property
+                </span>
+              </div>
+            )}
+
           </div>
 
           {/* Footer */}

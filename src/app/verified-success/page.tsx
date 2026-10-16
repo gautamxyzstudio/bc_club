@@ -20,7 +20,7 @@ const page = () => {
           Confirm your account
         </h2>
         <p className="mb-4 xl:text-xl md:text-lg text-lightWhite">
-          Your account has been confirmed. You can now sign in to BC Club.
+          Your account has been confirmed. You can now sign in to BC Real Estate Market.
         </p>
         <p className="mb-4 xl:text-xl md:text-lg">
           Account confirm successfully.

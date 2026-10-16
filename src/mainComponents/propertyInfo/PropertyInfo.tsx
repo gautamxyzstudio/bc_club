@@ -12,6 +12,7 @@ import PropertySimilarAndSoldListing from "./PropertySimilarAndSoldListing";
 import FaqsSection from "./propertyInformation/FaqsSection";
 import { useGetRealEstateListingById } from "@/src/hooks/listing/useRealEstateListingQueries";
 import { logPropertySearchActivity } from "@/src/api/activityLog/activityLogApi";
+import Description, { IDescriptionTypes } from "@/src/components/description/Description";
 
 const PropertyInfo = ({
   paramsId,
@@ -62,8 +63,8 @@ const PropertyInfo = ({
     <>
       <section
         className={`xl:max-w-screen-2xl mx-auto w-full bg-background flex flex-col tems-center-safe ${isDialog
-            ? "pt-6 md:pt-8 xl:pt-10 md:px-9 px-6"
-            : "xl:pt-35.5 md:pt-28 pt-21 xl:px-16 md:px-9 px-6 xl:pb-28.25 md:pb-25 pb-13 "
+          ? "pt-6 md:pt-8 xl:pt-10 md:px-9 px-6"
+          : "xl:pt-35.5 md:pt-28 pt-21 xl:px-16 md:px-9 px-6 xl:pb-28.25 md:pb-25 pb-13 "
           }`}
       >
         <PropertyTopAddressSection property={listing} />
@@ -99,6 +100,24 @@ const PropertyInfo = ({
       />
 
       <FaqsSection />
+
+      <section className="max-w-screen-2xl mx-auto py-12 xl:px-16 md:px-13 px-6 lg:px-8">
+        <div className="w-full h-auto flex flex-col gap-5 md:flex-row justify-center md:justify-between items-start md:items-center md:py-6 py-4 border-y border-darkgray-300">
+          <Image
+            title="image title"
+            alt="MLS"
+            src={Images.mlsr}
+            width={80}
+            height={40}
+            className="w-25 h-10"
+          />
+          <Description
+            content=" NOTE: This information is based in whole or in part on data from Greater Vancouver REALTORS®, the Fraser Valley Real Estate Board, the Chilliwack and District Real Estate Board, or The Canadian Real Estate Association, which assume no responsibility for its accuracy. It is deemed reliable but is not guaranteed accurate by these organizations or by the agent or brokerage hosting this website."
+            type={IDescriptionTypes.dec12}
+            customClasses="text-lightWhite text italic"
+          />
+        </div>
+      </section>
 
       <GetInTouch />
     </>

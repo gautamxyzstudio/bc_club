@@ -5,7 +5,7 @@ interface ChatMessage {
   content: string;
 }
 
-const SYSTEM_PROMPT = `You are the official AI Real Estate Specialist for BC Real Estate & BC Club (bcrealestatemarket.com), serving British Columbia, Canada.
+const SYSTEM_PROMPT = `You are the official AI Real Estate Specialist for BC Real Estate & BC Real Estate Market (bcrealestatemarket.com), serving British Columbia, Canada.
 Your goal is to provide concise, friendly, expert, and actionable advice to home buyers, sellers, investors, and renters in BC.
 
 Core Knowledge & Guidance:
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
         { error: "Valid messages array is required." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -78,16 +78,19 @@ export async function POST(req: Request) {
           if (activeChatIds.length > 0) {
             // Pick preferred production models first that are currently active
             const matchedCandidates = CANDIDATE_MODELS.filter((m) =>
-              activeChatIds.includes(m)
+              activeChatIds.includes(m),
             );
             const otherActiveChatModels = activeChatIds.filter(
-              (m) => !CANDIDATE_MODELS.includes(m)
+              (m) => !CANDIDATE_MODELS.includes(m),
             );
             modelsToTry = [...matchedCandidates, ...otherActiveChatModels];
           }
         }
       } catch (e) {
-        console.warn("Could not query /v1/models, falling back to static list", e);
+        console.warn(
+          "Could not query /v1/models, falling back to static list",
+          e,
+        );
       }
 
       // 2. Iterate through candidate models until one succeeds
@@ -113,7 +116,7 @@ export async function POST(req: Request) {
                 temperature: 0.7,
                 max_tokens: 650,
               }),
-            }
+            },
           );
 
           if (groqResponse.ok) {
@@ -124,7 +127,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ reply, source: "groq", model });
           } else {
             const errText = await groqResponse.text();
-            console.warn(`Groq model ${model} failed (${groqResponse.status}):`, errText);
+            console.warn(
+              `Groq model ${model} failed (${groqResponse.status}):`,
+              errText,
+            );
             // If it's a 404 model_not_found or similar, loop continues to the next candidate model!
           }
         } catch (groqError) {
@@ -189,7 +195,7 @@ export async function POST(req: Request) {
     console.error("AI chat route error:", error);
     return NextResponse.json(
       { error: "Failed to generate AI response" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

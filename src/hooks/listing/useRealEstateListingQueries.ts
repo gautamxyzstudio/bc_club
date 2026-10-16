@@ -429,7 +429,7 @@ export function useGetForecloserMapZoomWithClusters<TData = any>(
   >,
 ) {
   return useQuery<any, Error, TData, any>({
-    queryKey: ["mapZoomWithClusters", params || {}],
+    queryKey: ["forecloserMapZoomWithClusters", params || {}],
     queryFn: () => getForecloserMapZoomWithClusters(params),
     ...options,
   });
@@ -444,8 +444,9 @@ export function useGetForecloserMapZoomProperties<TData = any>(
   >,
 ) {
   return useQuery<any, Error, TData, any>({
-    queryKey: ["mapZoomProperties", params || {}],
+    queryKey: ["forecloserMapZoomProperties", params || {}],
     queryFn: () => getForecloserMapZoomProperties(params),
     ...options,
   });
 }
+

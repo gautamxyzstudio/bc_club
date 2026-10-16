@@ -1,18 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Popup } from "react-leaflet";
 import { Images } from "@/src/app/exports";
 import LineGradient from "@/src/components/common/lineGradient/LineGradient";
 import Description, {
   IDescriptionTypes,
 } from "@/src/components/description/Description";
+import Image from "next/image";
 
 export function OpenStreetMapPropertyPopup({
   selectedProperty,
   popupRef,
   onClose,
+  status,
 }: {
   selectedProperty: any;
   popupRef: React.RefObject<HTMLDivElement | null>;
   onClose: () => void;
+  status?: string;
 }) {
   if (!selectedProperty) return null;
 
@@ -44,12 +48,24 @@ export function OpenStreetMapPropertyPopup({
         }}
         onClick={(e) => {
           e.stopPropagation();
+          const isForeclosureProp =
+            status === "forecloser" ||
+            status === "forcecloser" ||
+            status === "forecloserSold" ||
+            status === "forcecloserSold" ||
+            selectedProperty?.status?.toLowerCase() === "forecloser" ||
+            selectedProperty?.status?.toLowerCase() === "foreclosure";
+
+          const id = selectedProperty.documentId || selectedProperty.id;
+
           window.open(
-            selectedProperty.status === "Closed"
-              ? `/sold-property-info/${selectedProperty.documentId}`
-              : selectedProperty.status === "Expired"
-                ? "#"
-                : `/property-info/${selectedProperty.documentId}`,
+            isForeclosureProp
+              ? `/forecloser-property-info/${id}`
+              : selectedProperty.status === "Closed"
+                ? `/sold-property-info/${id}`
+                : selectedProperty.status === "Expired"
+                  ? "#"
+                  : `/property-info/${id}`,
             `_blank`,
           );
         }}
@@ -63,9 +79,11 @@ export function OpenStreetMapPropertyPopup({
             backgroundColor: "#f1f5f9",
           }}
         >
-          <img
+          <Image
             src={selectedProperty.media_url || Images.apartment}
             alt={selectedProperty.title}
+            width={252}
+            height={130}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </div>
@@ -189,12 +207,14 @@ export function OpenStreetMapClusterPopup({
               paddingBottom: 10,
             }}
           >
-            <img
+            <Image
               src={p.media_url || Images.apartment}
-              alt=""
+              alt={p.address}
+              width={70}
+              height={55}
               style={{
-                width: 70,
-                height: 55,
+                // width: 70,
+                // height: 55,
                 objectFit: "cover",
                 borderRadius: 6,
                 background: "#f1f5f9",

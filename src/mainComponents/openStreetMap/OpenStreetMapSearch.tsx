@@ -151,10 +151,6 @@ export default function OpenStreetMapSearch() {
   const lastLocationRef = useRef<string | null>(null);
 
   const setSearch = (val: string) => updateInstanceFilter("map", "search", val);
-  // const setActiveBedRoom = (val: string) =>
-  //   updateInstanceFilter("map", "activeBedRoom", val);
-  // const setActiveBathRoom = (val: string) =>
-  //   updateInstanceFilter("map", "activeBathRoom", val);
   const setLocation = (val: string) =>
     updateInstanceFilter("map", "location", val);
 
@@ -218,6 +214,14 @@ export default function OpenStreetMapSearch() {
 
   const hasActiveFilters = activeFilterPills.length > 0;
   const isForSale = status === "forSale";
+  const isForecloser =
+    status === "forecloser" ||
+    status === "forcecloser" ||
+    status === "forecloserSold" ||
+    status === "forcecloserSold";
+  const isForecloserSold =
+    status === "forecloserSold" ||
+    status === "forcecloserSold";
 
   const mapZoomParams = useMemo(
     () => buildMapZoomParams({ filters, mapBounds, mapZoomVal }),
@@ -229,17 +233,24 @@ export default function OpenStreetMapSearch() {
     isLoading: isLoadingActive,
     isFetching: isFetchingActive,
   } = useGetMapZoomWithClusters(mapZoomParams, {
-    enabled: !!mapBounds && isForSale && !(filters.status === "forecloser" || filters.status === "forecloserSold"),
+    enabled: !!mapBounds && !isForecloser,
     staleTime: 1000 * 60 * 5,
     placeholderData: (previousData: any) => previousData,
   });
+
+  const forecloserMapZoomParams = useMemo(() => {
+    return {
+      ...mapZoomParams,
+      status: isForecloserSold ? "Closed" : "Active",
+    };
+  }, [mapZoomParams, isForecloserSold]);
 
   const {
     data: queryDataForecloserActive,
     isLoading: isLoadingForecloserActive,
     isFetching: isFetchingForecloserActive,
-  } = useGetForecloserMapZoomWithClusters(mapZoomParams, {
-    enabled: !!mapBounds && (filters.status === "forecloser" || filters.status === "forecloserSold"),
+  } = useGetForecloserMapZoomWithClusters(forecloserMapZoomParams, {
+    enabled: !!mapBounds && isForecloser,
     staleTime: 1000 * 60 * 5,
     placeholderData: (previousData: any) => previousData,
   });
@@ -263,26 +274,25 @@ export default function OpenStreetMapSearch() {
     isLoading: isLoadingProperties,
     isFetching: isFetchingProperties,
   } = useGetMapZoomProperties(mapZoomParamsWithPage, {
-    enabled: !!mapBounds && isForSale && !(filters.status === "forecloser" || filters.status === "forecloserSold"),
+    enabled: !!mapBounds && !isForecloser,
     staleTime: 1000 * 60 * 5,
     placeholderData: (previousData: any) => previousData,
   });
 
   const forecloserParams = useMemo(() => {
     return {
-      ...mapZoomParams,
+      ...forecloserMapZoomParams,
       page: currentPage,
       pageSize: 50,
-      isLogin: isLoggedIn,
     };
-  }, [mapZoomParams, currentPage, isLoggedIn]);
+  }, [forecloserMapZoomParams, currentPage]);
 
   const {
     data: queryDataForecloserProperties,
     isLoading: isLoadingForecloserProperties,
     isFetching: isFetchingForecloserProperties,
   } = useGetForecloserMapZoomProperties(forecloserParams, {
-    enabled: !!mapBounds && (filters.status === "forecloser" || filters.status === "forecloserSold"),
+    enabled: !!mapBounds && isForecloser,
     staleTime: 1000 * 60 * 5,
     placeholderData: (previousData: any) => previousData,
   });
@@ -293,7 +303,7 @@ export default function OpenStreetMapSearch() {
     isFetching: isFetchingSold,
   } = useGetMapZoomSoldList(mapZoomParams, {
     select: (res: any) => res.data.filter((l: any) => Number(l.price) > 0),
-    enabled: isForSale && !!mapBounds && mapZoomVal! > 15,
+    enabled: !isForecloser && isForSale && !!mapBounds && mapZoomVal! > 15,
     staleTime: 1000 * 60 * 5,
     placeholderData: (previousData: any) => previousData,
   });
@@ -302,15 +312,15 @@ export default function OpenStreetMapSearch() {
     mapZoomParams,
     {
       select: (res: any) => res.data.filter((l: any) => Number(l.price) > 0),
-      enabled: isForSale && !!mapBounds && mapZoomVal! > 15,
+      enabled: !isForecloser && isForSale && !!mapBounds && mapZoomVal! > 15,
       staleTime: 1000 * 60 * 5,
       placeholderData: (previousData: any) => previousData,
     },
   );
 
-  const queryActiveData = filters.status === "forecloser" || filters.status === "forecloserSold" ? queryDataForecloserActive : queryDataActive;
-  const queryData = filters.status === "forecloser" || filters.status === "forecloserSold" ? queryDataForecloserProperties : queryDataProperties;
- 
+  const queryActiveData = isForecloser ? queryDataForecloserActive : queryDataActive;
+  const queryData = isForecloser ? queryDataForecloserProperties : queryDataProperties;
+
   const cleanData = useMemo(() => {
     if (!queryData?.data) return [];
 
@@ -396,10 +406,15 @@ export default function OpenStreetMapSearch() {
       .filter(Boolean);
   }, [rawProperties, geocodedCache]);
 
-  const isFetching = isFetchingActive || isFetchingProperties || isFetchingForecloserActive || isFetchingForecloserProperties;
-  const isLoadingData = isLoadingActive || isLoadingProperties || isLoadingForecloserActive || isLoadingForecloserProperties;
-  const isLoading =
-    isLoadingData || isFetching || isLoadingSold || isFetchingSold;
+  const isFetching = isForecloser
+    ? isFetchingForecloserActive || isFetchingForecloserProperties
+    : isFetchingActive || isFetchingProperties;
+  const isLoadingData = isForecloser
+    ? isLoadingForecloserActive || isLoadingForecloserProperties
+    : isLoadingActive || isLoadingProperties;
+  const isLoading = isForecloser
+    ? isLoadingData || isFetching
+    : isLoadingData || isFetching || isLoadingSold || isFetchingSold;
 
   const fetchParcels = useCallback(async (bounds: MapBounds) => {
     try {
@@ -448,7 +463,7 @@ export default function OpenStreetMapSearch() {
               weight: 1,
               opacity: 1,
               dashArray: "10",
-              fillColor: "#dc2626",
+              fillColor: "#F4A6A6",
               fillOpacity: 0.75,
             },
           });
@@ -742,7 +757,9 @@ export default function OpenStreetMapSearch() {
     setSelectedClusterProperties([]);
     setClusterPosition(null);
   };
-  const isSidebarLoading = isLoadingData || isLoadingProperties;
+  const isSidebarLoading =
+    isLoadingData ||
+    (isForecloser ? isLoadingForecloserProperties : isLoadingProperties);
 
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
@@ -791,8 +808,8 @@ export default function OpenStreetMapSearch() {
           <OpenStreetMapSidebar
             isLoading={isSidebarLoading}
             visibleProperties={visibleProperties}
-            properties={queryDataProperties}
-            isLoggedIn={isLoggedIn}
+            properties={queryData}
+            isLoggedIn={isLoggedIn || isForecloserSold}
             status={status}
             setHoveredPropertyId={setHoveredPropertyId}
             assessmentDrawerOpen={assessmentDrawerOpen}
@@ -800,10 +817,10 @@ export default function OpenStreetMapSearch() {
             setAssessmentDrawerOpen={setAssessmentDrawerOpen}
             currentPage={currentPage}
             totalPages={
-              queryDataProperties?.meta
+              queryData?.meta
                 ? Math.ceil(
-                  queryDataProperties.meta.total /
-                  queryDataProperties.meta.pageSize,
+                  queryData.meta.total /
+                  queryData.meta.pageSize,
                 )
                 : 1
             }
@@ -1010,6 +1027,7 @@ export default function OpenStreetMapSearch() {
               <OpenStreetMapPropertyPopup
                 selectedProperty={selectedProperty}
                 popupRef={popupRef}
+                status={status}
                 onClose={() => setSelectedProperty(null)}
               />
 

@@ -23,7 +23,7 @@ const getHeadingStyles = (type: IHeadingTypes) => {
   switch (type) {
     case IHeadingTypes.heading32:
       return `xl:text-[32px] xl:leading-10 md:text-2xl text-xl`;
-        case IHeadingTypes.heading30:
+    case IHeadingTypes.heading30:
       return `xl:text-[30px] xl:leading-9 md:text-xl text-lg`;
     case IHeadingTypes.heading16:
       return `text-base`;
@@ -42,7 +42,7 @@ const getHeadingStyles = (type: IHeadingTypes) => {
 
 const Heading: React.FC<IHeadingProps> = ({
   customClasses = '  ',
-  content = 'BC Club',
+  content = 'BC Real Estate Market',
   tagType = 'h1',
   type = IHeadingTypes.heading32,
   compRef,

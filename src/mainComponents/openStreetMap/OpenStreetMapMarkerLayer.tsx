@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import L from "leaflet";
 import { Marker } from "react-leaflet";
 import { escapeHtml } from "./osmMapUtils";
 import { formatPriceAbbreviated } from "./mapUtils";
 
 const getStatusColor = (status: string) =>
-  status === "closed"
+  status === "closed" ||
+  status === "sold" ||
+  status === "forecloserSold" ||
+  status === "forcecloserSold"
     ? "#ef4444"
     : status === "expired"
       ? "#c8c8c8"

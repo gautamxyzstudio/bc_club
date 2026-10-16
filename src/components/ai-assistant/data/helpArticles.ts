@@ -15,7 +15,8 @@ export const QUICK_ARTICLES: HelpArticle[] = [
     category: "Buyer Guide",
     readTime: "5 min read",
     iconType: "property",
-    summary: "Step-by-step walkthrough of deposits, rescission period, and completion dates in British Columbia.",
+    summary:
+      "Step-by-step walkthrough of deposits, rescission period, and completion dates in British Columbia.",
     content: [
       "Presale properties allow you to purchase a home before construction is completed. In British Columbia, this is governed under the Real Estate Development Marketing Act (REDMA).",
       "Key Benefits: Lock in today's price with a phased deposit (typically 10-20% spread over 12-18 months), brand new construction, and full 2-5-10 Home Warranty coverage.",
@@ -29,7 +30,8 @@ export const QUICK_ARTICLES: HelpArticle[] = [
     category: "Tax & Finance",
     readTime: "4 min read",
     iconType: "tax",
-    summary: "Calculate standard PTT rates, First-Time Home Buyers exemption thresholds, and newly built home rebates.",
+    summary:
+      "Calculate standard PTT rates, First-Time Home Buyers exemption thresholds, and newly built home rebates.",
     content: [
       "When you purchase real estate in British Columbia, Property Transfer Tax (PTT) is paid upon registration at the Land Title Office.",
       "Standard PTT Rates: 1% on the first $200,000, 2% on the portion between $200,000 and $2,000,000, and 3% on the portion exceeding $2,000,000.",
@@ -43,7 +45,8 @@ export const QUICK_ARTICLES: HelpArticle[] = [
     category: "Market Insights",
     readTime: "6 min read",
     iconType: "trends",
-    summary: "Overview of benchmark prices, inventory levels, and interest rate impacts across Greater Vancouver & Fraser Valley.",
+    summary:
+      "Overview of benchmark prices, inventory levels, and interest rate impacts across Greater Vancouver & Fraser Valley.",
     content: [
       "The Greater Vancouver and Fraser Valley markets continue to exhibit strong demand in family townhomes and transit-oriented condo hubs (such as Brentwood, Metrotown, and Surrey Central).",
       "Single-family detached homes remain historically resilient with low active listings in premium pockets like West Vancouver, Vancouver West, and South Surrey.",
@@ -52,13 +55,14 @@ export const QUICK_ARTICLES: HelpArticle[] = [
   },
   {
     id: "agent-matching",
-    title: "How BC Club Matches You With Top Local Specialists",
+    title: "How BC Real Estate Market Matches You With Top Local Specialists",
     category: "Support",
     readTime: "3 min read",
     iconType: "agent",
-    summary: "Connect with neighborhood-specific experts across Vancouver, Burnaby, Richmond, Surrey & Kelowna.",
+    summary:
+      "Connect with neighborhood-specific experts across Vancouver, Burnaby, Richmond, Surrey & Kelowna.",
     content: [
-      "BC Club provides verified market intelligence and connects you with licensed, high-performing REALTORS® tailored to your specific community and budget.",
+      "BC Real Estate Market provides verified market intelligence and connects you with licensed, high-performing REALTORS® tailored to your specific community and budget.",
       "Whether you're looking for presale VIP access, detached residential acreage, or high-yield investment condos, our advisors guide you from evaluation to final key handover.",
       "Schedule a free home estimation or 1-on-1 consultation directly through our website.",
     ],
@@ -67,12 +71,12 @@ export const QUICK_ARTICLES: HelpArticle[] = [
 
 export const FREQUENT_QUESTIONS = [
   {
-    q: "How does the home evaluation tool work on BC Club?",
+    q: "How does the home evaluation tool work on BC Real Estate Market?",
     a: "Our evaluation model analyzes recent verified MLS® sales, active competitive listings, square footage, age, and neighborhood price trends to give you an accurate market valuation within minutes.",
   },
   {
     q: "Can I search foreclosures and court-ordered sales?",
-    a: "Yes! BC Club includes specialized property categories including court-ordered sales, foreclosures, open houses, and recently sold records across British Columbia.",
+    a: "Yes! BC Real Estate Market includes specialized property categories including court-ordered sales, foreclosures, open houses, and recently sold records across British Columbia.",
   },
   {
     q: "How do I save properties and get price drop alerts?",

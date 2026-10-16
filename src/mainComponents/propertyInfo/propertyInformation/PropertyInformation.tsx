@@ -19,6 +19,7 @@ import NearbyPlaceCard, { NearbyPlaceSkeleton } from "./NearbyPlaceCard";
 import { useAuthContext } from "../../auth/AuthContext";
 import { useGetNearbyRealEstatePlaces } from "@/src/hooks/listing/useRealEstateListingQueries";
 import { sqftToAcresFormatted } from "@/src/utilities/utilities";
+import MortgageCalculator from "@/src/components/mortgageCalculator";
 
 const PropertyInformation = ({ property }: { property: any }) => {
   const getLotSizeDisplay = () => {
@@ -216,6 +217,11 @@ const PropertyInformation = ({ property }: { property: any }) => {
                 </div>
               </div>
             )}
+
+          <MortgageCalculator
+            initialHomePrice={Number(property?.price) || 400000}
+            propertyAddress={property?.address || undefined}
+          />
 
           {/* Building Complex Information */}
           {/* {property?.structure_type !== "Detached Home" && (

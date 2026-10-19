@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Endpoints } from "../endpoints";
@@ -28,6 +29,8 @@ export interface HomeEvaluationPayload {
   phoneNumber: string;
   address: string;
   propertySizeInSquareFeet: string;
+  lotSize?: string;
+  yearBuilt?: string;
   city?: string;
   postal_code?: string;
   bedrooms?: string;
@@ -52,6 +55,8 @@ export interface HomeEvaluationRequestItem {
   phoneNumber: string;
   address: string;
   propertySizeInSquareFeet: string;
+  lotSize?: string;
+  yearBuilt?: string;
   city?: string;
   postal_code?: string;
   bedrooms?: string;
@@ -122,10 +127,13 @@ export function normalizeHomeEvaluationItem(item: any): HomeEvaluationRequestIte
     phoneNumber: attrs.phoneNumber || attrs.phone || "",
     address: attrs.address || "",
     propertySizeInSquareFeet: attrs.propertySizeInSquareFeet || attrs.propertySize || "",
+    lotSize: attrs.lotSize || "",
+    yearBuilt: attrs.yearBuilt != null ? String(attrs.yearBuilt) : attrs.year_built != null ? String(attrs.year_built) : "",
     city: attrs.city || "",
     postal_code: attrs.postal_code || attrs.postalCode || "",
     bedrooms: attrs.bedrooms != null ? String(attrs.bedrooms) : "",
     bathrooms: attrs.bathrooms != null ? String(attrs.bathrooms) : "",
+    consent: attrs.consent ?? false,
     createdAt: attrs.createdAt || item.createdAt || new Date().toISOString(),
     updatedAt: attrs.updatedAt || item.updatedAt,
     publishedAt: attrs.publishedAt || item.publishedAt,

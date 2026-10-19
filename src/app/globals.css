@@ -410,3 +410,98 @@ body::-webkit-scrollbar {
 .tsqd-parent-container {
     display: none;
 }
+
+
+.leaflet-tooltip.school-tooltip {
+  width: 100px;
+  max-width: 100px;
+  padding: 10px;
+  white-space: normal;
+  border: 1px solid #e9defd;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #302344;
+  box-shadow: 0 8px 28px rgba(66, 36, 110, 0.16);
+  font-family: inherit;
+}
+
+.leaflet-tooltip-top.school-tooltip::before {
+  border-top-color: #ffffff;
+}
+
+.school-tooltip__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.school-tooltip__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  background: #f2eaff;
+  font-size: 17px;
+}
+
+.school-tooltip__header > div:last-child {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.school-tooltip__name {
+  color: #302344;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.school-tooltip__district {
+  color: #81758f;
+  font-size: 11px;
+}
+
+.school-tooltip__divider {
+  height: 1px;
+  margin: 13px 0 7px;
+  background: #eee7f7;
+}
+
+.school-tooltip__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f2edf8;
+  font-size: 12px;
+}
+
+.school-tooltip__row span {
+  color: #81758f;
+  flex-shrink: 0;
+}
+
+.school-tooltip__row strong {
+  color: #493565;
+  font-weight: 650;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.school-tooltip__hint {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 9px;
+  background: #f7f2ff;
+  color: #7044a8;
+  font-size: 11px;
+  line-height: 1.5;
+}

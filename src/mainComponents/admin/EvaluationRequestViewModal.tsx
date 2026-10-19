@@ -17,6 +17,7 @@ import {
   Bed,
   Bath,
   Navigation,
+  Layers,
 } from "lucide-react";
 import { HomeEvaluationRequestItem, CallHistoryItem } from "@/src/api/homeEvaluation/homeEvaluationApi";
 import { useDeleteCallHistory } from "@/src/hooks/homeEvaluation/useHomeEvaluationQueries";
@@ -164,10 +165,27 @@ export default function EvaluationRequestViewModal({
                 <h3 className="text-base font-bold text-slate-900">
                   {request.fullName || "Anonymous Client"}
                 </h3>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 mt-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Home Valuation Lead
-                </span>
+                <div className="flex flex-wrap items-center gap-2 mt-1">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Home Valuation Lead
+                  </span>
+                  {request.consent ? (
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/60"
+                      title="User gave express consent for follow-up communications under Canada Anti-Spam Legislation (CASL)"
+                    >
+                      ✓ CASL Consent Granted
+                    </span>
+                  ) : (
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200"
+                      title="User did not check the express follow-up consent box"
+                    >
+                      No Express Follow-up Consent
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -308,6 +326,35 @@ export default function EvaluationRequestViewModal({
                   </p>
                 </div>
               </div>
+
+              {/* Row 3: Lot Size Area & Year Built (if provided) */}
+              {(request.lotSize || request.yearBuilt) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {request.lotSize && (
+                    <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1 shadow-2xs">
+                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                        <Layers className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                        Lot Size Area
+                      </span>
+                      <p className="text-sm font-bold text-slate-800 break-words">
+                        {request.lotSize}
+                      </p>
+                    </div>
+                  )}
+
+                  {request.yearBuilt && (
+                    <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1 shadow-2xs">
+                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-orange-600 shrink-0" />
+                        Year Built
+                      </span>
+                      <p className="text-sm font-bold text-slate-800 break-words">
+                        {request.yearBuilt}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

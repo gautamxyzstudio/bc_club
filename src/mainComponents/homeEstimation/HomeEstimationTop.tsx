@@ -1,3 +1,7 @@
+/* eslint-disable react-hooks/incompatible-library */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
@@ -9,19 +13,16 @@ import Image from "next/image";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
-  CANADIAN_CITIES,
   CANADIAN_CITY_NAMES,
 } from "@/src/utilities/canadianCities";
 import {
   MapPin,
-  Search,
   User,
   Mail,
   Maximize2,
   ArrowRight,
+  ArrowLeft,
   CheckCircle2,
-  RotateCcw,
-  Sparkles,
   X,
   Building2,
   Navigation,
@@ -29,6 +30,8 @@ import {
   Bath,
   ChevronDown,
   Check,
+  Calendar,
+  Layers,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -52,7 +55,7 @@ const CanadaFlag = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 640 480"
-    className="w-5 h-3.5 rounded-[2px] shadow-xs object-cover shrink-0"
+    className="w-5 h-3.5 rounded-xs shadow-xs object-cover shrink-0"
   >
     <path fill="#d52b1e" d="M0 0h640v480H0z" />
     <path fill="#fff" d="M160 0h320v480H160z" />
@@ -69,10 +72,13 @@ interface HomeEvaluationFormValues {
   phoneNumber: string;
   address: string;
   propertySizeInSquareFeet: string;
+  lotSize?: string;
+  yearBuilt: string;
   city: string;
   postal_code: string;
   bedrooms: string;
   bathrooms: string;
+  consent?: boolean;
 }
 
 // Custom Form Select Component with modern floating menu
@@ -321,6 +327,9 @@ const HomeEstimationTop = () => {
   const { isLoggedIn, username, setOpenLogin } = useAuthContext();
   const { data: me } = useGetMe();
 
+  // Step state (1: Property Info, 2: User Info)
+  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
+
   // Form submission state
   const [showThankYouModal, setShowThankYouModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -358,6 +367,7 @@ const HomeEstimationTop = () => {
     watch,
     getValues,
     reset,
+    trigger,
     formState: { errors },
   } = useForm<HomeEvaluationFormValues>({
     defaultValues: {
@@ -366,10 +376,13 @@ const HomeEstimationTop = () => {
       phoneNumber: "",
       address: "",
       propertySizeInSquareFeet: "",
+      lotSize: "",
+      yearBuilt: "",
       city: "",
       postal_code: "",
       bedrooms: "",
       bathrooms: "",
+      consent: false,
     },
     mode: "onBlur",
   });
@@ -379,6 +392,8 @@ const HomeEstimationTop = () => {
   const watchCity = watch("city");
   const watchBedrooms = watch("bedrooms");
   const watchBathrooms = watch("bathrooms");
+  const watchPropertySize = watch("propertySizeInSquareFeet");
+  const watchYearBuilt = watch("yearBuilt");
 
   // Sync debounced form address query for suggestions
   useEffect(() => {
@@ -451,7 +466,19 @@ const HomeEstimationTop = () => {
     setValue("phoneNumber", formatted, { shouldValidate: true });
   };
 
-  // Form submission handler
+  // Step navigation validator
+  const handleNextStep = async () => {
+    const isValid = await trigger([
+      "address",
+      "propertySizeInSquareFeet",
+      "yearBuilt",
+    ]);
+    if (isValid) {
+      setCurrentStep(2);
+    }
+  };
+
+  // Form submission handler (Called after Step 2)
   const onFormSubmit = async (data: HomeEvaluationFormValues) => {
     setSubmitting(true);
     try {
@@ -463,6 +490,8 @@ const HomeEstimationTop = () => {
           : `+1 ${data.phoneNumber.trim()}`,
         address: data.address.trim(),
         propertySizeInSquareFeet: data.propertySizeInSquareFeet.trim(),
+        lotSize: data.lotSize?.trim() || undefined,
+        yearBuilt: data.yearBuilt?.trim() || undefined,
         city: data.city?.trim() || undefined,
         postal_code: data.postal_code?.trim() || undefined,
         bedrooms: data.bedrooms?.trim() || undefined,
@@ -492,16 +521,20 @@ const HomeEstimationTop = () => {
 
   const handleCloseModal = () => {
     setShowThankYouModal(false);
+    setCurrentStep(1);
     reset({
       fullName: "",
       email: "",
       phoneNumber: "",
       address: "",
       propertySizeInSquareFeet: "",
+      lotSize: "",
+      yearBuilt: "",
       city: "",
       postal_code: "",
       bedrooms: "",
       bathrooms: "",
+      consent: false,
     });
     setFormAddressQuery("");
     setSelectedPropertyId(null);
@@ -519,6 +552,28 @@ const HomeEstimationTop = () => {
         String(item.floorArea || item.sqft || item.buildingSize),
         { shouldValidate: true },
       );
+    }
+
+    const detectedLotSize =
+      item.lot_size_area ||
+      item.lotSize ||
+      item.lotSizeArea ||
+      item.raw_data?.LotSizeArea;
+    if (detectedLotSize) {
+      setValue("lotSize", String(detectedLotSize), {
+        shouldValidate: true,
+      });
+    }
+
+    const detectedYearBuilt =
+      item.year_built ||
+      item.yearBuilt ||
+      item.YearBuilt ||
+      item.raw_data?.YearBuilt;
+    if (detectedYearBuilt) {
+      setValue("yearBuilt", String(detectedYearBuilt), {
+        shouldValidate: true,
+      });
     }
 
     if (item.city || item.neighbourhood) {
@@ -619,38 +674,13 @@ const HomeEstimationTop = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="w-full flex flex-col sm:flex-row items-center gap-3 mt-2">
+            <div className="w-full flex items-center justify-center mt-2">
               <button
                 type="button"
-                onClick={() => {
-                  handleCloseModal();
-                  if (!isLoggedIn) {
-                    setOpenLogin(true);
-                  }
-                  setTimeout(() => {
-                    const sectionEl = document.getElementById(
-                      "bc-assessment-search-section"
-                    );
-                    if (sectionEl) {
-                      sectionEl.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center",
-                      });
-                    }
-                    if (isLoggedIn) {
-                      const inputEl = document.getElementById(
-                        "bc-assessment-search-input"
-                      ) as HTMLInputElement;
-                      if (inputEl) {
-                        inputEl.focus();
-                      }
-                    }
-                  }, 120);
-                }}
-                className="w-full py-3.5 px-6 bg-primary hover:bg-primary2 text-white font-bold rounded-xl transition-colors shadow-md cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+                onClick={handleCloseModal}
+                className="w-full sm:w-auto px-8 py-3 bg-primary hover:bg-primary2 text-white font-bold rounded-xl transition-colors shadow-md cursor-pointer"
               >
-                <span>Explore BC Assessment Properties</span>
-                <ArrowRight size={18} />
+                Done
               </button>
             </div>
           </div>
@@ -680,342 +710,577 @@ const HomeEstimationTop = () => {
         />
 
         <div className="xl:mt-8 mt-5 md:w-[82%] lg:w-[76%] xl:w-[70%] w-full md:p-8 p-5 sm:p-6 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.08)] border border-borderColor/60 rounded-2xl flex flex-col gap-y-6 bg-background z-10">
+          {/* Step Progress Indicator */}
+          <div className="flex items-center justify-between border-b border-borderColor/60 pb-5">
+            <div className="flex items-center gap-2 sm:gap-4">
+              {/* Step 1 Tab */}
+              <button
+                type="button"
+                onClick={() => setCurrentStep(1)}
+                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl transition cursor-pointer text-left ${
+                  currentStep === 1
+                    ? "bg-primary/10 text-primary font-bold"
+                    : "text-foreground hover:text-primary font-medium"
+                }`}
+              >
+                <span
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all shrink-0 ${
+                    currentStep === 1
+                      ? "bg-primary text-white shadow-xs"
+                      : "bg-emerald-500 text-white"
+                  }`}
+                >
+                  {currentStep > 1 ? <Check size={14} /> : "1"}
+                </span>
+                <div className="flex flex-col">
+                  <span className="text-xs sm:text-sm font-bold leading-tight">
+                    Property Info
+                  </span>
+                  <span className="text-[10px] text-lightWhite hidden sm:inline">
+                    Specs & address
+                  </span>
+                </div>
+              </button>
+
+              {/* Progress Connector */}
+              <div
+                className={`w-8 sm:w-12 h-0.5 transition-colors ${
+                  currentStep === 2 ? "bg-primary" : "bg-borderColor/80"
+                }`}
+              />
+
+              {/* Step 2 Tab */}
+              <button
+                type="button"
+                onClick={async () => {
+                  if (currentStep === 1) {
+                    await handleNextStep();
+                  }
+                }}
+                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl transition text-left ${
+                  currentStep === 2
+                    ? "bg-primary/10 text-primary font-bold cursor-default"
+                    : "text-lightWhite hover:text-foreground font-medium cursor-pointer"
+                }`}
+              >
+                <span
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all shrink-0 ${
+                    currentStep === 2
+                      ? "bg-primary text-white shadow-xs"
+                      : "bg-gray/40 text-foreground"
+                  }`}
+                >
+                  2
+                </span>
+                <div className="flex flex-col">
+                  <span className="text-xs sm:text-sm font-bold leading-tight">
+                    User Info
+                  </span>
+                  <span className="text-[10px] text-lightWhite hidden sm:inline">
+                    Contact details
+                  </span>
+                </div>
+              </button>
+            </div>
+
+            {/* Step Counter Badge */}
+            <span className="text-xs font-semibold px-3 py-1 bg-gray/20 rounded-full text-foreground shrink-0">
+              Step {currentStep} of 2
+            </span>
+          </div>
+
           <form
-            onSubmit={handleSubmit(onFormSubmit)}
+            onSubmit={(e) => {
+              if (currentStep === 1) {
+                e.preventDefault();
+                handleNextStep();
+                return;
+              }
+              handleSubmit(onFormSubmit)(e);
+            }}
             className="flex flex-col gap-y-4.5"
           >
-              {/* Row 1: Full Name + Email */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Full Name */}
-                <div className="flex flex-col gap-1.5">
+            {/* STEP 1: PROPERTY INFO */}
+            {currentStep === 1 && (
+              <div className="flex flex-col gap-y-4.5 animate-in fade-in duration-200">
+                {/* Row 1: Property Address with Autocomplete Suggestions */}
+                <div className="flex flex-col gap-1.5 relative">
                   <label className="text-xs md:text-sm font-semibold text-foreground">
-                    Full Name <span className="text-primary">*</span>
+                    Property Address <span className="text-primary">*</span>
                   </label>
                   <div className="relative flex items-center">
-                    <User
-                      size={17}
-                      className="absolute left-3.5 text-lightWhite pointer-events-none"
+                    <MapPin
+                      size={18}
+                      className="absolute left-3.5 text-primary pointer-events-none"
                     />
                     <input
                       type="text"
-                      {...register("fullName", {
-                        required: "Full name is required",
-                      })}
-                      placeholder="Enter full name"
-                      className={`w-full pl-10 pr-4 py-3 bg-gray/15 hover:bg-background focus:bg-background border rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 ${
-                        errors.fullName
+                      value={watchAddress || ""}
+                      placeholder="Enter property address"
+                      className={`w-full pl-10 pr-10 py-3.5 bg-gray/15 hover:bg-background focus:bg-background border rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 ${
+                        errors.address
                           ? "border-red-500 ring-2 ring-red-500/20"
                           : "border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10"
                       }`}
-                    />
-                  </div>
-                  {errors.fullName && (
-                    <p className="text-red-500 text-xs mt-0.5">
-                      {errors.fullName.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Email Address */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs md:text-sm font-semibold text-foreground">
-                    Email Address <span className="text-primary">*</span>
-                  </label>
-                  <div className="relative flex items-center">
-                    <Mail
-                      size={17}
-                      className="absolute left-3.5 text-lightWhite pointer-events-none"
-                    />
-                    <input
-                      type="email"
-                      {...register("email", {
-                        required: "Email is required",
-                        pattern: {
-                          value: /^\S+@\S+\.\S+$/,
-                          message: "Enter a valid email",
-                        },
-                      })}
-                      placeholder="Enter email address"
-                      className={`w-full pl-10 pr-4 py-3 bg-gray/15 hover:bg-background focus:bg-background border rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 ${
-                        errors.email
-                          ? "border-red-500 ring-2 ring-red-500/20"
-                          : "border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10"
-                      }`}
-                    />
-                  </div>
-                  {errors.email && (
-                    <p className="text-red-500 text-xs mt-0.5">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Row 2: Canadian Phone Number + Property Size */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Canadian Phone Number with Flag SVG */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs md:text-sm font-semibold text-foreground">
-                    Phone Number <span className="text-primary">*</span>
-                  </label>
-                  <div
-                    className={`flex items-center bg-gray/15 hover:bg-background focus-within:bg-background border rounded-xl overflow-hidden transition-all duration-200 ${
-                      errors.phoneNumber
-                        ? "border-red-500 ring-2 ring-red-500/20"
-                        : "border-borderColor/80 focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/10"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 pl-3.5 pr-3 py-3 bg-gray/30 border-r border-borderColor/80 shrink-0 select-none">
-                      <CanadaFlag />
-                      <span className="text-xs md:text-sm font-bold text-foreground">
-                        +1
-                      </span>
-                    </div>
-                    <input
-                      type="tel"
-                      value={watchPhone || ""}
-                      placeholder="(604) 555-0123"
-                      className="w-full px-3.5 py-3 outline-none bg-transparent text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70"
-                      {...register("phoneNumber", {
-                        required: "Phone number is required",
-                        validate: (value) => {
-                          const res = validateCanadianPhoneNumber(value);
-                          if (!res.isValid) {
-                            return (
-                              res.error || "Must be a valid Canadian phone number"
-                            );
+                      {...register("address", {
+                        required: "Property address is required",
+                        onChange: (e) => {
+                          setFormAddressQuery(e.target.value);
+                          if (e.target.value.trim().length > 1) {
+                            setShowFormAddressDropdown(true);
+                          } else {
+                            setShowFormAddressDropdown(false);
                           }
-                          return true;
                         },
-                        onChange: handlePhoneChange,
                       })}
-                    />
-                  </div>
-                  {errors.phoneNumber && (
-                    <p className="text-red-500 text-xs mt-0.5">
-                      {errors.phoneNumber.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Property Size */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs md:text-sm font-semibold text-foreground">
-                    Property Size (Sq Ft) <span className="text-primary">*</span>
-                  </label>
-                  <div className="relative flex items-center">
-                    <Maximize2
-                      size={17}
-                      className="absolute left-3.5 text-lightWhite pointer-events-none"
-                    />
-                    <input
-                      type="text"
-                      {...register("propertySizeInSquareFeet", {
-                        required: "Property size is required",
-                      })}
-                      placeholder="e.g. 1,850"
-                      className={`w-full pl-10 pr-4 py-3 bg-gray/15 hover:bg-background focus:bg-background border rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 ${
-                        errors.propertySizeInSquareFeet
-                          ? "border-red-500 ring-2 ring-red-500/20"
-                          : "border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10"
-                      }`}
-                    />
-                  </div>
-                  {errors.propertySizeInSquareFeet && (
-                    <p className="text-red-500 text-xs mt-0.5">
-                      {errors.propertySizeInSquareFeet.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Row 3: Property Address with Autocomplete Suggestions */}
-              <div className="flex flex-col gap-1.5 relative">
-                <label className="text-xs md:text-sm font-semibold text-foreground">
-                  Property Address <span className="text-primary">*</span>
-                </label>
-                <div className="relative flex items-center">
-                  <MapPin
-                    size={18}
-                    className="absolute left-3.5 text-primary pointer-events-none"
-                  />
-                  <input
-                    type="text"
-                    value={watchAddress || ""}
-                    placeholder="Enter property address"
-                    className={`w-full pl-10 pr-10 py-3.5 bg-gray/15 hover:bg-background focus:bg-background border rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 ${
-                      errors.address
-                        ? "border-red-500 ring-2 ring-red-500/20"
-                        : "border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10"
-                    }`}
-                    {...register("address", {
-                      required: "Property address is required",
-                      onChange: (e) => {
-                        setFormAddressQuery(e.target.value);
-                        if (e.target.value.trim().length > 1) {
+                      onFocus={() => {
+                        if (formSuggestionsList.length > 0) {
                           setShowFormAddressDropdown(true);
-                        } else {
-                          setShowFormAddressDropdown(false);
                         }
-                      },
-                    })}
-                    onFocus={() => {
-                      if (formSuggestionsList.length > 0) {
-                        setShowFormAddressDropdown(true);
-                      }
-                    }}
-                    onBlur={() => {
-                      setTimeout(() => setShowFormAddressDropdown(false), 250);
-                    }}
-                  />
-                </div>
-
-                {errors.address && (
-                  <p className="text-red-500 text-xs mt-0.5">
-                    {errors.address.message}
-                  </p>
-                )}
-
-                {/* Dropdown suggestions */}
-                {showFormAddressDropdown && formSuggestionsList.length > 0 && (
-                  <div
-                    className="estimation-dropdown absolute left-0 w-full bg-background z-30 max-h-60 overflow-y-auto scrollbar-hide rounded-xl"
-                    style={{
-                      top: "100%",
-                      border: "1px solid var(--borderColor)",
-                      marginTop: "6px",
-                      boxShadow: "0 12px 32px rgba(0,0,0,0.12)",
-                    }}
-                  >
-                    {formSuggestionsList.map((item: any, index: number) => (
-                      <div
-                        key={item.documentId || item.id || index}
-                        onMouseDown={() => handleSelectFormAddress(item)}
-                        className="estimation-item cursor-pointer px-4 py-3 flex items-start gap-3 hover:bg-primary/5"
-                        style={{
-                          borderBottom:
-                            index + 1 < formSuggestionsList.length
-                              ? "1px solid var(--borderColor)"
-                              : "none",
-                        }}
-                      >
-                        <MapPin
-                          size={16}
-                          className="mt-0.5 shrink-0 text-primary"
-                        />
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-semibold text-foreground truncate">
-                            {item.address || item.title || item.name}
-                          </span>
-                          {(item.city || item.neighbourhood) && (
-                            <span className="text-xs text-lightWhite mt-0.5">
-                              {item.city || item.neighbourhood}
-                              {item.floorArea || item.sqft
-                                ? ` • ${item.floorArea || item.sqft} sq ft`
-                                : ""}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Row 4: City + Postal Code */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* City */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs md:text-sm font-semibold text-foreground">
-                    City
-                  </label>
-                  <CityCombobox
-                    value={watchCity || ""}
-                    onChange={(val) =>
-                      setValue("city", val, { shouldValidate: true })
-                    }
-                  />
-                </div>
-
-                {/* Postal Code */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs md:text-sm font-semibold text-foreground">
-                    Postal Code
-                  </label>
-                  <div className="relative flex items-center">
-                    <Navigation
-                      size={17}
-                      className="absolute left-3.5 text-lightWhite pointer-events-none"
-                    />
-                    <input
-                      type="text"
-                      {...register("postal_code")}
-                      placeholder="e.g. V6B 2W9"
-                      className="w-full pl-10 pr-4 py-3 bg-gray/15 hover:bg-background focus:bg-background border border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10 rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 uppercase"
+                      }}
+                      onBlur={() => {
+                        setTimeout(() => setShowFormAddressDropdown(false), 250);
+                      }}
                     />
                   </div>
-                </div>
-              </div>
 
-              {/* Row 5: Bedrooms + Bathrooms */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Bedrooms */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs md:text-sm font-semibold text-foreground">
-                    Bedrooms
-                  </label>
-                  <CustomFormSelect
-                    icon={<Bed size={17} />}
-                    value={watchBedrooms || ""}
-                    placeholder="Select Bedrooms"
-                    options={["1", "2", "3", "4", "5+"]}
-                    onChange={(val) =>
-                      setValue("bedrooms", val, { shouldValidate: true })
-                    }
-                  />
-                </div>
-
-                {/* Bathrooms */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs md:text-sm font-semibold text-foreground">
-                    Bathrooms
-                  </label>
-                  <CustomFormSelect
-                    icon={<Bath size={17} />}
-                    value={watchBathrooms || ""}
-                    placeholder="Select Bathrooms"
-                    options={["1", "2", "3", "4", "5+"]}
-                    onChange={(val) =>
-                      setValue("bathrooms", val, { shouldValidate: true })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Submit Area */}
-              <div className="flex flex-col sm:flex-row items-center justify-start gap-4 pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full sm:w-auto px-8 py-3.5 bg-primary hover:bg-primary2 text-white font-bold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
-                >
-                  {submitting ? (
-                    <>
-                      <div
-                        className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white"
-                        style={{ animation: "spin 0.75s linear infinite" }}
-                      />
-                      <span>Evaluating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Get Home Evaluation</span>
-                      <ArrowRight size={17} />
-                    </>
+                  {errors.address && (
+                    <p className="text-red-500 text-xs mt-0.5">
+                      {errors.address.message}
+                    </p>
                   )}
-                </button>
+
+                  {/* Dropdown suggestions */}
+                  {showFormAddressDropdown && formSuggestionsList.length > 0 && (
+                    <div
+                      className="estimation-dropdown absolute left-0 w-full bg-background z-30 max-h-60 overflow-y-auto scrollbar-hide rounded-xl"
+                      style={{
+                        top: "100%",
+                        border: "1px solid var(--borderColor)",
+                        marginTop: "6px",
+                        boxShadow: "0 12px 32px rgba(0,0,0,0.12)",
+                      }}
+                    >
+                      {formSuggestionsList.map((item: any, index: number) => (
+                        <div
+                          key={item.documentId || item.id || index}
+                          onMouseDown={() => handleSelectFormAddress(item)}
+                          className="estimation-item cursor-pointer px-4 py-3 flex items-start gap-3 hover:bg-primary/5"
+                          style={{
+                            borderBottom:
+                              index + 1 < formSuggestionsList.length
+                                ? "1px solid var(--borderColor)"
+                                : "none",
+                          }}
+                        >
+                          <MapPin
+                            size={16}
+                            className="mt-0.5 shrink-0 text-primary"
+                          />
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm font-semibold text-foreground truncate">
+                              {item.address || item.title || item.name}
+                            </span>
+                            {(item.city || item.neighbourhood) && (
+                              <span className="text-xs text-lightWhite mt-0.5">
+                                {item.city || item.neighbourhood}
+                                {item.floorArea || item.sqft
+                                  ? ` • ${item.floorArea || item.sqft} sq ft`
+                                  : ""}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Row 2: City + Postal Code */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* City */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">
+                      City
+                    </label>
+                    <CityCombobox
+                      value={watchCity || ""}
+                      onChange={(val) =>
+                        setValue("city", val, { shouldValidate: true })
+                      }
+                    />
+                  </div>
+
+                  {/* Postal Code */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">
+                      Postal Code
+                    </label>
+                    <div className="relative flex items-center">
+                      <Navigation
+                        size={17}
+                        className="absolute left-3.5 text-lightWhite pointer-events-none"
+                      />
+                      <input
+                        type="text"
+                        {...register("postal_code")}
+                        placeholder="e.g. V6B 2W9"
+                        className="w-full pl-10 pr-4 py-3 bg-gray/15 hover:bg-background focus:bg-background border border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10 rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 uppercase"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 3: Property Size + Lot Size Area */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Property Size */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">
+                      Property Size (Sq Ft) <span className="text-primary">*</span>
+                    </label>
+                    <div className="relative flex items-center">
+                      <Maximize2
+                        size={17}
+                        className="absolute left-3.5 text-lightWhite pointer-events-none"
+                      />
+                      <input
+                        type="text"
+                        {...register("propertySizeInSquareFeet", {
+                          required: "Property size is required",
+                        })}
+                        placeholder="e.g. 1,850"
+                        className={`w-full pl-10 pr-4 py-3 bg-gray/15 hover:bg-background focus:bg-background border rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 ${
+                          errors.propertySizeInSquareFeet
+                            ? "border-red-500 ring-2 ring-red-500/20"
+                            : "border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10"
+                        }`}
+                      />
+                    </div>
+                    {errors.propertySizeInSquareFeet && (
+                      <p className="text-red-500 text-xs mt-0.5">
+                        {errors.propertySizeInSquareFeet.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Lot Size Area (Optional) */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs md:text-sm font-semibold text-foreground">
+                        Lot Size Area
+                      </label>
+                      <span className="text-[11px] text-lightWhite">Optional</span>
+                    </div>
+                    <div className="relative flex items-center">
+                      <Layers
+                        size={17}
+                        className="absolute left-3.5 text-lightWhite pointer-events-none"
+                      />
+                      <input
+                        type="text"
+                        {...register("lotSize")}
+                        placeholder="e.g. 3,420 sq ft"
+                        className="w-full pl-10 pr-4 py-3 bg-gray/15 hover:bg-background focus:bg-background border border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10 rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 4: Year Built + Bedrooms + Bathrooms */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Year Built (Required) */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">
+                      Year Built <span className="text-primary">*</span>
+                    </label>
+                    <div className="relative flex items-center">
+                      <Calendar
+                        size={17}
+                        className="absolute left-3.5 text-lightWhite pointer-events-none"
+                      />
+                      <input
+                        type="text"
+                        {...register("yearBuilt", {
+                          required: "Year built is required",
+                          pattern: {
+                            value: /^\d{4}$/,
+                            message: "Enter a valid 4-digit year (e.g. 2003)",
+                          },
+                        })}
+                        placeholder="e.g. 2003"
+                        maxLength={4}
+                        className={`w-full pl-10 pr-4 py-3 bg-gray/15 hover:bg-background focus:bg-background border rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 ${
+                          errors.yearBuilt
+                            ? "border-red-500 ring-2 ring-red-500/20"
+                            : "border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10"
+                        }`}
+                      />
+                    </div>
+                    {errors.yearBuilt && (
+                      <p className="text-red-500 text-xs mt-0.5">
+                        {errors.yearBuilt.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Bedrooms */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">
+                      Bedrooms
+                    </label>
+                    <CustomFormSelect
+                      icon={<Bed size={17} />}
+                      value={watchBedrooms || ""}
+                      placeholder="Select Bedrooms"
+                      options={["1", "2", "3", "4", "5+"]}
+                      onChange={(val) =>
+                        setValue("bedrooms", val, { shouldValidate: true })
+                      }
+                    />
+                  </div>
+
+                  {/* Bathrooms */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">
+                      Bathrooms
+                    </label>
+                    <CustomFormSelect
+                      icon={<Bath size={17} />}
+                      value={watchBathrooms || ""}
+                      placeholder="Select Bathrooms"
+                      options={["1", "2", "3", "4", "5+"]}
+                      onChange={(val) =>
+                        setValue("bathrooms", val, { shouldValidate: true })
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* Step 1 Next Button */}
+                <div className="flex items-center justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-primary hover:bg-primary2 text-white font-bold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>Continue to Contact Info</span>
+                    <ArrowRight size={17} />
+                  </button>
+                </div>
               </div>
-            </form>
+            )}
+
+            {/* STEP 2: USER INFO */}
+            {currentStep === 2 && (
+              <div className="flex flex-col gap-y-4.5 animate-in fade-in duration-200">
+                {/* Selected Property Summary Chip */}
+                <div className="flex items-center justify-between p-3.5 bg-primary/5 border border-primary/20 rounded-xl">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <MapPin size={16} className="text-primary shrink-0" />
+                    <div className="truncate text-xs sm:text-sm">
+                      <span className="font-bold text-foreground">
+                        {watchAddress || "Property Selected"}
+                      </span>
+                      {(watchPropertySize || watchYearBuilt) && (
+                        <span className="text-lightWhite ml-2 hidden sm:inline">
+                          {watchPropertySize ? `• ${watchPropertySize} sq ft` : ""}
+                          {watchYearBuilt ? ` • Built ${watchYearBuilt}` : ""}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(1)}
+                    className="text-xs font-bold text-primary hover:underline shrink-0 ml-3 cursor-pointer"
+                  >
+                    Edit Property
+                  </button>
+                </div>
+
+                {/* Row 1: Full Name + Email */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Full Name */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">
+                      Full Name <span className="text-primary">*</span>
+                    </label>
+                    <div className="relative flex items-center">
+                      <User
+                        size={17}
+                        className="absolute left-3.5 text-lightWhite pointer-events-none"
+                      />
+                      <input
+                        type="text"
+                        {...register("fullName", {
+                          required: "Full name is required",
+                        })}
+                        placeholder="Enter full name"
+                        className={`w-full pl-10 pr-4 py-3 bg-gray/15 hover:bg-background focus:bg-background border rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 ${
+                          errors.fullName
+                            ? "border-red-500 ring-2 ring-red-500/20"
+                            : "border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10"
+                        }`}
+                      />
+                    </div>
+                    {errors.fullName && (
+                      <p className="text-red-500 text-xs mt-0.5">
+                        {errors.fullName.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Email Address */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">
+                      Email Address <span className="text-primary">*</span>
+                    </label>
+                    <div className="relative flex items-center">
+                      <Mail
+                        size={17}
+                        className="absolute left-3.5 text-lightWhite pointer-events-none"
+                      />
+                      <input
+                        type="email"
+                        {...register("email", {
+                          required: "Email is required",
+                          pattern: {
+                            value: /^\S+@\S+\.\S+$/,
+                            message: "Enter a valid email",
+                          },
+                        })}
+                        placeholder="Enter email address"
+                        className={`w-full pl-10 pr-4 py-3 bg-gray/15 hover:bg-background focus:bg-background border rounded-xl text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70 outline-none transition-all duration-200 ${
+                          errors.email
+                            ? "border-red-500 ring-2 ring-red-500/20"
+                            : "border-borderColor/80 focus:border-primary focus:ring-3 focus:ring-primary/10"
+                        }`}
+                      />
+                    </div>
+                    {errors.email && (
+                      <p className="text-red-500 text-xs mt-0.5">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Row 2: Phone Number */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                  {/* Canadian Phone Number with Flag SVG */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">
+                      Phone Number <span className="text-primary">*</span>
+                    </label>
+                    <div
+                      className={`flex items-center bg-gray/15 hover:bg-background focus-within:bg-background border rounded-xl overflow-hidden transition-all duration-200 ${
+                        errors.phoneNumber
+                          ? "border-red-500 ring-2 ring-red-500/20"
+                          : "border-borderColor/80 focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/10"
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 pl-3.5 pr-3 py-3 bg-gray/30 border-r border-borderColor/80 shrink-0 select-none">
+                        <CanadaFlag />
+                        <span className="text-xs md:text-sm font-bold text-foreground">
+                          +1
+                        </span>
+                      </div>
+                      <input
+                        type="tel"
+                        value={watchPhone || ""}
+                        placeholder="(604) 555-0123"
+                        className="w-full px-3.5 py-3 outline-none bg-transparent text-sm md:text-base text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-lightWhite/70"
+                        {...register("phoneNumber", {
+                          required: "Phone number is required",
+                          validate: (value) => {
+                            const res = validateCanadianPhoneNumber(value);
+                            if (!res.isValid) {
+                              return (
+                                res.error || "Must be a valid Canadian phone number"
+                              );
+                            }
+                            return true;
+                          },
+                          onChange: handlePhoneChange,
+                        })}
+                      />
+                    </div>
+                    {errors.phoneNumber && (
+                      <p className="text-red-500 text-xs mt-0.5">
+                        {errors.phoneNumber.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Trust / Confidentiality Note */}
+                  <div className="p-3.5 bg-gray/10 border border-borderColor/60 rounded-xl flex items-center gap-2.5 text-xs text-lightWhite">
+                    <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
+                    <span>
+                      Your information is kept 100% confidential. Your custom valuation report will be sent to the contact details provided.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Consent Checkbox (CASL-compliant, unticked by default) */}
+                <div className="pt-1">
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none group">
+                    <input
+                      type="checkbox"
+                      {...register("consent")}
+                      defaultChecked={false}
+                      className="mt-0.5 w-4 h-4 rounded border-borderColor/80 text-primary focus:ring-primary/20  accent-primary cursor-pointer shrink-0"
+                    />
+                    <span className="text-xs sm:text-sm text-foreground/85 leading-snug group-hover:text-foreground transition-colors">
+                      Send me my estimate and follow up by email or phone. I can unsubscribe anytime.
+                    </span>
+                  </label>
+                </div>
+
+                {/* Step 2 Buttons */}
+                <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(1)}
+                    className="w-full sm:w-auto px-6 py-3.5 border border-borderColor/80 hover:bg-gray/20 text-foreground font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <ArrowLeft size={17} />
+                    <span>Back to Property Info</span>
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-primary hover:bg-primary2 text-white font-bold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                  >
+                    {submitting ? (
+                      <>
+                        <div
+                          className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white"
+                          style={{ animation: "spin 0.75s linear infinite" }}
+                        />
+                        <span>Evaluating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Get Home Evaluation</span>
+                        <ArrowRight size={17} />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </form>
+
+          {/* Brokerage line under the form */}
+          <div className="pt-4 border-t border-borderColor/60 text-center">
+            <p className="text-xs sm:text-sm text-lightWhite">
+              Provided by{" "}
+              <span className="font-semibold text-foreground">
+                Harjit Sidhu PREC, The Sidhu Team, Planet Group Realty Inc.
+              </span>
+            </p>
+          </div>
         </div>
 
         <Image

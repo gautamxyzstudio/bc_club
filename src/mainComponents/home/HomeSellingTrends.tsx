@@ -1,15 +1,12 @@
 "use client";
 import Heading, { IHeadingTypes } from "@/src/components/heading/Heading";
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import React, { useState } from "react";
+import { useState } from "react";
 import { cities } from ".";
 import Description, {
   IDescriptionTypes,
 } from "@/src/components/description/Description";
 import SalesReportedRecharts from "@/src/components/charts/SalesReportedRecharts";
-import MedianAverageDaysRecharts from "@/src/components/charts/MedianAverageDaysRecharts";
-import MedianAveragePriceRecharts from "@/src/components/charts/MedianAveragePriceRecharts";
-import { useAuthContext } from "../auth/AuthContext";
 import { useGetBridgeCities } from "@/src/hooks/listing/useRealEstateListingQueries";
 
 const HomeSellingTrends = () => {
@@ -20,7 +17,6 @@ const HomeSellingTrends = () => {
       : cities;
 
   const [location, setLocation] = useState<string>("Surrey");
-  const { isLoggedIn } = useAuthContext();
 
   const handleChange = (event: SelectChangeEvent<string>) => {
     setLocation(event.target.value);
@@ -39,7 +35,6 @@ const HomeSellingTrends = () => {
             customClasses="font-bold "
           />
           {/* Location Selector */}
-          {isLoggedIn && (
             <Select
               value={location}
               onChange={handleChange}
@@ -79,16 +74,10 @@ const HomeSellingTrends = () => {
                 </MenuItem>
               ))}
             </Select>
-          )}
         </div>
       </div>
 
       <SalesReportedRecharts location={location} />
-
-      <div className="hidden lg:flex-row flex-col gap-6 items-center justify-between mt-6">
-        <MedianAverageDaysRecharts />
-        <MedianAveragePriceRecharts />
-      </div>
     </section>
   );
 };

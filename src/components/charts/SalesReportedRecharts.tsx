@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/static-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
 import {
@@ -9,7 +12,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import PoweredBy from "../common/poweredby/PoweredBy";
 import { useAuthContext } from "@/src/mainComponents/auth/AuthContext";
@@ -19,79 +21,6 @@ import { useGetSalesReported } from "@/src/hooks/listing/useListingQueries";
 
 export const timeRanges = ["12D", "1M", "3M", "6M", "Custom"];
 type SeriesKey = "detached" | "apartment" | "townhouse";
-
-/* -------------------------------
-   1️⃣ Fake Dynamic Sample Data Generator
------------------------------------*/
-const generateDashboardData = (
-  location: string,
-  range: string,
-  start?: string,
-  end?: string,
-) => {
-  let totalDays = 12;
-  let startDate = dayjs().subtract(11, "day");
-  let endDate = dayjs();
-
-  if (range === "12D") {
-    totalDays = 12;
-    startDate = dayjs().subtract(11, "day");
-  } else if (range === "1M") {
-    totalDays = 30;
-    startDate = dayjs().subtract(29, "day");
-  } else if (range === "3M") {
-    totalDays = 90;
-    startDate = dayjs().subtract(89, "day");
-  } else if (range === "6M") {
-    totalDays = 180;
-    startDate = dayjs().subtract(179, "day");
-  } else {
-    totalDays = 12;
-  }
-
-  // Use 15 points for fixed ranges, but use daily resolution (one point per day) for Custom range
-  const points = 12;
-  const interval = totalDays > 1 ? (totalDays - 1) / (points - 1) : 0;
-
-  const chartData = Array.from({ length: points }, (_, i) => {
-    // For Custom range, it's exactly one point per day.
-    // For fixed ranges, it samples 15 points across the duration.
-    const date = startDate.add(Math.round(i * interval), "day");
-
-    // Ensure we don't exceed the end date (especially for the last point in fixed ranges)
-    const finalDate = i === points - 1 && range !== "Custom" ? endDate : date;
-    const name = finalDate.format("D MMM");
-
-    const d_sold = Math.floor(Math.random() * 40 + 10);
-    const d_total = d_sold + Math.floor(Math.random() * 40 + 5);
-    const a_sold = Math.floor(Math.random() * 40 + 10);
-    const a_total = a_sold + Math.floor(Math.random() * 40 + 5);
-    const t_sold = Math.floor(Math.random() * 40 + 10);
-    const t_total = t_sold + Math.floor(Math.random() * 40 + 5);
-
-    return {
-      name,
-      timestamp: finalDate.valueOf(),
-      detached_sold: d_sold,
-      detached_listed: d_total - d_sold,
-      apartment_sold: a_sold,
-      apartment_listed: a_total - a_sold,
-      townhouse_sold: t_sold,
-      townhouse_listed: t_total - t_sold,
-    };
-  });
-
-  const totalSold = Math.floor(Math.random() * 2000 + 1000);
-  const totalListed = Math.floor(totalSold * 1.5 + Math.random() * 500);
-
-  return {
-    summary: {
-      sold: totalSold,
-      newListings: totalListed,
-    },
-    chartData,
-  };
-};
 
 /* Custom Tooltip Component */
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -126,20 +55,48 @@ const SummaryCard = ({
   title,
   value,
   isLoading,
+  isLoggedIn,
+  onLogin,
 }: {
   title: string;
   value: number;
   isLoading: boolean;
+  isLoggedIn?: boolean;
+  onLogin?: () => void;
 }) => (
-  <div className="rounded-xl lg:p-6 p-2 bg-gray flex flex-col items-center justify-center gap-y-2 flex-1 w-1/2">
-    <h3 className="text-foreground lg:text-sm text-xs font-medium opacity-70">
+  <div
+    onClick={!isLoggedIn ? onLogin : undefined}
+    className={`rounded-xl lg:p-6 p-2 bg-gray flex flex-col items-center justify-center gap-y-2 flex-1 w-1/2 transition-all ${!isLoggedIn ? "cursor-pointer hover:bg-gray/80 group" : ""
+      }`}
+  >
+    <h3 className="text-foreground lg:text-sm text-xs font-medium opacity-70 text-center">
       {title}
     </h3>
     {isLoading ? (
-      <div className="h-8 w-60 bg-white/50 animate-pulse rounded" />
+      <div className="h-8 lg:w-40 w-24 bg-white/50 animate-pulse rounded" />
+    ) : !isLoggedIn ? (
+      <div className="flex items-center gap-1.5 py-1 px-3 rounded-lg bg-white/80 group-hover:bg-white text-primary transition-all shadow-xs border border-gray-200">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4 text-[#EEA500] shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+          />
+        </svg>
+        <span className="lg:text-sm text-xs font-semibold whitespace-nowrap">
+          Login to view
+        </span>
+      </div>
     ) : (
       <p className="lg:text-4xl text-base font-bold text-black">
-        {value.toLocaleString()}
+        {(value || 0).toLocaleString()}
       </p>
     )}
   </div>
@@ -152,17 +109,13 @@ const SummaryCard = ({
 const SalesReportedRecharts = ({ location }: { location: string }) => {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
-  const { isLoggedIn, setOpenLogin } = useAuthContext();
+  const { isLoggedIn, setOpenLogin, authLoading } = useAuthContext();
   const [range, setRange] = useState("1M");
 
-  const isProtectedRange = useMemo(
-    () => !isLoggedIn && ["12D", "1M", "3M", "6M", "Custom"].includes(range),
-    [isLoggedIn, range],
-  );
-  const [customStart, setCustomStart] = useState(
-    dayjs().subtract(7, "day").toISOString(),
-  );
-  const [customEnd, setCustomEnd] = useState(dayjs().toISOString());
+  // const isProtectedRange = useMemo(
+  //   () => !isLoggedIn && ["12D", "1M", "3M", "6M", "Custom"].includes(range),
+  //   [isLoggedIn, range],
+  // );
 
   useEffect(() => {
     setIsMounted(true);
@@ -181,7 +134,7 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
     isLoading,
     isFetching,
   } = useGetSalesReported(salesParams, {
-    enabled: !!location && !isProtectedRange && range !== "Custom",
+    enabled: !!location && !isLoggedIn && range !== "Custom",
   });
 
   const data = salesRes?.data || {
@@ -201,6 +154,7 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
   };
 
   const isChartLoading = isLoading || isFetching;
+  const isCardLoading = authLoading || isChartLoading;
 
   const ChartSkeleton = () => (
     <div className="flex flex-col w-full h-full">
@@ -239,12 +193,16 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
         <SummaryCard
           title="Total properties sold"
           value={data.summary.sold}
-          isLoading={isChartLoading}
+          isLoading={isCardLoading}
+          isLoggedIn={true}
+          onLogin={() => setOpenLogin(true)}
         />
         <SummaryCard
           title="Total properties listed"
           value={data.summary.newListings}
-          isLoading={isChartLoading}
+          isLoading={isCardLoading}
+          isLoggedIn={true}
+          onLogin={() => setOpenLogin(true)}
         />
       </div>
 
@@ -252,8 +210,8 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
       <div className="flex flex-wrap items-center gap-6 justify-between">
         <div className="flex flex-wrap md:gap-3 gap-2 items-center">
           {[
-            { key: "detached", color: "#FF0400" },
-            { key: "apartment", color: "#1D00FF" },
+            { key: "detached", color: "#22558B" },
+            { key: "apartment", color: "#EEA500" },
             { key: "townhouse", color: "#007E64" },
           ].map(({ key, color }) => (
             <button
@@ -274,11 +232,10 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
                   return nextState;
                 })
               }
-              className={`flex items-center md:gap-2 md:px-4 md:py-2.5 gap-1 px-2 py-1.5 rounded-xl bg-white border transition-all ${
-                visibleSeries[key as keyof typeof visibleSeries]
+              className={`flex items-center md:gap-2 md:px-4 md:py-2.5 gap-1 px-2 py-1.5 rounded-xl bg-white border transition-all ${visibleSeries[key as keyof typeof visibleSeries]
                   ? "border-gray-200"
                   : "border-transparent opacity-40 shadow-none"
-              } shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)]`}
+                } shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)]`}
             >
               <span
                 className="md:w-4 md:h-4 w-2 h-2 rounded-md"
@@ -304,11 +261,10 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
                     setRange(r);
                   }
                 }}
-                className={`md:px-5 md:py-2 px-3 py-1 rounded-lg md:text-sm text-xs font-medium transition-all cursor-pointer ${
-                  range === r
+                className={`md:px-5 md:py-2 px-3 py-1 rounded-lg md:text-sm text-xs font-medium transition-all cursor-pointer ${range === r
                     ? "bg-[#FFA500] text-white shadow-sm"
                     : "text-gray-500 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 {r}
               </button>
@@ -324,7 +280,7 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
 
       {/* Chart */}
       <div className="w-full h-87.5 relative overflow-x-auto touch-pan-x scrollbar-hide">
-        {isProtectedRange ? (
+        {!isLoggedIn ? (
           <ChartSignInOverlay
             monthContent={monthName(range)}
             onSignIn={() => setOpenLogin(true)}
@@ -374,7 +330,7 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
                   <Bar
                     dataKey="detached_listed"
                     stackId="detached"
-                    fill="#FF0400"
+                    fill="#22558B"
                     barSize={12}
                     radius={0}
                     background={{ fill: "#F2F2F2", radius: 4 }}
@@ -384,7 +340,7 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
                   <Bar
                     dataKey="detached_sold"
                     stackId="detached"
-                    fill="#FF8A88"
+                    fill="#7FA6D1"
                     barSize={12}
                     radius={[4, 4, 0, 0] as [number, number, number, number]}
                   />
@@ -394,7 +350,7 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
                   <Bar
                     dataKey="apartment_listed"
                     stackId="apartment"
-                    fill="#1D00FF"
+                    fill="#EEA500"
                     barSize={12}
                     radius={0}
                     background={{ fill: "#F2F2F2", radius: 4 }}
@@ -404,7 +360,7 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
                   <Bar
                     dataKey="apartment_sold"
                     stackId="apartment"
-                    fill="#8A88FF"
+                    fill="#FFC875"
                     barSize={12}
                     radius={[4, 4, 0, 0] as [number, number, number, number]}
                   />
@@ -440,12 +396,12 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
           {[
             {
               key: "Total Detached Listed",
-              color: "#FF0400",
+              color: "#22558B",
               total: data?.summary?.total_detached_listed || 0,
             },
             {
               key: "Total Apartment Listed",
-              color: "#1D00FF",
+              color: "#EEA500",
               total: data?.summary?.total_apartment_listed || 0,
             },
             {
@@ -455,13 +411,13 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
             },
             {
               key: "Total Detached Sold",
-              color: "#FF8A88",
+              color: "#7FA6D1",
               total: data?.summary?.total_detached_sold || 0,
             },
 
             {
               key: "Total Apartment Sold",
-              color: "#8A88FF",
+              color: "#FFC875",
               total: data?.summary?.total_apartment_sold || 0,
             },
 
@@ -477,7 +433,7 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
                 style={{ background: color }}
               />
               <span className="text-xs sm:text-sm font-medium capitalize">
-                {key}: {total}
+                {key}: {isLoggedIn ? total : "-"}
               </span>
             </div>
           ))}

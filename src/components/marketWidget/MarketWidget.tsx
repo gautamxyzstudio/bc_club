@@ -942,7 +942,7 @@ export const MarketWidget: React.FC<MarketWidgetProps> = ({
             {/* Footer */}
             <div className="ft">
               {ctaUrl ? (
-                <Link className="btn" href={ctaUrl}>
+                <Link className="btn" href={"/market-trends"}>
                   {ctaText}
                 </Link>
               ) : null}

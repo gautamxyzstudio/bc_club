@@ -277,7 +277,7 @@ export function MortgageCalculator({
                 Mortgage Calculator
               </h2>
               {propertyAddress && (
-                <p className="text-xs text-slate-500 truncate max-w-[260px] xs:max-w-xs sm:max-w-md">
+                <p className="text-xs text-slate-500 truncate max-w-65 xs:max-w-xs sm:max-w-md">
                   Estimating monthly payments for {propertyAddress}
                 </p>
               )}
@@ -318,7 +318,7 @@ export function MortgageCalculator({
                 step={5000}
                 value={homePrice || ""}
                 onChange={(e) => setHomePrice(Number(e.target.value) || 0)}
-                className="w-full min-h-[44px] rounded-xl border border-slate-200 bg-white py-2.5 pr-4 pl-8 text-base font-bold text-slate-900 shadow-2xs transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full min-h-11 rounded-xl border border-slate-200 bg-white py-2.5 pr-4 pl-8 text-base font-bold text-slate-900 shadow-2xs transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="400,000"
               />
             </div>
@@ -378,7 +378,7 @@ export function MortgageCalculator({
                   onChange={(e) =>
                     setDownPaymentAmount(Number(e.target.value) || 0)
                   }
-                  className="w-full min-h-[44px] rounded-xl border border-slate-200 bg-white py-2.5 pr-4 pl-8 text-base font-bold text-slate-900 shadow-2xs transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full min-h-11 rounded-xl border border-slate-200 bg-white py-2.5 pr-4 pl-8 text-base font-bold text-slate-900 shadow-2xs transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   placeholder="80,000"
                 />
               </div>
@@ -394,7 +394,7 @@ export function MortgageCalculator({
                   onChange={(e) =>
                     setDownPaymentPercent(Number(e.target.value) || 0)
                   }
-                  className="w-full min-h-[44px] rounded-xl border border-slate-200 bg-white py-2.5 pr-8 pl-4 text-base font-bold text-slate-900 shadow-2xs transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full min-h-11 rounded-xl border border-slate-200 bg-white py-2.5 pr-8 pl-4 text-base font-bold text-slate-900 shadow-2xs transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   placeholder="20"
                 />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 font-semibold text-slate-400 select-none pointer-events-none">
@@ -410,7 +410,7 @@ export function MortgageCalculator({
                   key={pct}
                   type="button"
                   onClick={() => setDownPaymentPercent(pct)}
-                  className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all min-h-[32px] sm:min-h-[34px] touch-manipulation cursor-pointer ${
+                  className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all min-h-8 sm:min-h-[34px] touch-manipulation cursor-pointer ${
                     Math.round(downPaymentPercent) === pct
                       ? "bg-blue-600 text-white shadow-xs"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900"
@@ -497,7 +497,7 @@ export function MortgageCalculator({
               </label>
 
               {/* Term Selector Pills: 2x2 on <400px, 4 in row on xs+ */}
-              <div className="grid grid-cols-2 gap-1.5 xs:grid-cols-4">
+              <div className="grid grid-cols-2 gap-1.5">
                 {loanTermOptions.map((option) => (
                   <button
                     key={option.value}

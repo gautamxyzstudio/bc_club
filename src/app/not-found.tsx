@@ -1,5 +1,4 @@
 import Image from "next/image";
-import React from "react";
 import { Icons } from "./exports";
 import Heading, { IHeadingTypes } from "@/src/components/heading/Heading";
 import Description, {

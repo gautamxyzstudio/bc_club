@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useRef } from "react";
 import { useAuthContext } from "../auth/AuthContext";
@@ -16,7 +17,7 @@ import { useGetMyRealEstateFavorites } from "@/src/hooks/listing/useRealEstateLi
 
 const WishlistingPage = () => {
   const { isLoggedIn, setOpenLogin } = useAuthContext();
-  const { getInstanceFilters, updateInstanceFilter, clearInstanceFilters } =
+  const { getInstanceFilters, updateInstanceFilter } =
     useListingStore();
   const filters = getInstanceFilters("wishlist");
   const search = filters.search || "";
@@ -47,7 +48,7 @@ const WishlistingPage = () => {
       pageCount: res?.count ? Math.ceil(res.count / pageSize) : 1,
     };
 
-    let properties: PropertyCardProps[] =
+    const properties: PropertyCardProps[] =
       res?.data?.map((listing: any) => ({
         id: listing?.documentId || listing?.id || listing?.listing_id,
         image:
@@ -81,6 +82,7 @@ const WishlistingPage = () => {
         lotSizeUnits: listing?.lot_size_units,
         structureType: listing?.structure_type ?? "",
         standardStatus: listing?.standard_status ?? "",
+        neighborhood: listing?.neighborhood,
         priceDrop:
           listing?.PreviousListPrice > listing?.ListPrice
             ? Number(
@@ -171,7 +173,7 @@ const WishlistingPage = () => {
               <div className="flex flex-col items-center justify-center py-20 gap-4 w-full">
                 <h2 className="text-3xl font-bold">No Wishlist Yet</h2>
                 <p className="text-gray-600 text-center max-w-md">
-                  You haven't saved any properties yet. Explore our listings and
+                  You haven&apos;t saved any properties yet. Explore our listings and
                   click the heart icon to save your wishlist!
                 </p>
                 <Link href="/properties">

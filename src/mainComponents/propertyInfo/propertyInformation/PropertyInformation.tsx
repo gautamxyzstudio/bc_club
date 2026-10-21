@@ -12,6 +12,7 @@ import DynamicTable from "@/src/components/common/dynamicTable/DynamicTable";
 import {
   getPropertyDetailsRows,
   getPropertyRoomRows,
+  MarketWidget,
   propertyDetailsHeaders,
   roomHeaders,
 } from "..";
@@ -222,23 +223,17 @@ const PropertyInformation = ({ property }: { property: any }) => {
             initialHomePrice={Number(property?.price) || 400000}
             propertyAddress={property?.address || undefined}
           />
-
-          {/* Building Complex Information */}
-          {/* {property?.structure_type !== "Detached Home" && (
-            <DynamicTable
-              title={"Building Complex Information (Dummy Data)"}
-              headers={buildingComplexHeaders}
-              rows={buildingComplexRows}
-            />
-          )} */}
-          {/* Market Statistics */}
           <div id="stats" className="scroll-mt-40">
-            {/* <DynamicTable
-              title="Market Statistics  (Dummy Data)"
-              headers={marketStatsHeaders}
-              rows={marketStatsRows}
-            /> */}
-            {/* Sentinel (DO NOT REMOVE) */}
+
+            {/* Local Market Snapshot Widget */}
+            {property?.neighborhood && <MarketWidget
+              marketReport={property?.marketReport}
+              property={property}
+              area={property?.city}
+              propertyType={property?.property_sub_type}
+              neighbourhood={property?.neighborhood}
+              price={property?.price}
+            />}
             <div id="stats-end" className="h-px" />
           </div>
         </div>

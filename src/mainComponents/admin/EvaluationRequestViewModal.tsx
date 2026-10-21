@@ -34,7 +34,6 @@ export default function EvaluationRequestViewModal({
   open,
   onClose,
   request,
-  onOpenLogCall,
 }: EvaluationRequestViewModalProps) {
   const deleteCallMutation = useDeleteCallHistory();
   const [deletingId, setDeletingId] = useState<string | number | null>(null);
@@ -78,17 +77,6 @@ export default function EvaluationRequestViewModal({
 
   if (!open || !request) return null;
 
-  const formattedDate = request.createdAt
-    ? new Date(request.createdAt).toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "N/A";
-
   // Helper to resolve city (either stored directly or extracted from address if legacy)
   let displayCity = (request.city || "").trim();
   if (!displayCity && request.address) {
@@ -121,7 +109,7 @@ export default function EvaluationRequestViewModal({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] overflow-y-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-9999 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200 select-none"
       onClick={onClose}
     >
       <div
@@ -154,11 +142,11 @@ export default function EvaluationRequestViewModal({
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 space-y-6 overflow-y-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="p-6 space-y-6 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {/* Client Profile Header */}
-          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-br from-blue-50/60 via-slate-50/80 to-white border border-blue-100/60">
+          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-linear-to-br from-blue-50/60 via-slate-50/80 to-white border border-blue-100/60">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary2 text-white flex items-center justify-center font-bold text-base shadow-md shadow-primary/20 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-primary to-primary2 text-white flex items-center justify-center font-bold text-base shadow-md shadow-primary/20 shrink-0">
                 {getInitials(request.fullName)}
               </div>
               <div>
@@ -310,7 +298,7 @@ export default function EvaluationRequestViewModal({
                     <Building2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     City
                   </span>
-                  <p className="text-sm font-bold text-slate-800 break-words">
+                  <p className="text-sm font-bold text-slate-800 wrap-break-word">
                     {displayCity || "Not specified"}
                   </p>
                 </div>
@@ -321,7 +309,7 @@ export default function EvaluationRequestViewModal({
                     <Navigation className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                     Postal Code
                   </span>
-                  <p className="text-sm font-bold text-slate-800 uppercase font-mono break-words">
+                  <p className="text-sm font-bold text-slate-800 uppercase font-mono wrap-break-word">
                     {displayPostalCode || "Not specified"}
                   </p>
                 </div>
@@ -336,7 +324,7 @@ export default function EvaluationRequestViewModal({
                         <Layers className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                         Lot Size Area
                       </span>
-                      <p className="text-sm font-bold text-slate-800 break-words">
+                      <p className="text-sm font-bold text-slate-800 wrap-break-word">
                         {request.lotSize}
                       </p>
                     </div>
@@ -348,7 +336,7 @@ export default function EvaluationRequestViewModal({
                         <Calendar className="w-3.5 h-3.5 text-orange-600 shrink-0" />
                         Year Built
                       </span>
-                      <p className="text-sm font-bold text-slate-800 break-words">
+                      <p className="text-sm font-bold text-slate-800 wrap-break-word">
                         {request.yearBuilt}
                       </p>
                     </div>

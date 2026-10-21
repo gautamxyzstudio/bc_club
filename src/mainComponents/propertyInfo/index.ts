@@ -448,3 +448,6 @@ export const marketStatsRows = [
     },
   },
 ];
+
+export { default as MarketWidget } from "@/src/components/marketWidget/MarketWidget";
+export * from "@/src/components/marketWidget/types";

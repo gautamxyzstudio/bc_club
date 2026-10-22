@@ -20,6 +20,8 @@ import {
   Tooltip,
   LabelList,
 } from "recharts";
+import { useGetBridgeCities } from "@/src/hooks/listing/useRealEstateListingQueries";
+import { cities } from "../../home";
 
 /* ================= SELECT ================= */
 interface CustomSelectProps {
@@ -112,23 +114,6 @@ const PROPERTY_TYPE_OPTIONS = [
   "Apartment",
   "Detached",
   "Townhouse",
-];
-
-const NEIGHBORHOOD_OPTIONS = [
-  "Vancouver",
-  "Surrey",
-  "Richmond",
-  "Burnaby",
-  "Coquitlam",
-  "Langley",
-  "North Vancouver",
-  "West Vancouver",
-  "Abbotsford",
-  "Chilliwack",
-  "Maple Ridge",
-  "New Westminster",
-  "Delta",
-  "Whistler",
 ];
 
 const YEAR_BACK_OPTIONS = [
@@ -400,6 +385,16 @@ const CustomChartTooltip = ({ active, payload, label }: any) => {
 /* ================= MAIN COMPONENT ================= */
 const MonthlySalesReports = () => {
   const monthOptions = useMemo(() => getMonthOptions(), []);
+  const { data: bridgeCitiesRes } = useGetBridgeCities();
+    const citiesList: string[] = useMemo(() => {
+      if (Array.isArray(bridgeCitiesRes?.data) && bridgeCitiesRes.data.length > 0) {
+        return bridgeCitiesRes.data;
+      }
+      if (Array.isArray(bridgeCitiesRes) && bridgeCitiesRes.length > 0) {
+        return bridgeCitiesRes;
+      }
+      return cities;
+    }, [bridgeCitiesRes]);
 
   const [property, setProperty] = useState("All Residential");
   const [neighborhood, setNeighborhood] = useState("Vancouver");
@@ -588,8 +583,8 @@ const MonthlySalesReports = () => {
           onChange={setProperty}
         />
         <CustomSelect
-          label="Neighborhood"
-          options={NEIGHBORHOOD_OPTIONS}
+          label="Region"
+          options={citiesList}
           value={neighborhood}
           onChange={setNeighborhood}
         />

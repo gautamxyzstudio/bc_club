@@ -46,7 +46,7 @@ const NewsLetter = () => {
   return (
     <div className="bg-primary p-5 md:py-6 md:px-4 xl:py-7 xl:px-9 rounded w-full flex flex-col gap-y-2.5 md:gap-y-5 xl:gap-x-10 xl:flex-nowrap xl:flex-row xl:justify-between xl:items-center-safe">
       <div className="w-full xl:w-[55%] flex flex-col md:gap-y-2 gap-y-1.5">
-        <span className="text-2xl font-bold">NewsLetter</span>
+        <span className="text-2xl font-bold">Newsletter</span>
         <span className="opacity-80 md:text-base text-sm">
            Monthly market numbers for your city, free
         </span>

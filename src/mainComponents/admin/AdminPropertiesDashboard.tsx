@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
@@ -5,11 +8,9 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   Search,
-  SlidersHorizontal,
   Eye,
   Edit,
   ImageIcon,
-  ArrowUpDown,
   Building,
   Bed,
   Bath,
@@ -18,9 +19,7 @@ import {
   ChevronRight,
   LayoutGrid,
   List,
-  Sparkles,
   RefreshCw,
-  Home,
   CheckCircle2,
   Clock,
   AlertCircle,
@@ -29,7 +28,6 @@ import {
   Loader2,
   Gavel,
   Trash2,
-  X,
   UploadCloud,
 } from "lucide-react";
 import {
@@ -72,10 +70,16 @@ export default function AdminPropertiesDashboard({
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
 
-  // Reset selections when tab or filters/pagination change
+  // Reset selections and page when tab changes
   useEffect(() => {
     setSelectedDocIds([]);
-  }, [currentStatus, searchTerm, propertyType, sortBy, page]);
+    setPage(1);
+  }, [currentStatus]);
+
+  // Reset selections when filters or pagination change
+  useEffect(() => {
+    setSelectedDocIds([]);
+  }, [searchTerm, propertyType, sortBy, page]);
 
   // Status mapping for API params
   const apiStatusParam = useMemo(() => {
@@ -84,25 +88,52 @@ export default function AdminPropertiesDashboard({
     return "active";
   }, [currentStatus]);
 
-  // Query parameters
-  const queryParams: any = {
-    page,
-    pageSize,
-    status: apiStatusParam,
-  };
+  // Query parameters for real estate listings (active/sold/expired)
+  const queryParams: any = useMemo(() => {
+    const params: any = {
+      page,
+      pageSize,
+      status: apiStatusParam,
+    };
 
-  if (searchTerm.trim()) {
-    queryParams.search = searchTerm.trim();
-  }
+    if (searchTerm.trim()) {
+      params.search = searchTerm.trim();
+    }
 
-  if (propertyType !== "all") {
-    queryParams.type = propertyType;
-  }
+    if (propertyType !== "all") {
+      params.type = propertyType;
+    }
 
-  if (sortBy === "newest") queryParams.sort = "newest";
-  else if (sortBy === "oldest") queryParams.sort = "oldest";
-  else if (sortBy === "price_asc") queryParams.sort = "price:asc";
-  else if (sortBy === "price_desc") queryParams.sort = "price:desc";
+    if (sortBy === "newest") params.sort = "newest";
+    else if (sortBy === "oldest") params.sort = "oldest";
+    else if (sortBy === "price_asc") params.sort = "price:asc";
+    else if (sortBy === "price_desc") params.sort = "price:desc";
+
+    return params;
+  }, [page, pageSize, apiStatusParam, searchTerm, propertyType, sortBy]);
+
+  // Query parameters for foreclosure listings (server-side paginated & filtered)
+  const foreclosureQueryParams: any = useMemo(() => {
+    const params: any = {
+      page,
+      pageSize,
+    };
+
+    if (searchTerm.trim()) {
+      params.search = searchTerm.trim();
+    }
+
+    if (propertyType !== "all") {
+      params.type = propertyType;
+    }
+
+    if (sortBy === "newest") params.sort = "newest";
+    else if (sortBy === "oldest") params.sort = "oldest";
+    else if (sortBy === "price_asc") params.sort = "price:asc";
+    else if (sortBy === "price_desc") params.sort = "price:desc";
+
+    return params;
+  }, [page, pageSize, searchTerm, propertyType, sortBy]);
 
   // Fetch real estate listings for active/sold/expired tabs
   const {
@@ -116,25 +147,46 @@ export default function AdminPropertiesDashboard({
     staleTime: 30000,
   });
 
-  // Fetch foreclosure properties list
+  // Fetch foreclosure properties list for foreclosure tab (server-side paginated & filtered)
   const {
     data: forecloserData,
     isLoading: isForecloserLoading,
     isError: isForecloserError,
     refetch: refetchForecloser,
     isFetching: isForecloserFetching,
-  } = useGetForecloserProperties(undefined, {
+  } = useGetForecloserProperties(foreclosureQueryParams, {
+    enabled: isForeclosureTab,
     staleTime: 30000,
   });
+
+  // Fetch all foreclosure identifiers (for active/sold/expired tabs to check if item is in foreclosure)
+  const {
+    data: allForecloserData,
+    refetch: refetchAllForecloser,
+  } = useGetForecloserProperties(
+    { pageSize: 1000 },
+    {
+      enabled: !isForeclosureTab,
+      staleTime: 60000,
+    }
+  );
 
   const isLoading = isForeclosureTab
     ? isForecloserLoading
     : isRealEstateLoading;
   const isError = isForeclosureTab ? isForecloserError : isRealEstateError;
-  const refetch = isForeclosureTab ? refetchForecloser : refetchRealEstate;
   const isFetching = isForeclosureTab
     ? isForecloserFetching
     : isRealEstateFetching;
+
+  const refetch = () => {
+    if (isForeclosureTab) {
+      refetchForecloser();
+    } else {
+      refetchRealEstate();
+      refetchAllForecloser();
+    }
+  };
 
   // Foreclosure copy mutation & delete mutation
   const copyMutation = useCopyToForecloserList();
@@ -145,9 +197,11 @@ export default function AdminPropertiesDashboard({
   // Normalize listings with any local overrides and nested structures
   const allListings: any[] = useMemo(() => {
     if (isForeclosureTab) {
-      const rawList = forecloserData?.data || forecloserData || [];
+      const rawList =
+        forecloserData?.data ||
+        (Array.isArray(forecloserData) ? forecloserData : []);
       if (!Array.isArray(rawList)) return [];
-      let result = rawList.map((item: any) => {
+      return rawList.map((item: any) => {
         const base = item.real_estate_board
           ? {
               ...item.real_estate_board,
@@ -157,62 +211,25 @@ export default function AdminPropertiesDashboard({
           : { ...item, forecloserDocId: item.documentId || item.id };
         return applyPropertyOverrides(base);
       });
-
-      if (searchTerm.trim()) {
-        const q = searchTerm.toLowerCase();
-        result = result.filter(
-          (item: any) =>
-            item.address?.toLowerCase().includes(q) ||
-            item.city?.toLowerCase().includes(q) ||
-            item.listing_id?.toLowerCase().includes(q),
-        );
-      }
-      if (propertyType !== "all") {
-        result = result.filter(
-          (item: any) =>
-            item.property_sub_type?.toLowerCase() ===
-              propertyType.toLowerCase() ||
-            item.structure_type?.toLowerCase() === propertyType.toLowerCase(),
-        );
-      }
-      if (sortBy === "price_asc") {
-        result.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-      } else if (sortBy === "price_desc") {
-        result.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-      }
-      return result;
     }
 
     const rawList = realEstateData?.data || [];
     return rawList.map((item: any) => applyPropertyOverrides(item));
-  }, [
-    isForeclosureTab,
-    forecloserData,
-    realEstateData,
-    searchTerm,
-    propertyType,
-    sortBy,
-  ]);
+  }, [isForeclosureTab, forecloserData, realEstateData]);
 
-  // Paginated slice for foreclosure tab
-  const listings = useMemo(() => {
-    if (isForeclosureTab) {
-      const start = (page - 1) * pageSize;
-      return allListings.slice(start, start + pageSize);
-    }
-    return allListings;
-  }, [isForeclosureTab, allListings, page, pageSize]);
+  // Current page listings (already paginated by server API)
+  const listings = allListings;
 
   const totalListings = isForeclosureTab
-    ? allListings.length
-    : realEstateData?.meta?.pagination?.total ||
-      realEstateData?.count ||
-      allListings.length;
+    ? (forecloserData?.meta?.pagination?.total ?? forecloserData?.count ?? 0)
+    : (realEstateData?.meta?.pagination?.total ?? realEstateData?.count ?? 0);
   const totalPages = Math.max(1, Math.ceil(totalListings / pageSize));
 
   // Set of docIds/identifiers already in foreclosure
   const forecloserIdentifiers = useMemo(() => {
-    const list = forecloserData?.data || forecloserData || [];
+    const list = isForeclosureTab
+      ? forecloserData?.data || (Array.isArray(forecloserData) ? forecloserData : [])
+      : allForecloserData?.data || (Array.isArray(allForecloserData) ? allForecloserData : []);
     const set = new Set<string>();
     if (Array.isArray(list)) {
       list.forEach((f: any) => {
@@ -228,7 +245,7 @@ export default function AdminPropertiesDashboard({
       });
     }
     return set;
-  }, [forecloserData]);
+  }, [isForeclosureTab, forecloserData, allForecloserData]);
 
   const isItemInForeclosure = (item: any) => {
     if (!item) return false;
@@ -259,15 +276,15 @@ export default function AdminPropertiesDashboard({
   }, [listings, isForeclosureTab, forecloserIdentifiers]);
 
   const selectablePageDocIds = useMemo(() => {
-    return selectablePageListings.map(getItemId).filter(Boolean);
+    return selectablePageListings?.map(getItemId).filter(Boolean);
   }, [selectablePageListings, isForeclosureTab]);
 
   const isAllPageSelected =
-    selectablePageDocIds.length > 0 &&
-    selectablePageDocIds.every((id) => selectedDocIds.includes(id));
+    selectablePageDocIds?.length > 0 &&
+    selectablePageDocIds?.every((id) => selectedDocIds.includes(id));
 
   const isSomePageSelected =
-    selectablePageDocIds.some((id) => selectedDocIds.includes(id)) &&
+    selectablePageDocIds?.some((id) => selectedDocIds.includes(id)) &&
     !isAllPageSelected;
 
   const toggleSelectProperty = (id: string) => {
@@ -304,6 +321,7 @@ export default function AdminPropertiesDashboard({
       refetchForecloser();
       if (!isForeclosureTab) {
         refetchRealEstate();
+        refetchAllForecloser();
       }
     } catch {
       // Handled by toast in mutation
@@ -329,6 +347,9 @@ export default function AdminPropertiesDashboard({
       }
       setSelectedDocIds([]);
       refetchForecloser();
+      if (!isForeclosureTab) {
+        refetchAllForecloser();
+      }
     } catch {
       // Handled by toast in mutation
     } finally {
@@ -343,6 +364,9 @@ export default function AdminPropertiesDashboard({
       setCopyingDocId(docId);
       await copyMutation.mutateAsync(docId);
       refetchForecloser();
+      if (!isForeclosureTab) {
+        refetchAllForecloser();
+      }
     } catch {
       // Handled by mutation error toast
     } finally {
@@ -362,6 +386,9 @@ export default function AdminPropertiesDashboard({
         setDeletingDocId(idToDelete);
         await deleteMutation.mutateAsync(idToDelete);
         refetchForecloser();
+        if (!isForeclosureTab) {
+          refetchAllForecloser();
+        }
       } catch {
         // Handled by mutation error toast
       } finally {
@@ -399,13 +426,6 @@ export default function AdminPropertiesDashboard({
       );
     }
     return "/apartment.webp";
-  };
-
-  const getImageCount = (listing: any) => {
-    if (Array.isArray(listing?.media_url)) return listing.media_url.length;
-    if (Array.isArray(listing?.media)) return listing.media.length;
-    if (listing?.media_url) return 1;
-    return 0;
   };
 
   return (
@@ -494,7 +514,7 @@ export default function AdminPropertiesDashboard({
               {currentStatus === "foreclosure" ? "Foreclosure" : currentStatus}
             </p>
             <h3 className="text-2xl font-black text-gray-900 mt-1">
-              {isLoading ? "..." : totalListings.toLocaleString()}
+              {isLoading ? "..." : totalListings?.toLocaleString()}
             </h3>
             <span className="text-xs text-emerald-600 font-medium mt-1 inline-block">
               Real-time sync
@@ -516,7 +536,7 @@ export default function AdminPropertiesDashboard({
             </p>
             <h3 className="text-2xl font-black text-emerald-600 mt-1">
               {currentStatus === "active"
-                ? totalListings.toLocaleString()
+                ? totalListings?.toLocaleString()
                 : "View Route"}
             </h3>
             <Link
@@ -538,7 +558,7 @@ export default function AdminPropertiesDashboard({
             </p>
             <h3 className="text-2xl font-black text-purple-600 mt-1">
               {currentStatus === "sold"
-                ? totalListings.toLocaleString()
+                ? totalListings?.toLocaleString()
                 : "View Route"}
             </h3>
             <Link
@@ -560,13 +580,8 @@ export default function AdminPropertiesDashboard({
             </p>
             <h3 className="text-2xl font-black text-amber-600 mt-1">
               {currentStatus === "foreclosure"
-                ? totalListings.toLocaleString()
-                : (
-                    forecloserData?.data?.length ??
-                    (Array.isArray(forecloserData)
-                      ? forecloserData.length
-                      : "...")
-                  ).toString()}
+                ? totalListings?.toLocaleString()
+                : (allForecloserData?.meta?.pagination?.total?.toLocaleString() ?? "...")}
             </h3>
             <Link
               href="/admin/dashboard/foreclosure"
@@ -611,7 +626,7 @@ export default function AdminPropertiesDashboard({
               className="px-3 py-2 text-xs font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-gray-700 cursor-pointer"
             >
               <option value="all">All Property Types</option>
-              <option value="Single Family">Single Family</option>
+              <option value="Single Family Residence">Single Family</option>
               <option value="Condo">Condo / Apartment</option>
               <option value="Townhouse">Townhouse</option>
               <option value="Duplex">Duplex</option>
@@ -685,7 +700,7 @@ export default function AdminPropertiesDashboard({
         </div>
 
         {/* Quick Bulk Selection Toolbar Strip */}
-        {selectablePageDocIds.length > 0 && (
+        {selectablePageDocIds?.length > 0 && (
           <div className="pt-2.5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2.5 text-xs bg-slate-50/50 -mx-4 -mb-4 px-4 py-2.5 rounded-b-2xl">
             <div className="flex items-center gap-3">
               <button
@@ -697,12 +712,12 @@ export default function AdminPropertiesDashboard({
                   className={`w-4 h-4 rounded-md border flex items-center justify-center transition ${isAllPageSelected ? "bg-primary border-primary text-white" : "border-gray-400 bg-white"}`}
                 >
                   {isAllPageSelected && (
-                    <Check className="w-3 h-3 stroke-[3]" />
+                    <Check className="w-3 h-3 stroke-3" />
                   )}
                 </span>
                 {isAllPageSelected
-                  ? "Deselect All on Page"
-                  : `Select All on Page (${selectablePageDocIds.length})`}
+                  ? "Deselect All"
+                  : `Select All`}
               </button>
 
               {selectedDocIds.length > 0 && (
@@ -835,7 +850,7 @@ export default function AdminPropertiesDashboard({
                       }
                     >
                       {isAllPageSelected && (
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <Check className="w-3.5 h-3.5 stroke-3" />
                       )}
                       {isSomePageSelected && (
                         <span className="w-2.5 h-0.5 bg-primary rounded-full" />
@@ -894,7 +909,7 @@ export default function AdminPropertiesDashboard({
                           }
                         >
                           {isSelected && (
-                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                            <Check className="w-3.5 h-3.5 stroke-3" />
                           )}
                         </button>
                       </td>
@@ -1141,7 +1156,7 @@ export default function AdminPropertiesDashboard({
                       }
                     >
                       {isSelected ? (
-                        <Check className="w-4 h-4 stroke-[3]" />
+                        <Check className="w-4 h-4 stroke-3" />
                       ) : (
                         <div className="w-3.5 h-3.5 border-2 border-white/90 rounded-xs" />
                       )}
@@ -1350,12 +1365,17 @@ export default function AdminPropertiesDashboard({
           <p className="text-xs text-gray-500 font-medium">
             Showing Page <span className="font-bold text-gray-800">{page}</span>{" "}
             of <span className="font-bold text-gray-800">{totalPages}</span> (
-            {totalListings.toLocaleString()} total)
+            {totalListings?.toLocaleString()} total)
           </p>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => {
+                setPage((p) => Math.max(1, p - 1));
+                if (typeof window !== "undefined") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
               disabled={page <= 1}
               className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition disabled:opacity-40 flex items-center gap-1 cursor-pointer"
             >
@@ -1368,7 +1388,12 @@ export default function AdminPropertiesDashboard({
             </span>
 
             <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => {
+                setPage((p) => Math.min(totalPages, p + 1));
+                if (typeof window !== "undefined") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
               disabled={page >= totalPages}
               className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition disabled:opacity-40 flex items-center gap-1 cursor-pointer"
             >

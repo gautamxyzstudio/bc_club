@@ -582,8 +582,8 @@ const OurProperty = () => {
       />
 
       {/* Tab  */}
-      <div className="xl:mt-13 md:mt-6 mt-4 w-full flex items-center-safe justify-between flex-col gap-y-2 md:flex-row">
-        <div className="w-min gap-3 xl:flex flex-nowrap flex-row h-auto shadow-[0_0_20px_0_rgba(0,0,0,0.12)] bg-[#F8FAFC] gap-x-2 rounded-xl p-1">
+      <div className="xl:mt-13 md:mt-6 mt-4 w-full flex items-center-safe justify-between gap-y-2 md:flex-row">
+        <div className="md:w-min gap-3 grid grid-cols-2 xl:flex flex-nowrap flex-row h-auto shadow-[0_0_20px_0_rgba(0,0,0,0.12)] bg-[#F8FAFC] gap-x-2 rounded-xl p-1">
           {tabList.map((item, idx) => (
             <CustomButton
               buttonType={tab === item ? "primary" : "disabled"}
@@ -612,7 +612,7 @@ const OurProperty = () => {
               />
             </svg>
           }
-          customClassName="font-black md:py-3 xl:px-5 py-2.5 px-7 rounded-lg"
+          customClassName="font-black md:py-3 xl:px-5 py-2.5 px-2 rounded-lg"
           textClassName="!font-black !text-xs md:!text-sm"
         />
       </div>

@@ -936,7 +936,7 @@ const HomeEstimationTop = () => {
                   {/* Property Size */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs md:text-sm font-semibold text-foreground">
-                      Property Size (Sq Ft) <span className="text-primary">*</span>
+                      Property Size (sq ft) <span className="text-primary">*</span>
                     </label>
                     <div className="relative flex items-center">
                       <Maximize2

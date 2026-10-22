@@ -1,5 +1,5 @@
 "use client";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export const CanonicalURL = () => {
   const baseURL = process.env.NEXT_PUBLIC_BASE_MAIN_URL;

@@ -953,7 +953,7 @@ export default function PropertiesListingPage() {
 
             {/* BedRoom */}
             <FilterPillSelect
-              label="BedRoom"
+              label="Bedrooms"
               value={activeBedRoom}
               onChange={setActiveBedRoom}
               pillBase={pillBase}
@@ -970,7 +970,7 @@ export default function PropertiesListingPage() {
 
             {/* BathRoom */}
             <FilterPillSelect
-              label="BathRoom"
+              label="Bathrooms"
               value={activeBathRoom}
               onChange={setActiveBathRoom}
               pillBase={pillBase}

@@ -74,6 +74,7 @@ import {
 import OpenStreetMapControls from "./OpenStreetMapControls";
 import { useGetForecloserMapZoomProperties, useGetForecloserMapZoomWithClusters } from "@/src/hooks/listing/useRealEstateListingQueries";
 import SchoolCatchmentLayer from "./SchoolCatchmentLayer";
+import OpenStreetMapMapLibreLayer from "./OpenStreetMapMapLibreLayer";
 
 /**
  * Fires a callback once the Leaflet Map container is loaded and ready.
@@ -993,24 +994,18 @@ useEffect(() => {
             >
               <MapReady onReady={onMapReady} />
 
-              <TileLayer
-                attribution={
-                  isSatellite
-                    ? OpenStreetMapSatelliteTile.attribution
-                    : OpenStreetMapRoadmapTile.attribution
-                }
-                url={
-                  isSatellite
-                    ? OpenStreetMapSatelliteTile.url
-                    : OpenStreetMapRoadmapTile.url
-                }
-                maxZoom={22}
-                maxNativeZoom={
-                  isSatellite
-                    ? OpenStreetMapSatelliteTile.maxNativeZoom
-                    : OpenStreetMapRoadmapTile.maxNativeZoom
-                }
-              />
+              
+{isSatellite ? (
+  <TileLayer
+    attribution={OpenStreetMapSatelliteTile.attribution}
+    url={OpenStreetMapSatelliteTile.url}
+    maxZoom={22}
+    maxNativeZoom={OpenStreetMapSatelliteTile.maxNativeZoom}
+  />
+) : (
+  <OpenStreetMapMapLibreLayer />
+)}
+
 
               <SchoolCatchmentLayer apiUrl={process.env.NEXT_PUBLIC_BASE_URL!} />
 

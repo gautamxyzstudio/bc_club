@@ -15,6 +15,7 @@ const notFound = () => {
         alt="Not Found"
         width={100}
         height={100}
+        loading="eager"
         className=" w-[72%] md:h-auto h-50 object-contain"
       />
       <Heading

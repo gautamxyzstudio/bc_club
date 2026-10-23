@@ -281,6 +281,7 @@ const HomeHeroSection = () => {
         className="w-full h-auto absolute object-cover bottom-0 z-0 xl:block hidden"
         width={100}
         height={100}
+        loading="eager"
       />
     </section>
   );

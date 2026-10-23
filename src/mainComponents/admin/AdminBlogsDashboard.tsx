@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useMemo } from "react";
@@ -31,7 +32,7 @@ import BlogDeleteModal from "./BlogDeleteModal";
 export default function AdminBlogsDashboard() {
   // Filters & State
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
+  const [sortBy, setSortBy] = useState<string>("newest");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [page, setPage] = useState(1);
   const pageSize = 15;
@@ -85,8 +86,11 @@ export default function AdminBlogsDashboard() {
         );
       })
       .sort((a, b) => {
-        if (sortBy === "title") {
+        if (sortBy === "title_asc") {
           return (a.blogTitle || "").localeCompare(b.blogTitle || "");
+        }
+        if (sortBy === "title_desc") {
+          return (b.blogTitle || "").localeCompare(a.blogTitle || "");
         }
         const dateA = new Date(a.date || a.createdAt || 0).getTime();
         const dateB = new Date(b.date || b.createdAt || 0).getTime();
@@ -203,7 +207,7 @@ export default function AdminBlogsDashboard() {
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               LATEST PUBLISH
             </p>
-            <h3 className="text-lg font-bold text-purple-700 mt-1 truncate max-w-[140px]">
+            <h3 className="text-lg font-bold text-purple-700 mt-1 truncate max-w-35">
               {latestPublishDate}
             </h3>
             <span className="text-xs text-purple-600 font-medium mt-1 inline-block">
@@ -257,16 +261,28 @@ export default function AdminBlogsDashboard() {
 
         {/* View Controls */}
         <div className="flex items-center gap-2 self-end md:self-auto">
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2 text-xs font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-gray-700 cursor-pointer"
+          >
+            <option value="newest">Newest Listed</option>
+            <option value="oldest">Oldest Listed</option>
+            <option value="title_asc">Title A-Z</option>
+            <option value="title_desc">Title Z-A</option>
+          </select>
           {/* Layout Toggle */}
           <div className="flex items-center bg-gray-100 p-1 rounded-xl gap-1">
             <button
               type="button"
               onClick={() => setViewMode("table")}
-              className={`p-1.5 rounded-lg text-xs transition cursor-pointer ${
-                viewMode === "table"
+              className={`p-1.5 rounded-lg text-xs transition cursor-pointer ${viewMode === "table"
                   ? "bg-white text-primary shadow-xs font-bold"
                   : "text-gray-500 hover:text-gray-900"
-              }`}
+                }`}
               title="Table View"
             >
               <List className="w-4 h-4" />
@@ -274,11 +290,10 @@ export default function AdminBlogsDashboard() {
             <button
               type="button"
               onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-lg text-xs transition cursor-pointer ${
-                viewMode === "grid"
+              className={`p-1.5 rounded-lg text-xs transition cursor-pointer ${viewMode === "grid"
                   ? "bg-white text-primary shadow-xs font-bold"
                   : "text-gray-500 hover:text-gray-900"
-              }`}
+                }`}
               title="Grid View"
             >
               <LayoutGrid className="w-4 h-4" />
@@ -344,10 +359,10 @@ export default function AdminBlogsDashboard() {
                   const imageUrl = getBlogImageUrl(blog.blogImage);
                   const formattedDate = blog.date
                     ? new Date(blog.date).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })
                     : "Recently";
 
                   return (
@@ -357,7 +372,7 @@ export default function AdminBlogsDashboard() {
                     >
                       {/* Title + Thumbnail */}
                       <td className="py-3.5 px-6">
-                        <div className="flex items-center gap-3.5 min-w-[280px] max-w-md">
+                        <div className="flex items-center gap-3.5 min-w-70 max-w-md">
                           <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
                             {imageUrl ? (
                               <Image
@@ -365,6 +380,7 @@ export default function AdminBlogsDashboard() {
                                 alt={blog.blogTitle || "Blog thumbnail"}
                                 fill
                                 className="object-cover"
+                                loading="eager"
                                 unoptimized
                               />
                             ) : (
@@ -391,7 +407,7 @@ export default function AdminBlogsDashboard() {
 
                       {/* Slug */}
                       <td className="py-3.5 px-4 text-center">
-                        <div className="inline-flex items-center gap-1.5 font-mono text-[11px] text-gray-600 bg-gray-100/80 px-2.5 py-1 rounded-lg max-w-[220px]">
+                        <div className="inline-flex items-center gap-1.5 font-mono text-[11px] text-gray-600 bg-gray-100/80 px-2.5 py-1 rounded-lg max-w-55">
                           <span className="truncate">/{blog.slug}</span>
                           <button
                             type="button"
@@ -467,10 +483,10 @@ export default function AdminBlogsDashboard() {
             const imageUrl = getBlogImageUrl(blog.blogImage);
             const formattedDate = blog.date
               ? new Date(blog.date).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })
               : "Recently";
 
             return (
@@ -487,6 +503,7 @@ export default function AdminBlogsDashboard() {
                       fill
                       className="object-cover group-hover:scale-105 transition duration-300"
                       unoptimized
+                      loading="eager"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -516,7 +533,7 @@ export default function AdminBlogsDashboard() {
 
                   {/* Footer Actions */}
                   <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                    <div className="text-[10px] font-mono text-gray-400 truncate max-w-[120px]">
+                    <div className="text-[10px] font-mono text-gray-400 truncate max-w-30">
                       /{blog.slug}
                     </div>
 

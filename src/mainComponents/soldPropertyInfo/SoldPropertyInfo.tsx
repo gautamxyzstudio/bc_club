@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useRef } from "react";
 import GetInTouch from "../getInTouch/GetInTouch";
@@ -84,6 +85,7 @@ const SoldPropertyInfo = ({ paramsId }: { paramsId: string }) => {
               alt="property image not found*"
               width={1400}
               height={1400}
+              loading="eager"
             />
           </div>
         )}

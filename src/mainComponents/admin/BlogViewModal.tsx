@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useMemo, useEffect } from "react";
@@ -84,7 +85,7 @@ export default function BlogViewModal({
   const renderedContent = decodeHtmlEntities(item.blogContent || "");
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
       <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/70 shrink-0 gap-3">
@@ -94,7 +95,7 @@ export default function BlogViewModal({
                 Blog Preview
               </h2>
               <span
-                className="px-2 py-0.5 rounded-md bg-blue-50 text-primary text-[11px] font-mono font-medium border border-blue-100/60 truncate max-w-[130px] sm:max-w-[200px] md:max-w-[280px]"
+                className="px-2 py-0.5 rounded-md bg-blue-50 text-primary text-[11px] font-mono font-medium border border-blue-100/60 truncate max-w-32.5 sm:max-w-50 md:max-w-70"
                 title={`/${item.slug}`}
               >
                 /{item.slug}
@@ -145,7 +146,7 @@ export default function BlogViewModal({
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {/* Cover Hero Banner */}
           {imageUrl && (
             <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden shadow-xs border border-slate-200 bg-slate-100/80 flex items-center justify-center p-2">
@@ -155,6 +156,7 @@ export default function BlogViewModal({
                 fill
                 className="object-contain drop-shadow-2xs"
                 unoptimized
+                loading="eager"
               />
               <div className="absolute bottom-4 left-4 flex items-center gap-2">
                 <span className="flex items-center gap-1.5 bg-white/95 backdrop-blur-md text-slate-800 font-semibold text-xs px-3.5 py-1.5 rounded-full border border-slate-200/90 shadow-sm">

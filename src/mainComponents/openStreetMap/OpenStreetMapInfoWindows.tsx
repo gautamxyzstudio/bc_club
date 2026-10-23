@@ -84,6 +84,7 @@ export function OpenStreetMapPropertyPopup({
             alt={selectedProperty.title}
             width={252}
             height={130}
+            loading="eager"
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </div>
@@ -212,6 +213,7 @@ export function OpenStreetMapClusterPopup({
               alt={p.address}
               width={70}
               height={55}
+              loading="eager"
               style={{
                 // width: 70,
                 // height: 55,

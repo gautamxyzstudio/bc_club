@@ -81,6 +81,7 @@ const PropertyInfo = ({
               alt="property image not found*"
               width={1400}
               height={1400}
+              loading="eager"
             />
           </div>
         )}
@@ -107,9 +108,10 @@ const PropertyInfo = ({
             title="image title"
             alt="MLS"
             src={Images.mlsr}
-            width={80}
-            height={40}
-            className="w-25 h-10"
+            width={180}
+            height={80}
+            loading="eager"
+            className="w-auto h-auto"
           />
           <Description
             content=" NOTE: This information is based in whole or in part on data from Greater Vancouver REALTORS®, the Fraser Valley Real Estate Board, the Chilliwack and District Real Estate Board, or The Canadian Real Estate Association, which assume no responsibility for its accuracy. It is deemed reliable but is not guaranteed accurate by these organizations or by the agent or brokerage hosting this website."

@@ -28,6 +28,7 @@ const RenovationHeaderSection = () => {
         className="w-full md:h-65.5 h-29.5 absolute object-contain bottom-0 z-0 left-0"
         width={100}
         height={100}
+        loading="eager"
       />
     </section>
   );

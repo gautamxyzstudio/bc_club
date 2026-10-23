@@ -421,6 +421,7 @@ const BlogDetailPage = ({ slug }: { slug: string }) => {
                     alt={blog?.blogTitle || "Blog image"}
                     fill
                     priority
+                    loading="eager"
                     sizes="(max-width: 1280px) 100vw, 70vw"
                     className="object-contain"
                   />
@@ -460,6 +461,7 @@ const BlogDetailPage = ({ slug }: { slug: string }) => {
                         alt="Facebook"
                         width={35}
                         height={30}
+                        loading="eager"
                       />
                     </button>
                     <button
@@ -474,6 +476,7 @@ const BlogDetailPage = ({ slug }: { slug: string }) => {
                         alt="Twitter"
                         width={35}
                         height={30}
+                        loading="eager"
                       />
                     </button>
                     <button
@@ -488,6 +491,7 @@ const BlogDetailPage = ({ slug }: { slug: string }) => {
                         alt="LinkedIn"
                         width={35}
                         height={30}
+                        loading="eager"
                       />
                     </button>
                   </div>

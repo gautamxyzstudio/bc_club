@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -138,6 +139,7 @@ export default function PropertyGallery({ images }: Props) {
             alt="Property image"
             width={1000}
             height={500}
+            loading="eager"
             onError={() => handleImageError(displayImages[0])}
             className="object-cover md:rounded-2xl rounded-xl w-full h-full"
           />
@@ -164,6 +166,7 @@ export default function PropertyGallery({ images }: Props) {
                     alt={`Thumbnail ${i + 1}`}
                     width={450}
                     height={300}
+                    loading="eager"
                     onError={() => handleImageError(imgUrl)}
                     className="object-cover md:rounded-2xl rounded w-full h-full"
                   />

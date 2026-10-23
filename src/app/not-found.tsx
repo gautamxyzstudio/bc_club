@@ -42,6 +42,7 @@ const notFound = () => {
         className="w-full h-auto absolute object-cover xl:-bottom-8.5 md:-bottom-3 -bottom-1.5"
         width={100}
         height={100}
+        loading="eager"
       />
     </section>
   );

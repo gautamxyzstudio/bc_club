@@ -138,6 +138,7 @@ const Header = () => {
             alt="BC Real Estate Market place"
             src={Icons.bcClub}
             width={119}
+            loading="eager"
             height={42}
             className="w-45 h-8 object-contain"
           />
@@ -149,6 +150,7 @@ const Header = () => {
             alt="BC Real Estate Market place"
             src={Icons.bcClub}
             width={119}
+            loading="eager"
             height={42}
             className="w-55 h-10 object-contain"
           />

@@ -68,6 +68,7 @@ From market insights to home valuation, every step of your real estate journey"
                 src={item.icon}
                 alt={item.label}
                 width={100}
+                loading="eager"
                 height={100}
                 className="w-full h-full object-contain"
               />

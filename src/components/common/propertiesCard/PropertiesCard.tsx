@@ -401,6 +401,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
                       title="Lot size"
                       width={100}
                       height={100}
+                       loading="eager"
                       className="h-4 w-4 shrink-0 object-contain"
                     />
                     {/* Lot Size */}
@@ -437,6 +438,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
                       title="Living area"
                       width={100}
                       height={100}
+                       loading="eager"
                       className="h-4 w-4 object-contain"
                     />
                     <span className="max-w-full truncate text-xs font-extrabold text-slate-900">
@@ -454,6 +456,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
                       title="Bedrooms"
                       width={100}
                       height={100}
+                      loading="eager"
                       className="h-4 w-4 object-contain"
                     />
                     <span className="max-w-full truncate text-xs font-extrabold text-slate-900">
@@ -471,6 +474,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
                       title="Bathrooms"
                       width={100}
                       height={100}
+                      loading="eager"
                       className="h-4 w-4 object-contain"
                     />
                     <span className="max-w-full truncate text-xs font-extrabold text-slate-900">

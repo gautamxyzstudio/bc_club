@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
@@ -62,7 +64,7 @@ export default function BlogFormModal({
   }, [blog]);
 
   // Fetch full details if in edit mode to ensure complete content is retrieved
-  const { data: fullBlogResponse, isFetching: isFetchingFullBlog } = useGetBlogBySlug(
+  const { data: fullBlogResponse } = useGetBlogBySlug(
     targetSlug,
     {
       enabled: open && isEditMode && !!targetSlug,
@@ -308,7 +310,7 @@ export default function BlogFormModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
       <div className="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4.5 bg-gray-50/70 shrink-0 border-b border-gray-100">
@@ -340,7 +342,7 @@ export default function BlogFormModal({
         {/* Modal Body Form */}
         <form
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-5 sm:p-7 space-y-6"
+          className="flex-1 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-5 sm:p-7 space-y-6"
         >
           {/* Main Info Card */}
           <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 space-y-5">
@@ -404,7 +406,7 @@ export default function BlogFormModal({
 
               {/* Publish Date */}
               <div className="sm:col-span-4">
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 flex items-center gap-1">
+                <label className="text-xs font-bold text-gray-700 mb-1.5 flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-gray-400" />
                   Publish Date
                 </label>
@@ -446,22 +448,20 @@ export default function BlogFormModal({
                   <button
                     type="button"
                     onClick={() => setImageType("upload")}
-                    className={`px-2.5 py-1 rounded-md transition ${
-                      imageType === "upload"
+                    className={`px-2.5 py-1 rounded-md transition ${imageType === "upload"
                         ? "bg-white text-gray-900 shadow-xs"
                         : "text-gray-600"
-                    }`}
+                      }`}
                   >
                     File Upload
                   </button>
                   <button
                     type="button"
                     onClick={() => setImageType("url")}
-                    className={`px-2.5 py-1 rounded-md transition ${
-                      imageType === "url"
+                    className={`px-2.5 py-1 rounded-md transition ${imageType === "url"
                         ? "bg-white text-gray-900 shadow-xs"
                         : "text-gray-600"
-                    }`}
+                      }`}
                   >
                     Image URL
                   </button>
@@ -488,6 +488,7 @@ export default function BlogFormModal({
                     fill
                     className="object-contain drop-shadow-2xs"
                     unoptimized
+                    loading="eager"
                   />
                 </div>
 
@@ -586,7 +587,7 @@ export default function BlogFormModal({
           {/* Rich Content Editor Section */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+              <label className="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
                 <FileText className="w-4 h-4 text-[#199250]" />
                 Blog Content{" "}
                 <span className="text-rose-500">*</span>

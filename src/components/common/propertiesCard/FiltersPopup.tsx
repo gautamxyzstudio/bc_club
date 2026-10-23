@@ -641,6 +641,7 @@ export default function FiltersPopup({
                 width={36}
                 height={36}
                 alt={s.l}
+                 loading="eager"
               />
               <span className="text-sm font-medium">{s.l}</span>
             </button>
@@ -1599,39 +1600,6 @@ export default function FiltersPopup({
           </div>
         </div>
         <LineGradient />
-
-        {/* Extra Features */}
-        {/* <div className="border-[#33333333] pt-2">
-            <h3 className="font-medium mb-4">Features</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {[
-                { label: " Court-ordered sale", icon: Icons.courtorder },
-                { label: "Open House is set for", icon: Icons.openhouse },
-                { label: "Previously sold", icon: Icons.soldicon },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center gap-2 px-3 py-3.5 border border-[rgba(15,15,15,0.12)] rounded-xl text-gray-400 text-xs"
-                >
-                  <Image
-title="image title" src={item.icon} alt="" width={16} height={16} />
-                  <span className="whitespace-normal leading-snug">
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div> */}
-
-        {/* Bottom single item */}
-        {/* <div className="mt-4 mb-5 ">
-              <div className="flex items-center justify-center gap-2 px-3 py-3 border border-[rgba(15,15,15,0.12)] rounded-xl text-gray-400 text-xs">
-                <Image
-title="image title" src={Icons.star} alt="" width={16} height={16} />
-                <span>Must Be on Favorites list</span>
-              </div>
-            </div>
-          </div> 
-        {/* <LineGradient /> 
 
         {/* Bottom Buttons */}
         <div className="md:py-6 py-4 mt-2 border-[#0F0F0F1F] flex gap-4 sticky bottom-0 bg-background w-full">

@@ -136,6 +136,7 @@ const PropertyInformation = ({ property }: { property: any }) => {
                       alt={features.label}
                       width={40}
                       height={40}
+                      loading="eager"
                       className="w-5 md:w-7 h-5 md:h-7 lg:w-8 lg:h-8 object-contain"
                     />
                     <span className="text-base md:text-lg font-medium">

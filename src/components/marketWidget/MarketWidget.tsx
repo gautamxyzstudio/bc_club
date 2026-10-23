@@ -12,7 +12,7 @@ import {
   FormattedMarketReport,
 } from "./types";
 
-                                                                  const DEFAULT_MAX_AGE = 3; // months
+const DEFAULT_MAX_AGE = 3; // months
 
 const MONTHS = [
   "January",
@@ -596,13 +596,12 @@ export const MarketWidget: React.FC<MarketWidgetProps> = ({
             ? `This home is listed close to the median sold price for ${A} ${type} (${big(T.medianPrice)}).`
             : d >= 50
               ? `This home is listed at about ${(
-                  Math.round((numericPrice / T.medianPrice) * 10) / 10
-                )
-                  .toString()
-                  .replace(/\.0$/, "")} times the median sold price for ${A} ${type} (${big(T.medianPrice)}).`
-              : `This home is listed ${Math.abs(d).toFixed(0)}% ${
-                  d < 0 ? "below" : "above"
-                } the median sold price for ${A} ${type} (${big(T.medianPrice)}).`;
+                Math.round((numericPrice / T.medianPrice) * 10) / 10
+              )
+                .toString()
+                .replace(/\.0$/, "")} times the median sold price for ${A} ${type} (${big(T.medianPrice)}).`
+              : `This home is listed ${Math.abs(d).toFixed(0)}% ${d < 0 ? "below" : "above"
+              } the median sold price for ${A} ${type} (${big(T.medianPrice)}).`;
       }
     }
 
@@ -657,45 +656,45 @@ export const MarketWidget: React.FC<MarketWidgetProps> = ({
 
     const neighbourhoodCard = nbMatch
       ? {
-          title: `This neighbourhood: ${nbMatch.name}`,
-          name: nbMatch.name,
-          forSale: nbMatch.inventory,
-          sold: nbMatch.sold,
-          ratio: ratioOf(nbMatch),
-          badge: KS[kindOf(ratioOf(nbMatch))],
-          marketType: kindOf(ratioOf(nbMatch)),
-          text:
-            nbMatch.inventory > 0
-              ? `Out of ${nbMatch.inventory} for sale, ${nbMatch.sold} sold in ${mOnly}${nbMatch.sold < 3 ? " · few sales, read with care" : ""}`
-              : `${nbMatch.sold} sold, none left for sale in ${mOnly}`,
-          urlSold: buildUrl(D, LK.sold, {
-            neighbourhood: nbMatch.slug || slug(nbMatch.name),
-          }),
-          urlForSale: buildUrl(D, LK.forSale, {
-            neighbourhood: nbMatch.slug || slug(nbMatch.name),
-          }),
-        }
+        title: `This neighbourhood: ${nbMatch.name}`,
+        name: nbMatch.name,
+        forSale: nbMatch.inventory,
+        sold: nbMatch.sold,
+        ratio: ratioOf(nbMatch),
+        badge: KS[kindOf(ratioOf(nbMatch))],
+        marketType: kindOf(ratioOf(nbMatch)),
+        text:
+          nbMatch.inventory > 0
+            ? `Out of ${nbMatch.inventory} for sale, ${nbMatch.sold} sold in ${mOnly}${nbMatch.sold < 3 ? " · few sales, read with care" : ""}`
+            : `${nbMatch.sold} sold, none left for sale in ${mOnly}`,
+        urlSold: buildUrl(D, LK.sold, {
+          neighbourhood: nbMatch.slug || slug(nbMatch.name),
+        }),
+        urlForSale: buildUrl(D, LK.forSale, {
+          neighbourhood: nbMatch.slug || slug(nbMatch.name),
+        }),
+      }
       : null;
 
     const priceBracketCard =
       gMatch && (gMatch.inventory > 0 || gMatch.sold > 0)
         ? {
-            label: `Homes priced ${rangeLabel(gMatch.min, gMatch.max).replace("Under", "under")}`,
-            forSale: gMatch.inventory,
-            sold: gMatch.sold,
-            ratio: ratioOf(gMatch),
-            badge: KS[kindOf(ratioOf(gMatch))],
-            marketType: kindOf(ratioOf(gMatch)),
-            text:
-              gMatch.inventory > 0
-                ? `Out of ${gMatch.inventory} for sale, ${gMatch.sold} sold in ${mOnly}${gMatch.sold < 3 ? " · few sales, read with care" : ""}`
-                : `${gMatch.sold} sold, none left for sale in ${mOnly}`,
-            urlSold: buildUrl(D, LK.sold, { min: gMatch.min, max: gMatch.max }),
-            urlForSale: buildUrl(D, LK.forSale, {
-              min: gMatch.min,
-              max: gMatch.max,
-            }),
-          }
+          label: `Homes priced ${rangeLabel(gMatch.min, gMatch.max).replace("Under", "under")}`,
+          forSale: gMatch.inventory,
+          sold: gMatch.sold,
+          ratio: ratioOf(gMatch),
+          badge: KS[kindOf(ratioOf(gMatch))],
+          marketType: kindOf(ratioOf(gMatch)),
+          text:
+            gMatch.inventory > 0
+              ? `Out of ${gMatch.inventory} for sale, ${gMatch.sold} sold in ${mOnly}${gMatch.sold < 3 ? " · few sales, read with care" : ""}`
+              : `${gMatch.sold} sold, none left for sale in ${mOnly}`,
+          urlSold: buildUrl(D, LK.sold, { min: gMatch.min, max: gMatch.max }),
+          urlForSale: buildUrl(D, LK.forSale, {
+            min: gMatch.min,
+            max: gMatch.max,
+          }),
+        }
         : null;
 
     return {
@@ -1119,6 +1118,7 @@ const WIDGET_CSS = `
 }
 .sidhu-market .stats {
   display: grid;
+  grid-auto-flow:dense;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
 }
@@ -1240,6 +1240,7 @@ const WIDGET_CSS = `
   padding: 11px 20px;
   border-radius: 999px;
   font-size: 15px;
+  height: max-content;
   transition: background 0.15s ease;
 }
 .sidhu-market .btn:hover {

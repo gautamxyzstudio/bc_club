@@ -63,11 +63,12 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     >
       {startIcon && (
         <Image
-          title="image title"
+          title={label}
           src={startIcon}
-          alt=""
+          alt={buttonType}
           width={100}
           height={100}
+          loading="eager"
           className="md:w-6 md:h-6 w-4 h-4"
         />
       )}

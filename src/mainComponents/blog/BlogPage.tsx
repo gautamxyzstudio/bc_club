@@ -87,6 +87,7 @@ const BlogPage = () => {
             src={Icons.bgWaveLine}
             alt="Wave line"
             fill
+            loading="eager"
             priority
           />
         </div>
@@ -179,6 +180,7 @@ const BlogPage = () => {
                         alt={firstBlog.blogTitle || "Smart Property Investment"}
                         width={1200}
                         height={899}
+                        loading="eager"
                         className="h-50 md:h-80 object-fill rounded-t-2xl group-hover:scale-103 transition-transform duration-500"
                       />
                     </div>
@@ -205,6 +207,7 @@ const BlogPage = () => {
                             alt="Arrow"
                             width={32}
                             height={32}
+                            loading="eager"
                             src={Icons.arrowup}
                             className="w-7 h-7 sm:w-8 sm:h-8 transition-transform duration-300 ease-out group-hover:translate-x-1.5 group-hover:-translate-y-1.5"
                           />
@@ -241,6 +244,7 @@ const BlogPage = () => {
                             alt={blog.blogTitle || "Blog thumbnail"}
                             className="object-contain rounded-2xl group-hover:scale-103 transition-transform duration-500"
                             fill
+                            loading="eager"
                             sizes="(max-width: 640px) 100vw, 280px"
                           />
                         </div>
@@ -266,6 +270,7 @@ const BlogPage = () => {
                                   alt="Arrow"
                                   width={32}
                                   height={32}
+                                  loading="eager"
                                   src={Icons.arrowup}
                                   className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 transition-transform duration-300 ease-out group-hover:translate-x-1.5 group-hover:-translate-y-1.5"
                                 />

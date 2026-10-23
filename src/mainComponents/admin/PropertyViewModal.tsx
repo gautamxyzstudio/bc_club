@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
@@ -106,8 +107,9 @@ export default function PropertyViewModal({
 
   // Loading state when initial property data is not yet available
   if (!activeProperty && isLoading) {
+    const newLocal = "fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn";
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+      <div className={newLocal}>
         <div className="relative w-full max-w-md bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center justify-center text-center space-y-4 border border-gray-100">
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
           <div>
@@ -135,7 +137,7 @@ export default function PropertyViewModal({
   // Error state when no property could be found or loaded
   if (!activeProperty && error) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+      <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
         <div className="relative w-full max-w-md bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center justify-center text-center space-y-4 border border-gray-100">
           <AlertCircle className="w-10 h-10 text-rose-500" />
           <div>
@@ -199,7 +201,7 @@ export default function PropertyViewModal({
   ];
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 md:p-8 bg-black/60 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-black/60 backdrop-blur-sm animate-fadeIn">
       <div className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
@@ -264,7 +266,7 @@ export default function PropertyViewModal({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-1 px-6 border-b border-gray-100 bg-white overflow-x-auto scrollbar-none min-h-[46px]">
+        <div className="flex items-center gap-1 px-6 border-b border-gray-100 bg-white overflow-x-auto scrollbar-none min-h-11.5">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -291,12 +293,13 @@ export default function PropertyViewModal({
           {activeTab === "overview" && (
             <div className="space-y-6">
               {/* Hero Banner with Quick Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gradient-to-br from-slate-50 to-blue-50/40 p-5 rounded-xl border border-blue-100/60">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-linear-to-br from-slate-50 to-blue-50/40 p-5 rounded-xl border border-blue-100/60">
                 <div className="md:col-span-1 relative h-52 rounded-xl overflow-hidden shadow-sm bg-gray-100">
                   <Image
                     src={primaryImage}
                     alt="Property cover"
                     fill
+                    loading="eager"
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 300px"
                   />
@@ -671,6 +674,7 @@ export default function PropertyViewModal({
                         src={url}
                         alt={`Property image ${idx + 1}`}
                         fill
+                        loading="eager"
                         className="object-cover group-hover:scale-105 transition duration-300"
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       />

@@ -54,6 +54,7 @@ const RegisterWithBC = () => {
               height={80}
               alt={card.content}
               src={card.icon}
+              loading="eager"
               className="w-9 h-9 object-contain"
             />
             <Description

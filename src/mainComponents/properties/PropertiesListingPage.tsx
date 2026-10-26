@@ -2,7 +2,7 @@
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useEffect, useState, useRef} from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   FiSearch,
   FiX,
@@ -229,7 +229,7 @@ export default function PropertiesListingPage() {
   };
 
   const pillBase =
-    "pl-4 pr-2 py-3 bg-white rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] appearance-none font-medium cursor-pointer border transition w-full";
+    "pl-4 pr-2 py-3 bg-white rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] appearance-none font-medium cursor-pointer border transition w-auto";
 
   const pillActive = "border-primary text-primary ring-1 ring-blue-200";
 
@@ -696,6 +696,8 @@ export default function PropertiesListingPage() {
       action = filters.status === "forecloserSold" ? "Foreclosure Properties Sold" : "Foreclosure Properties";
     } else if (filters.activePriceChange === "drop") {
       action = "Homes with Price Drops";
+    } else if (filters.activePriceChange === "increase") {
+      action = "Homes with Price Increase";
     }
 
     const loc = (filters.location || "").trim();
@@ -875,130 +877,120 @@ export default function PropertiesListingPage() {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="xl:max-w-screen-2xl mx-auto xl:px-16 md:px-9 px-6 pt-5 w-full h-full"
     >
-      <div className="h-full mt-24">
+      <div className="h-full md:mt-24 mt-15">
         {/* Top Filters Row */}
-        <div className="flex items-center gap-4 flex-wrap mb-6 justify-between">
+        <div className="flex items-center gap-5 flex-wrap mb-6 justify-items-start w-full">
           {/* 🔍 CHIP SEARCH BAR (DESIGN SAME) */}
-          <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl shadow-[0_0_20px_0_rgba(0,0,0,0.12)] border border-gray-200 w-full max-w-md">
+          <div className="flex items-center gap-1 bg-white rounded-lg overflow-clip shadow-[0_0_20px_0_rgba(0,0,0,0.12)] border border-gray-200 w-auto min-w-xs">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search city, neighbourhood, address or MLS® number"
-              className="flex-1 text-sm outline-none bg-transparent"
+              placeholder="Search City, Address, MLS®"
+              className="flex-1 text-sm outline-none bg-transparent p-3 pr-0"
             />
-
-            <button
-              className="ml-auto bg-[#E6A500] p-2.5 rounded-lg flex items-center justify-center"
-              onClick={() => {
-                // Search is live, but we can keep the button for UX
-              }}
-            >
-              <FiSearch size={18} className="text-white" />
-            </button>
-          </div>
-        </div>
-
-        {/* Filters */}
-
-        <div className="flex flex-wrap justify-between items-center gap-4 lg:flex-nowrap mb-6 h-auto w-full">
-          <div className="flex flex-row justify-between items-center gap-4 w-full xl:w-auto">
-            <button
-              type="button"
-              onClick={() => {
-                setOpenFilters(true);
-              }}
-              className="px-6 py-3 bg-background rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] flex items-center justify-center gap-3 border-[#30548733] cursor-pointer w-full xl:w-fit"
-            >
-              <FilterListIcon sx={{ color: "#305487" }} />
-              <span className="font-medium">Filters</span>
-            </button>
-            <button
-              onClick={() => {
-                clearInstanceFilters("list");
-                scrollRef.current?.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
-              }}
-              className={`px-4 py-3 text-sm rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] lg:hidden flex flex-nowrap flex-row items-center gap-2 border border-[#30548733] cursor-pointer w-full justify-center text-nowrap ${hasActiveFilters
-                  ? "bg-primary text-white"
-                  : "bg-white text-gray-800"
-                }`}
-            >
-              <FiX size={16} />
-              <span className="font-medium">Reset Filters</span>
-            </button>
+            <FiSearch size={47} className="text-white bg-secondary p-2.5" />
           </div>
 
-          {/* Price */}
-          <div className="w-full flex flex-row md:flex-nowrap flex-wrap justify-between items-center gap-4">
-            <FilterPillSelect
-              label="Sort By"
-              value={activePrice}
-              onChange={setActivePrice}
-              pillBase={pillBase}
-              pillActive={pillActive}
-              pillInactive={pillInactive}
-              options={[
-                { label: "Newest First", value: "newest" },
-                { label: "Oldest First", value: "oldest" },
-                { label: "Low to High", value: "asc" },
-                { label: "High to Low", value: "desc" },
-                { label: "Popular First", value: "popular" },
-                { label: "Tax Asc", value: "tax-asc" },
-                { label: "Tax Desc", value: "tax-desc" },
-              ]}
-            />
+          {/* Filter Modal */}
+          <button
+            type="button"
+            onClick={() => {
+              setOpenFilters(true);
+            }}
+            className="px-6 py-3 bg-background rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] flex items-center justify-center gap-3 border-[#30548733] cursor-pointer w-auto"
+          >
+            <FilterListIcon sx={{ color: "#305487" }} />
+            <span className="font-medium">Filters</span>
+          </button>
 
-            {/* BedRoom */}
-            <FilterPillSelect
-              label="Bedrooms"
-              value={activeBedRoom}
-              onChange={setActiveBedRoom}
-              pillBase={pillBase}
-              pillActive={pillActive}
-              pillInactive={pillInactive}
-              options={[
-                { label: "All", value: "any" },
-                { label: "1", value: "1" },
-                { label: "2", value: "2" },
-                { label: "3", value: "3" },
-                { label: "4+", value: "4" },
-              ]}
-            />
+          {/* Reset Filters Button */}
+          <button
+            onClick={() => {
+              clearInstanceFilters("list");
+              scrollRef.current?.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+            }}
+            className={`px-4 py-3 text-sm rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] lg:hidden flex flex-nowrap flex-row items-center gap-2 border border-[#30548733] cursor-pointer w-auto justify-center text-nowrap ${hasActiveFilters
+              ? "bg-primary text-white"
+              : "bg-white text-gray-800"
+              }`}
+          >
+            <FiX size={16} />
+            <span className="font-medium">Reset Filters</span>
+          </button>
 
-            {/* BathRoom */}
-            <FilterPillSelect
-              label="Bathrooms"
-              value={activeBathRoom}
-              onChange={setActiveBathRoom}
-              pillBase={pillBase}
-              pillActive={pillActive}
-              pillInactive={pillInactive}
-              options={[
-                { label: "All", value: "any" },
-                { label: "1", value: "1" },
-                { label: "2", value: "2" },
-                { label: "3", value: "3" },
-                { label: "4+", value: "4" },
-              ]}
-            />
+          {/* Sort By */}
+          <FilterPillSelect
+            label="Sort By"
+            value={activePrice}
+            onChange={setActivePrice}
+            pillBase={pillBase}
+            pillActive={pillActive}
+            pillInactive={pillInactive}
+            options={[
+              { label: "Newest First", value: "newest" },
+              { label: "Oldest First", value: "oldest" },
+              { label: "Low to High", value: "asc" },
+              { label: "High to Low", value: "desc" },
+              { label: "Popular First", value: "popular" },
+              { label: "Tax Asc", value: "tax-asc" },
+              { label: "Tax Desc", value: "tax-desc" },
+            ]}
+          />
 
-            <FilterPillSelect
-              label="Price"
-              value={activePriceChange}
-              onChange={setActivePriceChange}
-              pillBase={pillBase}
-              pillActive={pillActive}
-              pillInactive={pillInactive}
-              options={[
-                { label: "Any", value: "any" },
-                { label: "Drop", value: "drop" },
-                { label: "Increase", value: "increase" },
-              ]}
-            />
-          </div>
+          {/* BedRoom */}
+          <FilterPillSelect
+            label="Bedrooms"
+            value={activeBedRoom}
+            onChange={setActiveBedRoom}
+            pillBase={pillBase}
+            pillActive={pillActive}
+            pillInactive={pillInactive}
+            options={[
+              { label: "All", value: "any" },
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+              { label: "3", value: "3" },
+              { label: "4+", value: "4" },
+            ]}
+          />
+
+          {/* BathRoom */}
+          <FilterPillSelect
+            label="Bathrooms"
+            value={activeBathRoom}
+            onChange={setActiveBathRoom}
+            pillBase={pillBase}
+            pillActive={pillActive}
+            pillInactive={pillInactive}
+            options={[
+              { label: "All", value: "any" },
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+              { label: "3", value: "3" },
+              { label: "4+", value: "4" },
+            ]}
+          />
+
+          {/* Price Change */}
+          <FilterPillSelect
+            label="Price"
+            value={activePriceChange}
+            onChange={setActivePriceChange}
+            pillBase={pillBase}
+            pillActive={pillActive}
+            pillInactive={pillInactive}
+            options={[
+              { label: "Any", value: "any" },
+              { label: "Drop", value: "drop" },
+              { label: "Increase", value: "increase" },
+            ]}
+          />
+
+          {/* Reset Filters Button */}
           <button
             onClick={() => {
               clearInstanceFilters("list");
@@ -1008,8 +1000,8 @@ export default function PropertiesListingPage() {
               });
             }}
             className={`px-4 py-3 text-sm rounded-[10px] shadow-[0_0_20px_0_rgba(0,0,0,0.12)] hidden lg:flex flex-nowrap flex-row items-center gap-2 border border-[#30548733] cursor-pointer w-auto text-nowrap ${hasActiveFilters
-                ? "bg-primary text-white"
-                : "bg-white text-gray-800"
+              ? "bg-primary text-white"
+              : "bg-white text-gray-800"
               }`}
           >
             <FiX size={16} />
@@ -1264,8 +1256,8 @@ export default function PropertiesListingPage() {
               type="button"
               onClick={() => setIsFilterShareOpen((prev) => !prev)}
               className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer border ${isFilterShareOpen
-                  ? "bg-primary text-white border-primary shadow-md"
-                  : "bg-white hover:bg-gray-50 text-gray-700 border-gray-200 shadow-2xs hover:border-gray-300"
+                ? "bg-primary text-white border-primary shadow-md"
+                : "bg-white hover:bg-gray-50 text-gray-700 border-gray-200 shadow-2xs hover:border-gray-300"
                 }`}
               title="Share this search with filters"
               aria-label="Share this search with filters"
@@ -1419,8 +1411,8 @@ export default function PropertiesListingPage() {
                     <button
                       onClick={handleCopyFilterLink}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer ${filterCopied
-                          ? "bg-emerald-600 text-white"
-                          : "bg-primary text-white hover:bg-primary/90"
+                        ? "bg-emerald-600 text-white"
+                        : "bg-primary text-white hover:bg-primary/90"
                         }`}
                     >
                       {filterCopied ? (

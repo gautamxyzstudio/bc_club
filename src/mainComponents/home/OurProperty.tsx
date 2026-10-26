@@ -653,7 +653,7 @@ const OurProperty = () => {
             type={IHeadingTypes.heading20}
             content="Sold"
           />
-          {renderSlider(soldList, isLoadingSold, isLoggedIn, "sold")}
+          {renderSlider(soldList, isLoadingSold, true, "sold")}
         </div>
 
         <div

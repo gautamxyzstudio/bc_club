@@ -60,7 +60,7 @@ export default function OpenStreetMapSoldMakerLayer({
       const icon = L.divIcon({
         className: "",
         html: `
-          <div class="sold-marker flex items-center justify-center rounded-sm text-[#dc2626] bg-background hover:border border-[#dc2626] text-xs font-semibold text-nowrap shadow-md cursor-pointer w-fit px-1 py-0.5">
+          <div class="sold-marker flex items-center justify-center rounded-sm text-[#9F1239] bg-background hover:border border-[#9F1239] text-xs font-semibold text-nowrap shadow-md cursor-pointer w-fit px-1 py-0.5">
             Sold ${soldYear}
           </div>
         `,
@@ -88,7 +88,7 @@ export default function OpenStreetMapSoldMakerLayer({
         top:10px;
         left:10px;
         z-index:4;
-        background:#dc2626;
+        background:#9F1239;
         color:white;
         font-size:12px;
         font-weight:800;

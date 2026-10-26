@@ -249,10 +249,11 @@ export default function SchoolCatchmentLayer({
                     data={highlightedFeature}
                     style={() => ({
                         color: "#7C3AED",
-                        weight: 3,
-                        opacity: 1,
-                        fillColor: "#A78BFA",
-                        fillOpacity: 0.25,
+                        weight: 2,
+                        opacity: 0.5,
+                        dashArray:'7',
+                        fillColor: "#7C3AED",
+                        fillOpacity: 0.5,
                     })}
                 />
             )}

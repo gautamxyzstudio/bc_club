@@ -9,10 +9,10 @@ const getStatusColor = (status: string) =>
   status === "sold" ||
   status === "forecloserSold" ||
   status === "forcecloserSold"
-    ? "#ef4444"
+    ? "#9F1239"
     : status === "expired"
       ? "#c8c8c8"
-      : "#22c55e";
+      : "#1E4E8C";
 
 const clusterIcon = (count: number) => {
   const size = count < 10 ? 30 : count < 100 ? 40 : 50;

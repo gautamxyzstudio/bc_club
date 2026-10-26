@@ -171,6 +171,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
       return;
     }
 
+   
     setLocalIsFavourite(true);
     setLocalLikesCount((prev) => prev + 1);
     toggleWishlist.mutate(id);
@@ -210,11 +211,12 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
     hasBaths,
   ].filter(Boolean).length;
 
+  const hideSoldDetails = isSold && !isLoggedIn;
 
-  const displayPrice = isLogin
-    ? `$${Number(price || 0).toLocaleString()}`
-    : "Sign in free to see price";
-  const displayAddress = isLogin ? address : "Sign in free to view address";
+  const displayPrice = hideSoldDetails
+    ? "Sign in free to see price"
+    : `$${Number(price || 0).toLocaleString()}`;
+  const displayAddress = hideSoldDetails ? "Sign in free to view address": address;
   const displayTitle = isLogin
     ? title === "Single Family"
       ? structureType
@@ -224,7 +226,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
   const displayBeds = isLogin ? beds : "---";
   const displayBaths = isLogin ? baths : "---";
   const displayLotSize = isLogin ? getLotSizeDisplay() : "---- acres";
-  const displayMls = isLogin ? `MLS® ${mls}` : "MLS® *******";
+  const displayMls = hideSoldDetails ? "Sign in free to view MLS" : `MLS® ${mls}`;
   const displayRealtor = isLogin ? realtor : "Courtesy of: **********";
 
   const initialImg = image && isImageFileUrl(image) ? image : Images.apartment;
@@ -260,7 +262,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
           });
         }
 
-        if (onCardClick && isLogin) {
+        if (onCardClick && isLogin && !hideSoldDetails) {
           e.preventDefault();
           onCardClick(id, isSold);
         }
@@ -392,7 +394,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
                     ${Number(oldPrice).toLocaleString()}
                   </p>
                 )}</div>
-              {lotSize && (
+              {lotSize && !hideSoldDetails && (
                 <div className="flex items-center justify-between gap-1 md:gap-2 rounded-lg md:rounded-xl border border-slate-200 bg-white px-2 py-2 md:px-3 md:py-2.5 shadow-sm">
                   <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-medium text-slate-600">
                     <Image

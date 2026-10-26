@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { GeoJSON } from "react-leaflet";
@@ -67,9 +68,9 @@ export default function OpenStreetMapGeoJsonLayer({
         const active = hasPropertyInsideFeature(feature, properties);
 
         return {
-          fillColor: active ? "#eea500" : "#22558b",
+          fillColor: active ? "#1E4E8C" : "#AFB7C3",
           fillOpacity: active ? 0.18 : 0.08,
-          color: active ? "#eea500" : "#22558b",
+          color: active ? "#1E4E8C" : "#AFB7C3",
           weight: active ? 1 : 2,
           interactive: false,
         };

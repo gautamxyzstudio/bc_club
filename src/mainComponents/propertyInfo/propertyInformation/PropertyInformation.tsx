@@ -48,16 +48,6 @@ const PropertyInformation = ({ property }: { property: any }) => {
       label: "Bathrooms",
       value: property?.bathrooms || "0",
     },
-
-    ...(property?.property_sub_type !== "Business"
-      ? [
-        {
-          icon: Icons.garage,
-          label: "Garage",
-          value: "0",
-        },
-      ]
-      : []),
     {
       icon: Icons.calendar,
       label: "Year Built",

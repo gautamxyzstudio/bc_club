@@ -777,7 +777,7 @@ export const MarketWidget: React.FC<MarketWidgetProps> = ({
             <div className="top">
               <div>
                 <div className="eb">{eyebrow}</div>
-                <div className="tt">{title}</div>
+                <h2 className="tt">{title}</h2>
               </div>
               <span className={`badge ${marketType}`}>{badge}</span>
             </div>

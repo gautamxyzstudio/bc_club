@@ -198,7 +198,7 @@ const AssessmentPropertySimilarAndSoldListing = ({
               <PropertiesCard
                 {...item}
                 isLogin={isLoginOverride ?? isLoggedIn}
-                isSold={item.status === "Closed"}
+                isSold={item.status === "Closed" || item.status === "Pending"}
                 isExpired={item.status === "Expired"}
               />
             </SwiperSlide>

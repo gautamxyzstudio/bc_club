@@ -72,7 +72,7 @@ export const getPropertyDetailsRows = (
     data: {
       label: "Listed On Website",
       value: !isPrivate
-        ? "***"
+        ? "Sign in free to view date"
         : property?.OriginalEntryTimestamp
           ? dayjs(property.OriginalEntryTimestamp)
               .tz("America/Vancouver")
@@ -84,7 +84,7 @@ export const getPropertyDetailsRows = (
         data: {
           label: "Days On Market",
           value: !isPrivate
-            ? "***"
+            ? "Sign in free to view market days"
             : property?.OriginalEntryTimestamp
               ? `${getDaysAgoTime(property.OriginalEntryTimestamp)}`
               : "-",
@@ -104,7 +104,7 @@ export const getPropertyDetailsRows = (
           data: {
             label: "Modified Date",
             value: !isPrivate
-              ? "***"
+              ? "Sign in free to view date"
               : property?.ModificationTimestamp
                 ? dayjs(property.ModificationTimestamp)
                     .tz("America/Vancouver")
@@ -116,7 +116,7 @@ export const getPropertyDetailsRows = (
               data: {
                 label: "Days On Market",
                 value: !isPrivate
-                  ? "***"
+                  ? "Sign in free to view market days"
                   : property?.ModificationTimestamp
                     ? `${getDaysAgoTime(property.ModificationTimestamp)}`
                     : "-",

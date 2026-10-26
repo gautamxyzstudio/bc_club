@@ -56,20 +56,29 @@ const SoldPropertyInfo = ({ paramsId }: { paramsId: string }) => {
     );
 
   return !isLoggedIn ? (
-    <section className="xl:max-w-screen-2xl mx-auto min-h-[80svh] flex flex-col justify-center items-center w-full px-6 py-12 text-center xl:pt-35.5 xl:pb-28.25 md:pt-28 md:pb-25 pt-21 pb-13">
-      <h3 className="text-xl font-semibold mb-2">Login Required</h3>
 
-      <p className="text-gray-600 mb-5">
-        Please login to view sold properties details.
+    <section className="xl:max-w-screen-2xl mx-auto min-h-[80svh] flex flex-col justify-center items-center w-full px-6 py-12 text-center xl:pt-35.5 xl:pb-28.25 md:pt-28 md:pb-25 pt-21 pb-13">
+      <h3 className="text-2xl font-semibold mb-3">
+        Unlock Sold Property Details
+      </h3>
+
+      <p className="text-gray-600 mb-6 max-w-lg leading-relaxed">
+        Sign in to explore sold property information and access detailed
+        property insights. Log in to discover more about recently sold properties.
       </p>
 
       <button
         onClick={() => setOpenLogin(true)}
-        className="bg-primary text-white px-6 py-3 rounded-lg font-medium"
+        className="bg-primary text-white px-7 py-3 rounded-lg font-medium transition hover:opacity-90"
       >
-        Login
+        Sign In to View Details
       </button>
+
+      <p className="text-sm text-gray-500 mt-4">
+        New to BC Club? Sign in or create an account to get started.
+      </p>
     </section>
+
   ) : (
     <>
       <section className="xl:max-w-screen-2xl mx-auto w-full bg-background flex flex-col xl:px-16 md:px-9 px-6 xl:pt-35.5 xl:pb-28.25 md:pt-28 md:pb-25 pt-21 pb-13 items-center-safe">

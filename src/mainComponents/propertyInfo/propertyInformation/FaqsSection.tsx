@@ -56,12 +56,12 @@ const FaqsSection = () => {
                   className="w-full flex items-center justify-between gap-5 text-left"
                   aria-expanded={isOpen}
                 >
-                  <span
+                  <h3
                     className={`lg:font-bold lg:text-xl font-medium text-base leading-snug transition-colors ${isOpen ? "text-secondary" : "text-foreground"
                       }`}
                   >
                     {faq.question}
-                  </span>
+                  </h3>
 
                   <span
                     className={`shrink-0 lg:w-8.5 lg:h-8.5 md:w-7.5 md:h-7.5 w-6 h-6 rounded-md flex items-center justify-center transition-all duration-300 ${isOpen

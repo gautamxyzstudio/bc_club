@@ -31,9 +31,9 @@ export default function FilterPillSelect({
     <div
       className={`${pillBase} ${
         value === "any" ? pillInactive : pillActive
-      } relative w-full flex text-nowrap items-center gap-x-3`}
+      } relative flex text-nowrap items-center gap-x-3`}
     >
-      <span className="md:text-base text-xs">{label}</span>
+      <span className="md:text-sm text-xs">{label}</span>
 
       <Select
         value={value}

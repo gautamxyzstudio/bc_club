@@ -213,8 +213,8 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
 
   const displayPrice = isLogin
     ? `$${Number(price || 0).toLocaleString()}`
-    : "$*,***,***";
-  const displayAddress = isLogin ? address : "Sign in to view address";
+    : "Sign in free to see price";
+  const displayAddress = isLogin ? address : "Sign in free to view address";
   const displayTitle = isLogin
     ? title === "Single Family"
       ? structureType

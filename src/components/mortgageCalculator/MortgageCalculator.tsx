@@ -410,7 +410,7 @@ export function MortgageCalculator({
                   key={pct}
                   type="button"
                   onClick={() => setDownPaymentPercent(pct)}
-                  className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all min-h-8 sm:min-h-[34px] touch-manipulation cursor-pointer ${
+                  className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all min-h-8 sm:min-h-8.5 touch-manipulation cursor-pointer ${
                     Math.round(downPaymentPercent) === pct
                       ? "bg-blue-600 text-white shadow-xs"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900"
@@ -460,7 +460,7 @@ export function MortgageCalculator({
                   onChange={(e) =>
                     setInterestRate(Number(e.target.value) || 0)
                   }
-                  className="w-full min-h-[44px] rounded-xl border border-slate-200 bg-white py-2.5 pr-8 pl-4 text-base font-bold text-slate-900 shadow-2xs transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full min-h-11 rounded-xl border border-slate-200 bg-white py-2.5 pr-8 pl-4 text-base font-bold text-slate-900 shadow-2xs transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   placeholder="6.5"
                 />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 font-semibold text-slate-400 select-none pointer-events-none">
@@ -503,7 +503,7 @@ export function MortgageCalculator({
                     key={option.value}
                     type="button"
                     onClick={() => setLoanTerm(option.value)}
-                    className={`rounded-xl py-2.5 px-1 text-center text-xs font-bold transition-all min-h-[40px] touch-manipulation cursor-pointer ${
+                    className={`rounded-xl py-2.5 px-1 text-center text-xs font-bold transition-all min-h-10 touch-manipulation cursor-pointer ${
                       loanTerm === option.value
                         ? "bg-blue-600 text-white shadow-xs"
                         : "bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50"
@@ -559,7 +559,7 @@ export function MortgageCalculator({
                         onChange={(e) =>
                           setPropertyTaxRate(Number(e.target.value) || 0)
                         }
-                        className="w-full min-h-[38px] rounded-lg border border-slate-200 bg-white px-3 py-1.5 pr-7 text-xs font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="w-full min-h-9.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 pr-7 text-xs font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none select-none">
                         %
@@ -585,7 +585,7 @@ export function MortgageCalculator({
                         onChange={(e) =>
                           setHomeInsuranceRate(Number(e.target.value) || 0)
                         }
-                        className="w-full min-h-[38px] rounded-lg border border-slate-200 bg-white px-3 py-1.5 pr-7 text-xs font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="w-full min-h-9.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 pr-7 text-xs font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none select-none">
                         %
@@ -609,7 +609,7 @@ export function MortgageCalculator({
                         max={3}
                         value={pmiRate}
                         onChange={(e) => setPmiRate(Number(e.target.value) || 0)}
-                        className="w-full min-h-[38px] rounded-lg border border-slate-200 bg-white px-3 py-1.5 pr-7 text-xs font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="w-full min-h-9.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 pr-7 text-xs font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none select-none">
                         %
@@ -629,7 +629,7 @@ export function MortgageCalculator({
 
         {/* ================= RIGHT COLUMN: Aggregated Payment Callout Card ================= */}
         <div className="lg:col-span-5 min-w-0">
-          <div className="lg:sticky lg:top-24 rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50/60 via-white to-slate-50/80 p-4 xs:p-5 sm:p-6 shadow-sm">
+          <div className="lg:sticky lg:top-24 rounded-2xl border border-blue-100 bg-linear-to-b from-blue-50/60 via-white to-slate-50/80 p-4 xs:p-5 sm:p-6 shadow-sm">
             {/* Total Monthly Payment Header */}
             <div className="mb-5 sm:mb-6">
               <span className="text-[11px] sm:text-xs font-bold tracking-wider text-blue-600 uppercase">

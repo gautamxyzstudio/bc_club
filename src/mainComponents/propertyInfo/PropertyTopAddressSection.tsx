@@ -33,19 +33,22 @@ const PropertyTopAddressSection = ({ property }: { property: any }) => {
         <div className="flex md:flex-row flex-col text-wrap md:items-center xl:text-base text-sm gap-y-1.5 text-black70">
           <span className="flex items-center gap-x-0.5">
             <LocationRippleFilled className="text-secondary md:w-8 md:h-8 w-6 h-6" />
-            {property?.city}, {property?.state}, Canada
+            {property?.city}
           </span>
+          {property?.neighborhood && <><LineGradient vr customClasses="mx-2 md:block hidden" />
+            <span>{property?.neighborhood}</span></>}
           <LineGradient vr customClasses="mx-2 md:block hidden" />
           <span>
             MLS® {property?.listing_id || property?.mls_number || "FPR345643E3"}
           </span>
           <LineGradient vr customClasses="mx-2 md:block hidden" />
           <span>Courtesy of: {getOfficeName(property)}</span>
+
         </div>
       </div>
       <div className="flex md:flex-col items-center md:items-end-safe gap-x-1.5 gap-y-3">
         <Heading
-          tagType="h5"
+          tagType="h2"
           type={IHeadingTypes.heading48}
           content={`$${Number(property?.price || 0).toLocaleString()}`}
           customClasses="text-primary"
@@ -53,9 +56,8 @@ const PropertyTopAddressSection = ({ property }: { property: any }) => {
         {(property?.Living_area ?? property?.lot_size_area) ? (
           <Description
             type={IDescriptionTypes.dec1614}
-            content={`${
-              property?.Living_area ?? property?.lot_size_area
-            } ${property?.living_area_units ?? property?.lot_size_units}`}
+            content={`${property?.Living_area ?? property?.lot_size_area
+              } ${property?.living_area_units ?? property?.lot_size_units}`}
             customClasses="text-black70"
           />
         ) : (

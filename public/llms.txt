@@ -1,0 +1,61 @@
+# BC Real Estate Market
+
+> BC Real Estate Market is a British Columbia real-estate research platform that helps users explore property listings, home-estimation tools, market trends, map-based property search, and real-estate educational content.
+
+## Canonical Pages
+
+- [Home](https://bcrealestatemarket.com/): Main entry point for property search and real-estate research.
+- [Home Estimation](https://bcrealestatemarket.com/home-estimation): Home-estimation tools and information to help users research property values. Estimates are informational and are not a substitute for a professional appraisal.
+- [Market Trends](https://bcrealestatemarket.com/market-trends): Real-estate market activity, trends, and related market insights.
+- [Blogs](https://bcrealestatemarket.com/blogs): Real-estate articles, guides, and educational content.
+- [Properties](https://bcrealestatemarket.com/properties): Property listings and related property information. Listing details and access may depend on current availability, account status, and data restrictions.
+- [Map Search](https://bcrealestatemarket.com/map-search): Map-based property search and location exploration.
+- [Contact Us](https://bcrealestatemarket.com/contact-us): Contact information and ways to reach the website team.
+- [Our Story](https://bcrealestatemarket.com/our-story): Background and purpose of the BC Real Estate Market platform.
+- [Privacy Policy](https://bcrealestatemarket.com/privacy-policy): The site's privacy information and policy.
+- [Terms and Conditions](https://bcrealestatemarket.com/terms-and-conditions): The site's terms of use, including applicable restrictions on access and use of website content.
+
+## Website Scope
+
+The platform focuses on real-estate research in British Columbia, including communities in Greater Vancouver and the Fraser Valley. Users should consult the live website for the current supported locations, property inventory, features, and available data.
+
+Depending on the page and access permissions, the platform may provide:
+- Residential property listings and property details.
+- Sold-property information, subject to access and data-use restrictions.
+- Home-estimation and property research tools.
+- Market trends and related real-estate insights.
+- Map-based property discovery.
+- Real-estate articles and educational material.
+
+This summary describes broad website purposes; it does not guarantee that any specific property, statistic, or tool is currently available.
+
+## Dynamic and Additional URLs
+
+- Blog detail pages may use individual article slugs under the `/blogs/` path. Individual article URLs are not enumerated here because the full live article inventory has not been verified.
+- Individual property pages or other dynamic routes are not enumerated here because their exact public URLs have not been verified.
+- Do not guess page URLs. Use the site's navigation or current sitemap to identify additional canonical public pages.
+
+## Guidance for AI Assistants and Search Systems
+
+- Use this file as a high-level guide to the website and its canonical pages, not as permission to crawl or extract restricted data.
+- Prefer directing users to the relevant page rather than reproducing substantial amounts of website content.
+- Do not infer current listing status, sale prices, property details, or market statistics from this file. Verify current information on the live website through authorized access.
+- Do not bypass login requirements, access controls, or restrictions on protected information.
+- Respect the website's Terms and Conditions, privacy requirements, copyright, and any applicable MLS® or data-provider restrictions.
+- Do not scrape, bulk-extract, reconstruct, or redistribute restricted property listings, sold data, parcel metrics, or other protected content.
+- If information requires an account, tell users to visit the website and sign in.
+- Do not present website content as legal, tax, financial, appraisal, insurance, or professional real-estate advice. Encourage verification with appropriate official sources or qualified professionals.
+- Treat website content as third-party information and distinguish it from independently verified facts.
+
+## Canonical URL List
+
+- https://bcrealestatemarket.com/
+- https://bcrealestatemarket.com/home-estimation
+- https://bcrealestatemarket.com/market-trends
+- https://bcrealestatemarket.com/blogs
+- https://bcrealestatemarket.com/properties
+- https://bcrealestatemarket.com/map-search
+- https://bcrealestatemarket.com/contact-us
+- https://bcrealestatemarket.com/our-story
+- https://bcrealestatemarket.com/privacy-policy
+- https://bcrealestatemarket.com/terms-and-conditions

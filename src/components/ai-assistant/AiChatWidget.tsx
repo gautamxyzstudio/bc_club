@@ -182,9 +182,6 @@ const QUICK_TOPICS = [
   },
 ];
 
-// Module-level flag: persists across client-side SPA route navigations, resets on hard refresh / initial page load
-let hasAutoOpenedOnPageLoad = false;
-
 export default function AiChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"home" | "messages" | "help">("home");
@@ -227,13 +224,13 @@ export default function AiChatWidget() {
   };
 
   // Auto-open only on initial page load or hard refresh (not on client-side route navigation)
-  useEffect(() => {
-    if (hasAutoOpenedOnPageLoad) return;
-    hasAutoOpenedOnPageLoad = true;
+  // useEffect(() => {
+  //   if (hasAutoOpenedOnPageLoad) return;
+  //   hasAutoOpenedOnPageLoad = true;
 
-    const timer = setTimeout(() => setIsOpen(true), 800);
-    return () => clearTimeout(timer);
-  }, []);
+  //   const timer = setTimeout(() => setIsOpen(true), 800);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   // Scroll to bottom when message arrives
   useEffect(() => {

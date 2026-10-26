@@ -6,7 +6,6 @@ import Image from "next/image";
 import React from "react";
 import LineGradient from "../lineGradient/LineGradient";
 import { Images } from "@/src/app/exports";
-import CustomButton from "../../button/CustomButton";
 import Link from "next/link";
 import { useAuthContext } from "@/src/mainComponents/auth/AuthContext";
 import { useGetMe } from "@/src/hooks/listing/useListingQueries";
@@ -300,23 +299,21 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
 
   const displayPrice = isLogin
     ? `$${Number(price || 0).toLocaleString()}`
-    : "$*,***,***";
-  const displayAddress = isLogin ? address : "Sign in to view address";
-  const displaySqft = isLogin ? `${sqft} sq ft` : "---- sq ft";
-  const displayBeds = isLogin ? beds : "---";
-  const displayBaths = isLogin ? baths : "---";
-  const displayLotSize = isLogin ? getLotSizeDisplay() : "--- acres";
+    : "Sign in free to see price";
+  const displayAddress = isLogin ? address : "Sign in free to view address";
+  const displaySqft = `${sqft} sq ft`;
+  const displayBeds = beds;
+  const displayBaths = baths;
+  const displayLotSize = getLotSizeDisplay();
 
   const isLinkDisabled = isExpired;
-  const getHref = isLinkDisabled
-    ? "#"
-    : isSold
-      ? `/sold-property-info/${id}`
-      : `/property-info/${id}`;
+  const getHref = isSold
+    ? `/sold-property-info/${id}`
+    : `/property-info/${id}`;
 
   return (
     <Link
-      href={`${!isLogin ? "#" : getHref}`}
+      href={getHref}
       className="w-full h-full flex"
       onClick={(e) => {
         if (isLinkDisabled) {
@@ -332,10 +329,7 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
         }
       }}
     >
-      <div
-        className={`relative rounded-[20px] flex overflow-hidden shadow-[0_0_5px_0_rgba(21,21,21,0.19)] transition h-auto w-full ${isLogin ? "group" : ""
-          }`}
-      >
+      <div className="relative rounded-[20px] flex overflow-hidden shadow-[0_0_5px_0_rgba(21,21,21,0.19)] transition h-auto w-full group">
         <div className="flex flex-col justify-between w-full h-full">
           <div className="relative flex items-center">
             <div className="w-full h-56 overflow-clip rounded-t-2xl">
@@ -344,8 +338,7 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
                   title="image title"
                   src={imgSrc}
                   alt={title}
-                  className={`w-full h-full object-cover rounded-t-2xl transition duration-300 ease-in-out ${isLogin ? "group-hover:scale-125" : "blur-sm"
-                    }`}
+                  className="w-full h-full object-cover rounded-t-2xl transition duration-300 ease-in-out group-hover:scale-125"
                   width={700}
                   height={403}
                   loading="eager"
@@ -435,11 +428,9 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
               <div className="flex w-full justify-between flex-nowrap items-center">
                 <span className=" opacity-40">Listed On Website:</span>
                 <span className="">
-                  {!isLoggedIn
-                    ? "****"
-                    : dayjs(listingDate)
-                      .tz("America/Vancouver")
-                      .format("DD MMM, YYYY")}
+                  {dayjs(listingDate)
+                    .tz("America/Vancouver")
+                    .format("DD MMM, YYYY")}
                 </span>
               </div>
               <LineGradient />
@@ -450,7 +441,7 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
                   <ComparisonIcon
                     value={Number(sqft)}
                     targetValue={targetLivingArea}
-                    isLogin={isLogin}
+                    isLogin={true}
                   />
                 </span>
               </div>
@@ -462,7 +453,7 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
                   <ComparisonIcon
                     value={beds}
                     targetValue={targetBeds}
-                    isLogin={isLogin}
+                     isLogin={true}
                   />
                 </span>
               </div>
@@ -474,7 +465,7 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
                   <ComparisonIcon
                     value={baths}
                     targetValue={targetBaths}
-                    isLogin={isLogin}
+                    isLogin={true}
                   />
                 </span>
               </div>
@@ -488,7 +479,7 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
                       <ComparisonIcon
                         value={Number(lotSize)}
                         targetValue={targetLotSize}
-                        isLogin={isLogin}
+                         isLogin={true}
                       />
                     </span>
                   </div>
@@ -505,15 +496,13 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
               <div className="flex w-full justify-between flex-nowrap items-center">
                 <span className=" opacity-40">Days on Market:</span>
                 <span className="">
-                  {!isLoggedIn
-                    ? "****"
-                    : listingDate && getDaysAgoTime(listingDate)}
+                  {listingDate && getDaysAgoTime(listingDate)}
                 </span>
               </div>
               <LineGradient />
               <div className="flex w-full justify-between flex-nowrap items-center">
                 <span className=" opacity-40">MLS® Number:</span>
-                <span className="">{mls}</span>
+                <span className="">{isLogin?mls: "Sign in free to view"}</span>
               </div>
               <LineGradient />
               <div className="flex w-full justify-between flex-nowrap items-center">
@@ -528,19 +517,6 @@ const SimilarPropertiesCard: React.FC<SimilarPropertiesCardProps> = ({
             </div>
           </div>
         </div>
-
-        {!isLogin && (
-          <div className="bg-[#FFFFFF1f] backdrop-blur-md w-full h-full absolute z-30 rounded-xl justify-center items-center-safe flex flex-col">
-            <CustomButton
-              label="Login Required"
-              buttonType="primary"
-              customClasses="font-bold py-4 px-18.5"
-              onClick={() => {
-                setOpenLogin(true);
-              }}
-            />
-          </div>
-        )}
       </div>
     </Link>
   );

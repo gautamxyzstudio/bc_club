@@ -81,7 +81,7 @@ export function OpenStreetMapPropertyPopup({
         >
           <Image
             src={selectedProperty.media_url || Images.apartment}
-            alt={selectedProperty.title}
+            alt={selectedProperty.address}
             width={252}
             height={130}
             loading="eager"

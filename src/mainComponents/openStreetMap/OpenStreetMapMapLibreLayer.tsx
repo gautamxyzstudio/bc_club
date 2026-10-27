@@ -23,6 +23,9 @@ export default function OpenStreetMapMapLibreLayer() {
   useEffect(() => {
     const mapLibreLayer = maplibreGL({
       style: MAP_STYLE,
+      maxZoom: 19,
+      minZoom: 8
+      
     });
 
     mapLibreLayer.addTo(map);

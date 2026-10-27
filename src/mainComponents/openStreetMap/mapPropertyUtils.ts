@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getOfficeName } from "@/src/utilities/utilities";
 
 export const hasValidCoordinates = (item: any) => {
@@ -89,47 +90,30 @@ export const transformActiveListing = (listing: any, me: any) => {
   const { latitude, longitude } = getSafeLatLng(listing);
 
   return {
-    id: listing.documentId || listing.id || listing.listing_id,
-    image:
-      typeof listing?.media_url === "string"
-        ? listing.media_url
-        : Array.isArray(listing?.media_url)
-          ? listing.media_url[0]
-          : listing?.media?.[0]?.MediaURL,
-    title: listing?.property_sub_type || "Property",
-    price: Number(listing?.price) || 0,
+    id: listing.documentId,
+    image: listing?.media_url,
+    title: listing?.property_sub_type,
+    price: listing?.price,
     daysAgo:
-      Number(listing?.old_price) > 0
+      listing.status !== "Active"
         ? listing?.ModificationTimestamp
-        : (listing?.OriginalEntryTimestamp ??
-          listing?.raw_data?.BridgeModificationTimestamp ??
-          0),
+        : Number(listing?.old_price) > 0
+          ? listing?.ModificationTimestamp
+          : (listing?.OriginalEntryTimestamp ??
+            listing?.raw_data?.BridgeModificationTimestamp ??
+            0),
     address: listing?.address,
     neighborhood: listing?.neighborhood,
-    sqft: listing?.Living_area ?? listing?.area ?? 0,
+    sqft: listing?.area ?? listing?.Living_area ?? 0,
     beds: listing?.bedrooms ?? 0,
     baths: listing?.bathrooms ?? 0,
     longitude,
     latitude,
+    likesCount: listing?.likesCount ?? 0,
     lotSize: listing?.lot_size_area ?? "",
-    lotSizeUnits: listing?.lot_size_units,
+    lotSizeUnits: listing?.lot_size_units ?? "",
     structureType: listing?.structure_type ?? "",
-    mls: listing?.mls_number ?? listing?.listing_id,
-    realtor: listing?.office_name ?? getOfficeName(listing),
-    isFavourite: listing?.users?.some(
-      (user: any) => user.documentId === me?.documentId,
-    ),
-    status: listing?.status,
-    likesCount: listing?.likesCount,
-    priceDrop:
-      listing.PreviousListPrice && listing.PreviousListPrice > listing.ListPrice
-        ? Number(
-            (
-              (listing.PreviousListPrice - listing.ListPrice) /
-              listing.ListPrice
-            ).toFixed(1),
-          )
-        : undefined,
+    oldPrice: Number(listing?.old_price) || 0,
     assessedDiff: listing.price
       ? Number(
           ((listing.price - (listing.annual_tax ?? 0)) / listing.price).toFixed(
@@ -137,5 +121,11 @@ export const transformActiveListing = (listing: any, me: any) => {
           ),
         )
       : 0,
+    mls: listing?.listing_id,
+    realtor: listing?.office_name ?? getOfficeName(listing),
+    status: listing?.status || "",
+    isFavourite: listing?.users?.some(
+      (user: any) => user?.documentId === me?.documentId,
+    ),
   };
 };

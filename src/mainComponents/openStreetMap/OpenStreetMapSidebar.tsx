@@ -1,3 +1,4 @@
+"use client"
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useRef, useEffect } from "react";
 import { FiLoader } from "react-icons/fi";
@@ -154,7 +155,7 @@ export default function OpenStreetMapSidebar({
                           <p className="text-xs text-gray-500">
                             Change:{" "}
                             {item.propertyChangePercent !== null &&
-                            item.propertyChangePercent !== undefined
+                              item.propertyChangePercent !== undefined
                               ? `${item.propertyChangePercent}%`
                               : "-"}
                           </p>
@@ -192,27 +193,26 @@ export default function OpenStreetMapSidebar({
       </div>
     );
   }
-
+  console.log(visibleProperties[0])
   return (
     <div className="hidden md:w-95 xl:flex flex-col bg-white md:border-r border-gray-200 z-10 h-full">
-      <div className="p-4 pt-0 flex justify-between items-center text-sm font-semibold border-b border-gray-50">
-        <div className="text-gray-500 ">
-          Results:{" "}
-          <span className="text-black ">
-            {isLoading || !properties
-              ? "..."
-              : Array.isArray(properties)
-                ? `${visibleProperties.length}/${properties.length}`
-                : properties.meta?.total !== undefined
-                  ? `${visibleProperties.length}/${properties.meta.total}`
-                  : "..."}
-          </span>
-        </div>
+      <div className="p-4 pb-0 flex justify-between items-center text-sm font-semibold border-b border-gray-50">
+
+        {isLoading ? <div className="w-full  bg-[#305487] animate-pulse rounded" />
+          : properties?.meta?.total > 10 ? (
+            <div className="text-xs text-gray-500">
+              Showing {visibleProperties.length} of {properties.meta?.total}
+            </div>
+          ) : (
+            <div className="text-xs text-gray-500">
+              Showing {visibleProperties.length} properties found
+            </div>
+          )}
       </div>
 
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-3 space-y-8 no-scrollbar bg-[#f8f9fa]"
+        className="flex-1 overflow-y-auto p-3 space-y-3 no-scrollbar bg-[#f8f9fa]"
       >
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-64 space-y-3">
@@ -224,6 +224,7 @@ export default function OpenStreetMapSidebar({
         ) : visibleProperties.length > 0 ? (
           <>
             {visibleProperties.map((p, idx) => (
+
               <div
                 key={idx}
                 onMouseEnter={() => setHoveredPropertyId?.(p.id)}
@@ -231,6 +232,7 @@ export default function OpenStreetMapSidebar({
               >
                 <PropertiesCard
                   {...p}
+                  forMap={true}
                   isLogin={isLoggedIn || p.status === "Active"}
                   isSold={
                     status === "closed" ||
@@ -296,11 +298,10 @@ export default function OpenStreetMapSidebar({
                       key={`page-${p}`}
                       onClick={() => onPageChange(p as number)}
                       disabled={isLoading}
-                      className={`w-8 h-8 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center justify-center shrink-0 ${
-                        currentPage === p
-                          ? "bg-[#305487] text-white shadow-xs"
-                          : "border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-black hover:bg-gray-50"
-                      }`}
+                      className={`w-8 h-8 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center justify-center shrink-0 ${currentPage === p
+                        ? "bg-[#305487] text-white shadow-xs"
+                        : "border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-black hover:bg-gray-50"
+                        }`}
                     >
                       {p}
                     </button>

@@ -11,7 +11,7 @@ const getStatusColor = (status: string) =>
   status === "forcecloserSold"
     ? "#9F1239"
     : status === "expired"
-      ? "#c8c8c8"
+      ? "#c8c8c8" 
       : "#1E4E8C";
 
 const clusterIcon = (count: number) => {

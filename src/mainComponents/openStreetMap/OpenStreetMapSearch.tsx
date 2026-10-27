@@ -58,7 +58,6 @@ import OpenStreetMapSchoolMarker, {
 import {
   cityCoords,
   OpenStreetMapDefaultCenter,
-  OpenStreetMapRoadmapTile,
   OpenStreetMapSatelliteTile,
 } from "./osmMapConfig";
 import OpenStreetMapSidebar from "./OpenStreetMapSidebar";
@@ -498,145 +497,145 @@ export default function OpenStreetMapSearch() {
   //   }
   // }, [map, showFloodProvince]);
 
-useEffect(() => {
-  if (!map) return;
+  useEffect(() => {
+    if (!map) return;
 
-  if (!showFloodProvince) {
-    if (floodLayerRef.current) {
-      map.removeLayer(floodLayerRef.current);
-      floodLayerRef.current = null;
-    }
-
-    return;
-  }
-
-  let cancelled = false;
-  let requestController: AbortController | null = null;
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-  // Keep track of the viewport for which the layer was loaded.
-  let lastBoundsKey = "";
-
-  const loadFloodLayer = async () => {
-    if (cancelled) return;
-
-    const bounds = map.getBounds();
-    const zoom = map.getZoom();
-
-    const query = new URLSearchParams({
-      north: bounds.getNorth().toString(),
-      south: bounds.getSouth().toString(),
-      east: bounds.getEast().toString(),
-      west: bounds.getWest().toString(),
-      zoom: zoom.toString(),
-    });
-
-    const boundsKey = [
-      bounds.getNorth().toFixed(3),
-      bounds.getSouth().toFixed(3),
-      bounds.getEast().toFixed(3),
-      bounds.getWest().toFixed(3),
-      zoom,
-    ].join(":");
-
-    // Avoid fetching the same viewport repeatedly.
-    if (boundsKey === lastBoundsKey) return;
-
-    lastBoundsKey = boundsKey;
-
-    // Cancel the previous viewport request if it is still running.
-    requestController?.abort();
-    requestController = new AbortController();
-
-    try {
-      setLoadingFloodProvince(true);
-
-      const res = await fetch(
-        `${Endpoints.getFloodProvinceGeoJSON}?${query.toString()}`,
-        { signal: requestController.signal }
-      );
-
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch flood province layer: ${res.status}`
-        );
-      }
-
-      const geojson = await res.json();
-
-      if (cancelled) return;
-
-      // Remove the old viewport layer before rendering the new one.
+    if (!showFloodProvince) {
       if (floodLayerRef.current) {
         map.removeLayer(floodLayerRef.current);
         floodLayerRef.current = null;
       }
 
-      const layer = L.geoJSON(geojson, {
-        pane: "overlayPane",
-        style: {
-          color: "#F4A6A6",
-          weight: 2,
-          opacity: 1,
-          dashArray: "10",
-          fillColor: "#F4A6A6",
-          fillOpacity: 0.85,
-        },
+      return;
+    }
+
+    let cancelled = false;
+    let requestController: AbortController | null = null;
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // Keep track of the viewport for which the layer was loaded.
+    let lastBoundsKey = "";
+
+    const loadFloodLayer = async () => {
+      if (cancelled) return;
+
+      const bounds = map.getBounds();
+      const zoom = map.getZoom();
+
+      const query = new URLSearchParams({
+        north: bounds.getNorth().toString(),
+        south: bounds.getSouth().toString(),
+        east: bounds.getEast().toString(),
+        west: bounds.getWest().toString(),
+        zoom: zoom.toString(),
       });
 
-      layer.addTo(map);
-      floodLayerRef.current = layer;
-    } catch (err) {
-      if (err instanceof Error && err.name === "AbortError") {
-        return;
+      const boundsKey = [
+        bounds.getNorth().toFixed(3),
+        bounds.getSouth().toFixed(3),
+        bounds.getEast().toFixed(3),
+        bounds.getWest().toFixed(3),
+        zoom,
+      ].join(":");
+
+      // Avoid fetching the same viewport repeatedly.
+      if (boundsKey === lastBoundsKey) return;
+
+      lastBoundsKey = boundsKey;
+
+      // Cancel the previous viewport request if it is still running.
+      requestController?.abort();
+      requestController = new AbortController();
+
+      try {
+        setLoadingFloodProvince(true);
+
+        const res = await fetch(
+          `${Endpoints.getFloodProvinceGeoJSON}?${query.toString()}`,
+          { signal: requestController.signal }
+        );
+
+        if (!res.ok) {
+          throw new Error(
+            `Failed to fetch flood province layer: ${res.status}`
+          );
+        }
+
+        const geojson = await res.json();
+
+        if (cancelled) return;
+
+        // Remove the old viewport layer before rendering the new one.
+        if (floodLayerRef.current) {
+          map.removeLayer(floodLayerRef.current);
+          floodLayerRef.current = null;
+        }
+
+        const layer = L.geoJSON(geojson, {
+          pane: "overlayPane",
+          style: {
+            color: "#F4A6A6",
+            weight: 2,
+            opacity: 1,
+            dashArray: "10",
+            fillColor: "#F4A6A6",
+            fillOpacity: 0.85,
+          },
+        });
+
+        layer.addTo(map);
+        floodLayerRef.current = layer;
+      } catch (err) {
+        if (err instanceof Error && err.name === "AbortError") {
+          return;
+        }
+
+        console.error("Flood layer error:", err);
+
+        // Allow a future map movement to retry the failed request.
+        if (lastBoundsKey === boundsKey) {
+          lastBoundsKey = "";
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingFloodProvince(false);
+        }
+      }
+    };
+
+    // Debounce movement so we do not request GeoJSON for every map frame.
+    const scheduleLoad = () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
       }
 
-      console.error("Flood layer error:", err);
+      debounceTimer = setTimeout(() => {
+        void loadFloodLayer();
+      }, 250);
+    };
 
-      // Allow a future map movement to retry the failed request.
-      if (lastBoundsKey === boundsKey) {
-        lastBoundsKey = "";
+    // Initial viewport load.
+    void loadFloodLayer();
+
+    // Refresh when the map finishes moving or zooming.
+    map.on("moveend", scheduleLoad);
+
+    return () => {
+      cancelled = true;
+
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
       }
-    } finally {
-      if (!cancelled) {
-        setLoadingFloodProvince(false);
+
+      requestController?.abort();
+      map.off("moveend", scheduleLoad);
+
+      if (floodLayerRef.current) {
+        map.removeLayer(floodLayerRef.current);
+        floodLayerRef.current = null;
       }
-    }
-  };
-
-  // Debounce movement so we do not request GeoJSON for every map frame.
-  const scheduleLoad = () => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    debounceTimer = setTimeout(() => {
-      void loadFloodLayer();
-    }, 250);
-  };
-
-  // Initial viewport load.
-  void loadFloodLayer();
-
-  // Refresh when the map finishes moving or zooming.
-  map.on("moveend", scheduleLoad);
-
-  return () => {
-    cancelled = true;
-
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    requestController?.abort();
-    map.off("moveend", scheduleLoad);
-
-    if (floodLayerRef.current) {
-      map.removeLayer(floodLayerRef.current);
-      floodLayerRef.current = null;
-    }
-  };
-}, [map, showFloodProvince]);
+    };
+  }, [map, showFloodProvince]);
 
 
   const toggleFloodLayer = () => {
@@ -862,36 +861,36 @@ useEffect(() => {
     setMovingPoint(null);
   };
 
-  const handleMeasureMove = (point: LatLngPoint) => {
-    if (!measureMode || measurePoints.length === 0) return;
-    setMovingPoint(point);
-  };
+  // const handleMeasureMove = (point: LatLngPoint) => {
+  //   if (!measureMode || measurePoints.length === 0) return;
+  //   setMovingPoint(point);
+  // };
 
-  const handleMeasureClick = (point: LatLngPoint) => {
-    if (!measureMode) return;
-    setMovingPoint(null);
+  // const handleMeasureClick = (point: LatLngPoint) => {
+  //   if (!measureMode) return;
+  //   setMovingPoint(null);
 
-    setMeasurePoints((prev) => {
-      const updated = [...prev, point];
+  //   setMeasurePoints((prev) => {
+  //     const updated = [...prev, point];
 
-      if (updated.length >= 2) {
-        let total = 0;
+  //     if (updated.length >= 2) {
+  //       let total = 0;
 
-        for (let i = 1; i < updated.length; i++) {
-          total += getDistanceBetweenPoints(updated[i - 1], updated[i]);
-        }
+  //       for (let i = 1; i < updated.length; i++) {
+  //         total += getDistanceBetweenPoints(updated[i - 1], updated[i]);
+  //       }
 
-        const segment = getDistanceBetweenPoints(
-          updated[updated.length - 2],
-          updated[updated.length - 1],
-        );
+  //       const segment = getDistanceBetweenPoints(
+  //         updated[updated.length - 2],
+  //         updated[updated.length - 1],
+  //       );
 
-        setDistance({ segment, total });
-      }
+  //       setDistance({ segment, total });
+  //     }
 
-      return updated;
-    });
-  };
+  //     return updated;
+  //   });
+  // };
 
   const handleMeasure = () => {
     setMeasureMode((prev) => !prev);
@@ -994,23 +993,23 @@ useEffect(() => {
             >
               <MapReady onReady={onMapReady} />
 
-              
-{isSatellite ? (
-  <TileLayer
-    attribution={OpenStreetMapSatelliteTile.attribution}
-    url={OpenStreetMapSatelliteTile.url}
-    maxZoom={22}
-    maxNativeZoom={OpenStreetMapSatelliteTile.maxNativeZoom}
-  />
-) : (
-  <OpenStreetMapMapLibreLayer />
-)}
+
+              {isSatellite ? (
+                <TileLayer
+                  attribution={OpenStreetMapSatelliteTile.attribution}
+                  url={OpenStreetMapSatelliteTile.url}
+                  maxZoom={22}
+                  maxNativeZoom={OpenStreetMapSatelliteTile.maxNativeZoom}
+                />
+              ) : (
+                <OpenStreetMapMapLibreLayer />
+              )}
 
 
               <SchoolCatchmentLayer apiUrl={process.env.NEXT_PUBLIC_BASE_URL!} />
 
               <OpenStreetMapEvents
-                measureMode={measureMode}
+                // measureMode={measureMode}
                 selectedProperty={selectedProperty}
                 selectedClusterProperties={selectedClusterProperties}
                 triggerSearch={triggerSearch}
@@ -1019,8 +1018,8 @@ useEffect(() => {
                   setSelectedClusterProperties([]);
                   setClusterPosition(null);
                 }}
-                handleMeasureClick={handleMeasureClick}
-                handleMeasureMove={handleMeasureMove}
+                // handleMeasureClick={handleMeasureClick}
+                // handleMeasureMove={handleMeasureMove}
               />
 
               <OpenStreetMapAssignmentGeoLayer

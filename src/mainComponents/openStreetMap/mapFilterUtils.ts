@@ -38,7 +38,11 @@ export const buildActiveFilterPills = ({
 
   if (status && status !== "forSale") {
     const statusLabel =
-      status === "sold" ? "Sold" : status === "expired" ? "Expired" : status;
+      status === "sold" || status === "closed"
+        ? "Sold"
+        : status === "expired"
+          ? "Expired"
+          : status;
 
     activeFilterPills.push({
       label: `Status: ${statusLabel}`,
@@ -200,7 +204,7 @@ export const buildMapZoomParams = ({
     filters.status !== "forSale" &&
     filters.status !== "any"
   ) {
-    p.status = filters.status;
+    p.status = filters.status === "sold" ? "closed" : filters.status;
   }
 
   if (mapBounds) {

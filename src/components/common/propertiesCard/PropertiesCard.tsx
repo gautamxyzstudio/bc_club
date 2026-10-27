@@ -44,6 +44,7 @@ export interface PropertyCardProps {
   structureType?: string;
   oldPrice?: number;
   onCardClick?: (id: string, isSold?: boolean) => void;
+  forMap?: boolean;
   [key: string]: any;
 }
 
@@ -120,6 +121,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
   oldPrice = 0,
   neighborhood,
   onCardClick,
+  forMap = false
 }) => {
   const { data: me } = useGetMe();
   const toggleWishlist = useAddRealEstateFavorite();
@@ -171,7 +173,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
       return;
     }
 
-   
+
     setLocalIsFavourite(true);
     setLocalLikesCount((prev) => prev + 1);
     toggleWishlist.mutate(id);
@@ -216,7 +218,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
   const displayPrice = hideSoldDetails
     ? "Sign in free to see price"
     : `$${Number(price || 0).toLocaleString()}`;
-  const displayAddress = hideSoldDetails ? "Sign in free to view address": address;
+  const displayAddress = hideSoldDetails ? "Sign in free to view address" : address;
   const displayTitle = isLogin
     ? title === "Single Family"
       ? structureType
@@ -242,6 +244,46 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
     : isSold
       ? `/sold-property-info/${id}`
       : `/property-info/${id}`;
+
+  if (forMap) {
+    return <Link
+      href={`${!isLogin ? "#" : getHref}`}
+      className="w-full h-full flex"
+      target={onCardClick ? "_self" : "_blank"}
+      onClick={(e) => {
+        if (isLinkDisabled) {
+          e.preventDefault();
+          return;
+        }
+
+        if (isLogin) {
+          logPropertySearchActivity({
+            propertySearchType: "find_home",
+            searchTerm: address || title || "",
+            propertyId: id,
+          });
+        }
+
+        if (onCardClick && isLogin && !hideSoldDetails) {
+          e.preventDefault();
+          onCardClick(id, isSold);
+        }
+      }}
+    > <div className="w-full h-auto p-2 gap-3 flex flex-row items-center border border-[#E2E8F0] cursor-pointer hover:border-[#305487] hover:border-2 rounded-lg mb-2">
+        <Image src={imgSrc} alt={address} width={100} height={100} loading="eager"
+          onError={() => setImgSrc(Images.apartment)} className="rounded-lg h-auto w-[40%] object-cover" />
+        <div className="w-full space-y-1">
+          <p className="text-xl font-bold text-[#0F172A]">${price.toLocaleString()}</p>
+          <div className="flex items-center space-x-1">
+            <p className="text-xs text-[#475569]">{beds} bd</p><span>&#x2022;</span>
+            <p className="text-xs text-[#475569]">{baths} ba</p><span>&#x2022;</span>
+            <p className="text-xs text-[#475569]">{sqft?.toLocaleString()} sqft</p>
+          </div>
+          <p className="text-xs text-[#475569] capitalize">{address}</p>
+        </div>
+      </div>
+    </Link>
+  }
 
   return (
     <Link
@@ -403,7 +445,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
                       title="Lot size"
                       width={100}
                       height={100}
-                       loading="eager"
+                      loading="eager"
                       className="h-4 w-4 shrink-0 object-contain"
                     />
                     {/* Lot Size */}
@@ -440,7 +482,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
                       title="Living area"
                       width={100}
                       height={100}
-                       loading="eager"
+                      loading="eager"
                       className="h-4 w-4 object-contain"
                     />
                     <span className="max-w-full truncate text-xs font-extrabold text-slate-900">

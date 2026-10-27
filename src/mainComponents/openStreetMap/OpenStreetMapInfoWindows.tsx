@@ -34,6 +34,7 @@ export function OpenStreetMapPropertyPopup({
       offset={[0, 0]}
       closeButton
       autoPan
+      className="hidden lg:block"
     >
       <div
         ref={popupRef}
@@ -215,8 +216,6 @@ export function OpenStreetMapClusterPopup({
               height={55}
               loading="eager"
               style={{
-                // width: 70,
-                // height: 55,
                 objectFit: "cover",
                 borderRadius: 6,
                 background: "#f1f5f9",

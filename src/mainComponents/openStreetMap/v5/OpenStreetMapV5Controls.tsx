@@ -15,6 +15,11 @@ export interface MapLayerState {
   flood: boolean;
 }
 
+export interface SchoolFilterState {
+  elementary: boolean;
+  secondary: boolean;
+}
+
 interface DisclaimerConfig {
   title: string;
   color: string;
@@ -60,6 +65,8 @@ export default function OpenStreetMapV5Controls({
   handleGeolocation,
   toastMessage,
   showNotes = true,
+  schoolFilters,
+  onToggleSchoolFilter,
 }: {
   layerState: MapLayerState;
   onToggleLayer: (key: keyof MapLayerState, value: boolean) => void;
@@ -67,6 +74,8 @@ export default function OpenStreetMapV5Controls({
   handleGeolocation: () => void;
   toastMessage: string | null;
   showNotes?: boolean;
+  schoolFilters?: SchoolFilterState;
+  onToggleSchoolFilter?: (type: "elementary" | "secondary") => void;
 }) {
   const [layersSheetOpen, setLayersSheetOpen] = useState(false);
   const [pendingDisclaimer, setPendingDisclaimer] = useState<
@@ -74,6 +83,25 @@ export default function OpenStreetMapV5Controls({
   >(null);
   const [ackChecked, setAckChecked] = useState(false);
   const [showHint, setShowHint] = useState(true);
+
+  const [internalSchoolFilters, setInternalSchoolFilters] =
+    useState<SchoolFilterState>({
+      elementary: true,
+      secondary: true,
+    });
+
+  const activeSchoolFilters = schoolFilters ?? internalSchoolFilters;
+
+  const handleToggleSchool = (type: "elementary" | "secondary") => {
+    if (onToggleSchoolFilter) {
+      onToggleSchoolFilter(type);
+    } else {
+      setInternalSchoolFilters((prev) => ({
+        ...prev,
+        [type]: !prev[type],
+      }));
+    }
+  };
 
   // Auto-dismiss hint after 8 seconds
   useEffect(() => {
@@ -346,7 +374,7 @@ export default function OpenStreetMapV5Controls({
               </svg>
             </div>
             <div className="v5-lt">
-              <b>Schools &amp; catchments (approx.)</b>
+              <b>Schools</b>
               <small>Confirm catchments with the school board</small>
             </div>
             <button
@@ -356,6 +384,36 @@ export default function OpenStreetMapV5Controls({
               aria-label="Toggle schools"
             />
           </div>
+
+          {/* Expanded school category checkboxes */}
+          {layerState.schools && (
+            <div className="v5-sub-options">
+              <label
+                className={`v5-checkbox-label ${
+                  activeSchoolFilters.elementary ? "active" : ""
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={activeSchoolFilters.elementary}
+                  onChange={() => handleToggleSchool("elementary")}
+                />
+                <span>Elementary</span>
+              </label>
+              <label
+                className={`v5-checkbox-label ${
+                  activeSchoolFilters.secondary ? "active" : ""
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={activeSchoolFilters.secondary}
+                  onChange={() => handleToggleSchool("secondary")}
+                />
+                <span>Secondary</span>
+              </label>
+            </div>
+          )}
 
           {/* 6. Floodplain */}
           <div className="v5-lrow">
@@ -406,6 +464,7 @@ export default function OpenStreetMapV5Controls({
             try {
               localStorage.removeItem(ACK_KEY);
             } catch {}
+            setInternalSchoolFilters({ elementary: true, secondary: true });
             onResetDisclaimers();
             setLayersSheetOpen(false);
           }}

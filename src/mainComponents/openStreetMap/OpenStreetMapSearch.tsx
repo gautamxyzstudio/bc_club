@@ -51,9 +51,8 @@ import MapLoadingBadge from "./MapLoadingBadge";
 import GetInTouch from "../getInTouch/GetInTouch";
 import { Endpoints } from "@/src/api/endpoints";
 import { FiSearch } from "react-icons/fi";
-import OpenStreetMapSchoolMarker, {
+import {
   SchoolItem,
-  SchoolType,
 } from "./OpenStreetMapSchoolMarker";
 import {
   cityCoords,
@@ -127,7 +126,7 @@ export default function OpenStreetMapSearch() {
   const [parcelGeoJSON, setParcelGeoJSON] = useState<any>(null);
   const [geocodedCache, setGeocodedCache] = useState<Record<string, any>>({});
   const [schoolMode, setSchoolMode] = useState(true);
-  const [schoolType, setSchoolType] = useState<SchoolType>("All");
+  const [schoolType, setSchoolType] = useState<any>("All");
   const [measureMode, setMeasureMode] = useState(false);
   const [measurePoints, setMeasurePoints] = useState<LatLngPoint[]>([]);
   const [distance, setDistance] = useState<{
@@ -822,8 +821,6 @@ export default function OpenStreetMapSearch() {
       staleTime: 1000 * 60 * 5,
     });
 
-  const schools = schoolMode ? schoolsData || [] : [];
-
   useEffect(() => {
     if (map && schoolMode && !mapBounds) {
       const nextBounds = getBoundsPayload(map);
@@ -844,7 +841,7 @@ export default function OpenStreetMapSearch() {
     });
   };
 
-  const handleSchoolTypeChange = (type: SchoolType) => {
+  const handleSchoolTypeChange = (type: any) => {
     setSchoolType(type);
 
     if (map) {
@@ -1039,10 +1036,10 @@ export default function OpenStreetMapSearch() {
                 />
               )}
 
-              {schoolMode &&
+              {/* {schoolMode &&
                 schools.map((school: SchoolItem) => (
                   <OpenStreetMapSchoolMarker key={school.id} school={school} />
-                ))}
+                ))} */}
 
               {measureMode && (
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-999 w-82.5 bg-yellow-300 border border-black text-center text-xs shadow-md">

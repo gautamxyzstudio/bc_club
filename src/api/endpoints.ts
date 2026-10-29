@@ -44,8 +44,7 @@ export const Endpoints = {
   mapZoomProperties: `${BASE_URL}/api/real-estate-board/map-properties`,
   getMapZoomAssignmentList: `${BASE_URL}/api/property-assignment-lists/map-zoom`,
   getMapZoomSold: `${BASE_URL}/api/real-estate-board/sold/map-zoom`,
-  getMapZoomSchools: `${BASE_URL}/api/schools/map-zoom`,
-  
+  getMapZoomSchools: `${BASE_URL}/api/school/map-zoom`,
 
   // Flood Province
   getFloodProvinceGeoJSON: `${BASE_URL}/api/flood-province/findGeoJSON`,

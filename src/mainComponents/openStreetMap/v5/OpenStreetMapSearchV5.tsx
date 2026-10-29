@@ -5,7 +5,6 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import "../openStreetMap.css";
 import "./openStreetMapV5.css";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -50,7 +49,6 @@ import GetInTouch from "../../getInTouch/GetInTouch";
 import { Endpoints } from "@/src/api/endpoints";
 import OpenStreetMapSchoolMarker, {
   SchoolItem,
-  SchoolType,
 } from "../OpenStreetMapSchoolMarker";
 import {
   OpenStreetMapDefaultCenter,
@@ -63,13 +61,15 @@ import {
   OpenStreetMapClusterPopup,
   OpenStreetMapPropertyPopup,
 } from "../OpenStreetMapInfoWindows";
-import SchoolCatchmentLayer from "../SchoolCatchmentLayer";
 import OpenStreetMapMapLibreLayer from "../OpenStreetMapMapLibreLayer";
 import OpenStreetMapSoldMakerLayer from "../OpenStreetMapSoldMakerLayer";
 
 // V5 Components
 import OpenStreetMapV5FilterBar from "./OpenStreetMapV5FilterBar";
-import OpenStreetMapV5Controls, { MapLayerState } from "./OpenStreetMapV5Controls";
+import OpenStreetMapV5Controls, {
+  MapLayerState,
+  SchoolFilterState,
+} from "./OpenStreetMapV5Controls";
 import OpenStreetMapV5MarkerLayer from "./OpenStreetMapV5MarkerLayer";
 import OpenStreetMapV5PropertyCard from "./OpenStreetMapV5PropertyCard";
 
@@ -127,7 +127,11 @@ export default function OpenStreetMapSearchV5() {
   const [mapZoomVal, setMapZoomVal] = useState<number | null>(null);
   const [parcelGeoJSON, setParcelGeoJSON] = useState<any>(null);
   const [geocodedCache, setGeocodedCache] = useState<Record<string, any>>({});
-  const [schoolType] = useState<SchoolType>("All");
+  const [schoolFilters, setSchoolFilters] = useState<SchoolFilterState>({
+    elementary: true,
+    secondary: true,
+  });
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<LatLngPoint | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -320,21 +324,48 @@ export default function OpenStreetMapSearchV5() {
 
   // School query
   const schoolParams = useMemo(() => {
+    let typeParam: string | undefined = undefined;
+    if (schoolFilters.elementary && !schoolFilters.secondary) {
+      typeParam = "Elementary";
+    } else if (!schoolFilters.elementary && schoolFilters.secondary) {
+      typeParam = "Secondary";
+    }
     return {
       ...mapZoomParams,
-      type: schoolType === "All" ? undefined : schoolType,
+      schoolType: typeParam,
     };
-  }, [mapZoomParams, schoolType]);
+  }, [mapZoomParams, schoolFilters]);
 
   const { data: querySchools } = useGetMapZoomSchools(schoolParams, {
-    enabled: layerState.schools && !!mapBounds,
+    enabled:
+      layerState.schools &&
+      !!mapBounds &&
+      (schoolFilters.elementary || schoolFilters.secondary),
     staleTime: 1000 * 60 * 10,
+    placeholderData: (previousData: any) => previousData,
   });
 
   const schools = useMemo(() => {
     if (!layerState.schools || !querySchools?.data) return [];
-    return querySchools.data.filter((s: SchoolItem) => s.latitude && s.longitude);
-  }, [layerState.schools, querySchools?.data]);
+    if (!schoolFilters.elementary && !schoolFilters.secondary) return [];
+
+    return querySchools.data
+      .filter((s: SchoolItem) => s.latitude && s.longitude)
+      .filter((s: any) => {
+        if (schoolFilters.elementary && schoolFilters.secondary) return true;
+        const type = (s.level || "").toLowerCase();
+        const isElem = type.includes("elem");
+        const isSec = type.includes("sec") || type.includes("high");
+
+        if (schoolFilters.elementary) {
+          return isElem || (!isSec && !type);
+        }
+        if (schoolFilters.secondary) {
+          return isSec;
+        }
+        return true;
+      });
+  }, [layerState.schools, querySchools?.data, schoolFilters]);
 
   const queryActiveData = isForecloser
     ? queryDataForecloserActive
@@ -640,6 +671,16 @@ export default function OpenStreetMapSearchV5() {
     }
   };
 
+  const handleToggleSchoolFilter = (type: "elementary" | "secondary") => {
+    setSchoolFilters((prev) => {
+      const next = { ...prev, [type]: !prev[type] };
+      const label =
+        type === "elementary" ? "Elementary schools" : "Secondary schools";
+      showToast(`${label} ${next[type] ? "on" : "off"}`);
+      return next;
+    });
+  };
+
   const handleResetDisclaimers = () => {
     setLayerState((prev) => ({
       ...prev,
@@ -647,6 +688,10 @@ export default function OpenStreetMapSearchV5() {
       flood: false,
       schools: false,
     }));
+    setSchoolFilters({
+      elementary: true,
+      secondary: true,
+    });
     showToast("Disclaimers reset");
   };
 
@@ -744,13 +789,6 @@ export default function OpenStreetMapSearchV5() {
               {/* Base Layer */}
               <OpenStreetMapMapLibreLayer />
 
-              {/* School Catchment Polygon Layer */}
-              {layerState.schools && (
-                <SchoolCatchmentLayer
-                  apiUrl={process.env.NEXT_PUBLIC_BASE_URL || ""}
-                />
-              )}
-
               {/* Map Events Handler */}
               <OpenStreetMapEvents
                 selectedProperty={selectedProperty}
@@ -787,8 +825,19 @@ export default function OpenStreetMapSearchV5() {
 
               {/* Schools Pins */}
               {layerState.schools &&
-                schools.map((school: SchoolItem) => (
-                  <OpenStreetMapSchoolMarker key={school.id} school={school} />
+                schools.map((school: SchoolItem, idx: number) => (
+                  <OpenStreetMapSchoolMarker
+                    key={idx}
+                    school={school}
+                    selected={selectedSchoolId === school.documentId}
+                    onSelect={(documentId) => setSelectedSchoolId(documentId)}
+                    onClose={() => setSelectedSchoolId(null)}
+                    getSchoolDetailUrl={(documentId) =>
+                      `${process.env.NEXT_PUBLIC_BASE_URL}/api/schools/${encodeURIComponent(
+                        documentId,
+                      )}`
+                    }
+                  />
                 ))}
 
               {/* User Location Pulse Marker */}
@@ -867,6 +916,8 @@ export default function OpenStreetMapSearchV5() {
               onResetDisclaimers={handleResetDisclaimers}
               handleGeolocation={handleGeolocation}
               toastMessage={toastMessage}
+              schoolFilters={schoolFilters}
+              onToggleSchoolFilter={handleToggleSchoolFilter}
             />
 
             {/* Mobile Bottom Sliding Property Card */}

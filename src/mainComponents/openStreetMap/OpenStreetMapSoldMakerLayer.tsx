@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useAuthContext } from "../auth/AuthContext";
+import { formatPriceAbbreviated } from "./mapUtils";
 
 type SoldListing = {
   documentId: string;
@@ -51,7 +52,7 @@ export default function OpenStreetMapSoldMakerLayer({
         ? new Date(item.soldDate).getFullYear()
         : "";
 
-      const price = Number(item.price || 0).toLocaleString();
+      const price = Number(item.price);
       const image =
         item.media_url || "https://placehold.co/400x300?text=Property";
       const sqft = item.Living_area || item.area || 0;
@@ -61,7 +62,7 @@ export default function OpenStreetMapSoldMakerLayer({
         className: "",
         html: `
           <div class="sold-marker flex items-center justify-center rounded-sm text-[#9F1239] bg-background hover:border border-[#9F1239] text-xs font-semibold text-nowrap shadow-md cursor-pointer w-fit px-1 py-0.5">
-            Sold ${soldYear}
+            ${!isLoggedIn ? 'Sold ' + soldYear : `${formatPriceAbbreviated(Number(price))}`}
           </div>
         `,
         iconSize: [15, 15],
@@ -72,7 +73,7 @@ export default function OpenStreetMapSoldMakerLayer({
         ? `
   <div
     style="
-      width:260px;
+      width:220px;
       background:white;
       border-radius:8px;
       font-family:'Plus Jakarta Display', sans-serif;
@@ -206,25 +207,25 @@ export default function OpenStreetMapSoldMakerLayer({
         : `
         <div
           style="
-            width:260px;
+            width:220px;
             background:white;
             border-radius:6px;
             font-family:Plus Jakarta Display, sans-serif;
             cursor:pointer;
-            padding:4px;
+            padding:0px;
             position:relative;
           " onclick="window.open('/sold-property-info/${item.documentId}', '_blank')"
         >
           <div
             style="
               position:absolute;
-              top:10px;
-              left:10px;
+              top:5px;
+              left:5px;
               z-index:2;
               background:#dc2626;
               color:white;
               font-size:11px;
-              font-weight:700;
+              font-weight:550;
               padding:4px 8px;
               border-radius:999px;
             "
@@ -268,7 +269,7 @@ export default function OpenStreetMapSoldMakerLayer({
                 font-weight:700;
               "
             >
-              $${price}
+              $${price.toLocaleString()}
             </h3>
 
             <p
@@ -308,6 +309,7 @@ export default function OpenStreetMapSoldMakerLayer({
         autoPan: true,
         offset: [0, 10],
         maxWidth: 280,
+        className: 'map-popup'
       });
 
       marker.on("popupopen", () => {

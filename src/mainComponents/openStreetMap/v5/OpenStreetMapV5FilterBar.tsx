@@ -64,13 +64,11 @@ export default function OpenStreetMapV5FilterBar({
   };
 
   const activeBedRoom = filters.activeBedRoom || "any";
-  const propertyType = filters.propertyType || "any";
   const minPrice = filters.minPrice || 0;
   const maxPrice = filters.maxPrice || 100000000;
 
   const hasPriceFilter = minPrice > 0 || maxPrice < 100000000;
   const hasBedFilter = activeBedRoom !== "any";
-  const hasTypeFilter = propertyType !== "any";
   const hasStatusFilter = status !== "forSale";
 
   return (
@@ -101,24 +99,6 @@ export default function OpenStreetMapV5FilterBar({
             Street
           </button>
         </div>
-
-        {/* Compact Search Bar */}
-        {/* <div className="v5-search-pill">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search city, neighborhood, address..."
-          />
-          <button
-            type="button"
-            className="v5-search-btn"
-            title="Search"
-            aria-label="Search"
-          >
-            <FiSearch size={13} />
-          </button>
-        </div> */}
 
         {/* All Filters Button */}
         <button
@@ -320,56 +300,6 @@ export default function OpenStreetMapV5FilterBar({
                   {status === item.id && (
                     <span className="text-[#1E4E8C] font-extrabold">✓</span>
                   )}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Property Type Dropdown Chip */}
-        <div className="relative" ref={typeRef}>
-          <button
-            type="button"
-            onClick={() => toggleDropdown("type")}
-            className={`v5-chip ${hasTypeFilter ? "active" : ""}`}
-          >
-            <span>
-              {propertyType === "any"
-                ? "Type"
-                : propertyType === "Single Family"
-                  ? "House"
-                  : propertyType}
-            </span>
-            <FiChevronDown
-              size={13}
-              className={`transition-transform ${openDropdown === "type" ? "rotate-180" : ""}`}
-            />
-          </button>
-
-          {openDropdown === "type" && (
-            <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-2xl shadow-[0_12px_36px_rgba(15,23,42,0.18)] border border-slate-100 p-2 z-1050 animate-in fade-in duration-150">
-              {[
-                { id: "any", label: "All Types" },
-                { id: "Single Family", label: "House / Single Family" },
-                { id: "Apartment", label: "Condo / Apartment" },
-                { id: "Townhouse", label: "Townhouse" },
-                { id: "Duplex", label: "Duplex" },
-                { id: "Land", label: "Lots / Land" },
-              ].map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => {
-                    updateFilter("propertyType", t.id);
-                    setOpenDropdown(null);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
-                    propertyType === t.id
-                      ? "bg-[#1E4E8C] text-white"
-                      : "text-slate-700 hover:bg-slate-50"
-                  }`}
-                >
-                  {t.label}
                 </button>
               ))}
             </div>

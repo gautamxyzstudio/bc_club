@@ -12,6 +12,9 @@ import L from "leaflet";
 import {
   CircleMarker,
   MapContainer,
+  Marker,
+  Polyline,
+  TileLayer,
   useMap,
 } from "react-leaflet";
 import {
@@ -32,7 +35,10 @@ import { useMediaQuery } from "@/src/hooks/useMediaQuery";
 import { useSearchParams } from "next/navigation";
 import {
   boundsKey,
+  formatMeter,
   getBoundsPayload,
+  getDistanceBetweenPoints,
+  getMiddlePoint,
   type LatLngPoint,
 } from "../osmMapUtils";
 import { MapBounds } from "../mapTypes";
@@ -52,6 +58,7 @@ import OpenStreetMapSchoolMarker, {
 } from "../OpenStreetMapSchoolMarker";
 import {
   OpenStreetMapDefaultCenter,
+  OpenStreetMapSatelliteTile,
 } from "../osmMapConfig";
 import OpenStreetMapSidebar from "../OpenStreetMapSidebar";
 import OpenStreetMapEvents from "../OpenStreetMapEvents";
@@ -135,11 +142,79 @@ export default function OpenStreetMapSearchV5() {
   const [userLocation, setUserLocation] = useState<LatLngPoint | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Map Style & Measure Tool State
+  const [isSatellite, setIsSatellite] = useState(false);
+  const [measureMode, setMeasureMode] = useState(false);
+  const [measurePoints, setMeasurePoints] = useState<LatLngPoint[]>([]);
+  const [distance, setDistance] = useState<{
+    segment: number;
+    total: number;
+  } | null>(null);
+  const [movingPoint, setMovingPoint] = useState<LatLngPoint | null>(null);
+
+  const toggleMapStyle = () => {
+    setIsSatellite((prev) => {
+      const next = !prev;
+      showToast(next ? "Satellite imagery on" : "Vector map on");
+      return next;
+    });
+  };
+
+  const clearMeasurement = () => {
+    setMeasurePoints([]);
+    setDistance(null);
+    setMovingPoint(null);
+  };
+
+  const handleMeasure = () => {
+    setMeasureMode((prev) => {
+      const next = !prev;
+      showToast(next ? "Measure tool on: click map points" : "Measure tool off");
+      return next;
+    });
+
+    if (measureMode) {
+      clearMeasurement();
+    }
+
+    setSelectedProperty(null);
+    setSelectedClusterProperties([]);
+    setClusterPosition(null);
+  };
+
+  const handleMeasureMove = (point: LatLngPoint) => {
+    if (!measureMode || measurePoints.length === 0) return;
+    setMovingPoint(point);
+  };
+
+  const handleMeasureClick = (point: LatLngPoint) => {
+    if (!measureMode) return;
+    setMovingPoint(null);
+
+    setMeasurePoints((prev) => {
+      const updated = [...prev, point];
+
+      if (updated.length >= 2) {
+        let total = 0;
+        for (let i = 1; i < updated.length; i++) {
+          total += getDistanceBetweenPoints(updated[i - 1], updated[i]);
+        }
+        const segment = getDistanceBetweenPoints(
+          updated[updated.length - 2],
+          updated[updated.length - 1],
+        );
+        setDistance({ segment, total });
+      }
+
+      return updated;
+    });
+  };
+
   // V5 Layer State
   const [layerState, setLayerState] = useState<MapLayerState>({
     listings: true,
     drops: true,
-    sold: true,
+    sold: false,
     lots: false,
     schools: false,
     flood: false,
@@ -786,8 +861,17 @@ export default function OpenStreetMapSearchV5() {
             >
               <MapReady onReady={onMapReady} />
 
-              {/* Base Layer */}
-              <OpenStreetMapMapLibreLayer />
+              {/* Base Layer: Vector map vs Satellite imagery */}
+              {isSatellite ? (
+                <TileLayer
+                  attribution={OpenStreetMapSatelliteTile.attribution}
+                  url={OpenStreetMapSatelliteTile.url}
+                  maxZoom={22}
+                  maxNativeZoom={OpenStreetMapSatelliteTile.maxNativeZoom}
+                />
+              ) : (
+                <OpenStreetMapMapLibreLayer />
+              )}
 
               {/* Map Events Handler */}
               <OpenStreetMapEvents
@@ -799,6 +883,9 @@ export default function OpenStreetMapSearchV5() {
                   setSelectedClusterProperties([]);
                   setClusterPosition(null);
                 }}
+                measureMode={measureMode}
+                handleMeasureClick={handleMeasureClick}
+                handleMeasureMove={handleMeasureMove}
               />
 
               {/* Assignment & Assessment Layer */}
@@ -827,10 +914,14 @@ export default function OpenStreetMapSearchV5() {
               {layerState.schools &&
                 schools.map((school: SchoolItem, idx: number) => (
                   <OpenStreetMapSchoolMarker
-                    key={idx}
+                    key={school.documentId || school.id || `school-${idx}`}
                     school={school}
                     selected={selectedSchoolId === school.documentId}
-                    onSelect={(documentId) => setSelectedSchoolId(documentId)}
+                    onSelect={(documentId) => {
+                      setSelectedProperty(null);
+                      setSelectedClusterProperties([]);
+                      setSelectedSchoolId(documentId);
+                    }}
                     onClose={() => setSelectedSchoolId(null)}
                     getSchoolDetailUrl={(documentId) =>
                       `${process.env.NEXT_PUBLIC_BASE_URL}/api/schools/${encodeURIComponent(
@@ -891,6 +982,72 @@ export default function OpenStreetMapSearchV5() {
                 />
               )}
 
+              {/* Measurement Tool Interactive Polylines & Markers */}
+              {measureMode && measurePoints.length > 0 && movingPoint && (
+                <Polyline
+                  positions={[
+                    [
+                      measurePoints[measurePoints.length - 1].lat,
+                      measurePoints[measurePoints.length - 1].lng,
+                    ],
+                    [movingPoint.lat, movingPoint.lng],
+                  ]}
+                  pathOptions={{
+                    color: "#1E4E8C",
+                    opacity: 0.85,
+                    weight: 3,
+                    dashArray: "6, 6",
+                  }}
+                />
+              )}
+
+              {measureMode && measurePoints.length >= 2 && (
+                <Polyline
+                  positions={
+                    measurePoints.map((point) => [point.lat, point.lng]) as [
+                      number,
+                      number,
+                    ][]
+                  }
+                  pathOptions={{ color: "#1E4E8C", opacity: 1, weight: 3 }}
+                />
+              )}
+
+              {measureMode &&
+                measurePoints.length >= 2 &&
+                measurePoints.slice(1).map((point, index) => {
+                  const start = measurePoints[index];
+                  const end = point;
+                  const segmentDistance = getDistanceBetweenPoints(start, end);
+                  const middle = getMiddlePoint(start, end);
+
+                  return (
+                    <Marker
+                      key={`segment-distance-${index}`}
+                      position={[middle.lat, middle.lng]}
+                      icon={L.divIcon({
+                        className: "v5-marker-wrapper",
+                        html: `<div class="v5-measure-label">${formatMeter(segmentDistance)}</div>`,
+                      })}
+                    />
+                  );
+                })}
+
+              {measureMode &&
+                measurePoints.map((point, index) => (
+                  <CircleMarker
+                    key={`measure-point-${index}`}
+                    center={[point.lat, point.lng]}
+                    radius={6}
+                    pathOptions={{
+                      color: "#1E4E8C",
+                      fillColor: "#ffffff",
+                      fillOpacity: 1,
+                      weight: 2.5,
+                    }}
+                  />
+                ))}
+
               {/* Popups */}
               <OpenStreetMapPropertyPopup
                 selectedProperty={selectedProperty}
@@ -906,6 +1063,50 @@ export default function OpenStreetMapSearchV5() {
               />
             </MapContainer>
 
+            {/* Measurement Floating Banner */}
+            {measureMode && (
+              <div className="v5-measure-banner flex-col">
+                <span className="v5-measure-badge">Measure</span>
+                <div className="v5-measure-values">
+                  {distance ? (
+                    <>
+                      <span>
+                        Segment: <b>{formatMeter(distance.segment)}</b>
+                      </span>
+                      <span>·</span>
+                      <span>
+                        Total: <b>{formatMeter(distance.total)}</b>
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-slate-500 font-normal">
+                      {measurePoints.length === 0
+                        ? "Click on the map to place the first point"
+                        : "Click another point to measure distance"}
+                    </span>
+                  )}
+                </div>
+                <div className="v5-measure-actions">
+                  {measurePoints.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={clearMeasurement}
+                      className="v5-measure-btn"
+                    >
+                      Clear
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleMeasure}
+                    className="v5-measure-btn cancel"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Loading Badge */}
             {isLoading && <MapLoadingBadge />}
 
@@ -918,6 +1119,10 @@ export default function OpenStreetMapSearchV5() {
               toastMessage={toastMessage}
               schoolFilters={schoolFilters}
               onToggleSchoolFilter={handleToggleSchoolFilter}
+              isSatellite={isSatellite}
+              toggleMapStyle={toggleMapStyle}
+              measureMode={measureMode}
+              handleMeasure={handleMeasure}
             />
 
             {/* Mobile Bottom Sliding Property Card */}

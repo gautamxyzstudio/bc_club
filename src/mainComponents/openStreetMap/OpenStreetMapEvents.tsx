@@ -3,12 +3,16 @@
 
 import { useRef } from "react";
 import { useMapEvents } from "react-leaflet";
+import type { LatLngPoint } from "./osmMapUtils";
 
 interface OpenStreetMapEventsProps {
   selectedProperty: any;
   selectedClusterProperties: any[];
   triggerSearch: () => void;
   clearPopups: () => void;
+  measureMode?: boolean;
+  handleMeasureClick?: (point: LatLngPoint) => void;
+  handleMeasureMove?: (point: LatLngPoint) => void;
 }
 
 /**
@@ -20,6 +24,9 @@ export default function OpenStreetMapEvents({
   selectedClusterProperties,
   triggerSearch,
   clearPopups,
+  measureMode,
+  handleMeasureClick,
+  handleMeasureMove,
 }: OpenStreetMapEventsProps) {
   const timeoutRef = useRef<any>(null);
 
@@ -36,6 +43,16 @@ export default function OpenStreetMapEvents({
     },
     dragstart() {
       clearPopups();
+    },
+    click(e) {
+      if (measureMode && handleMeasureClick) {
+        handleMeasureClick({ lat: e.latlng.lat, lng: e.latlng.lng });
+      }
+      clearPopups();
+    },
+    mousemove(e) {
+      if (!measureMode || !handleMeasureMove) return;
+      handleMeasureMove({ lat: e.latlng.lat, lng: e.latlng.lng });
     },
   });
 

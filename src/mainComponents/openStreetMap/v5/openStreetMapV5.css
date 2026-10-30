@@ -1098,3 +1098,117 @@
   }
 
 }
+
+.map-popup{
+  .leaflet-popup-content {
+    margin: 8;
+  }
+  .leaflet-popup-content-wrapper {
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+   a.leaflet-popup-close-button{
+    width: 28px;
+    height: 28px;
+    background-color: #fff;
+    color: var(--v5-navy);
+    border-radius:0 8px 0 0 ;
+    font-size: 20px;
+  }
+}
+
+/* Measurement Tool Banner & Labels */
+.v5-measure-banner {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  background: #ffffff;
+  border: 1px solid var(--v5-line);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.15);
+  border-radius: 12px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--v5-ink);
+  pointer-events: auto;
+  max-width: 90vw;
+}
+
+.v5-measure-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(30, 78, 140, 0.08);
+  color: var(--v5-navy);
+  font-weight: 700;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.v5-measure-values {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.v5-measure-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.v5-measure-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--v5-line);
+  background: #ffffff;
+  color: var(--v5-slate);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.v5-measure-btn:hover {
+  background: #F1F5F9;
+  color: var(--v5-ink);
+}
+
+.v5-measure-btn.cancel {
+  background: #FEE2E2;
+  border-color: #FECACA;
+  color: #DC2626;
+}
+
+.v5-measure-btn.cancel:hover {
+  background: #FCA5A5;
+}
+
+.v5-measure-label {
+  background: #ffffff;
+  color: var(--v5-ink);
+  border: 1px solid var(--v5-line);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+  white-space: nowrap;
+  width: max-content;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}

@@ -4,7 +4,9 @@ import React, { useState, useEffect } from "react";
 import {
   FiNavigation,
   FiLayers,
+  FiMap,
 } from "react-icons/fi";
+import { TbRulerMeasure } from "react-icons/tb";
 
 export interface MapLayerState {
   listings: boolean;
@@ -67,6 +69,10 @@ export default function OpenStreetMapV5Controls({
   showNotes = true,
   schoolFilters,
   onToggleSchoolFilter,
+  isSatellite = false,
+  toggleMapStyle,
+  measureMode = false,
+  handleMeasure,
 }: {
   layerState: MapLayerState;
   onToggleLayer: (key: keyof MapLayerState, value: boolean) => void;
@@ -76,6 +82,10 @@ export default function OpenStreetMapV5Controls({
   showNotes?: boolean;
   schoolFilters?: SchoolFilterState;
   onToggleSchoolFilter?: (type: "elementary" | "secondary") => void;
+  isSatellite?: boolean;
+  toggleMapStyle?: () => void;
+  measureMode?: boolean;
+  handleMeasure?: () => void;
 }) {
   const [layersSheetOpen, setLayersSheetOpen] = useState(false);
   const [pendingDisclaimer, setPendingDisclaimer] = useState<
@@ -141,7 +151,7 @@ export default function OpenStreetMapV5Controls({
       const stored = JSON.parse(localStorage.getItem(ACK_KEY) || "{}");
       stored[pendingDisclaimer] = true;
       localStorage.setItem(ACK_KEY, JSON.stringify(stored));
-    } catch {}
+    } catch { }
 
     onToggleLayer(pendingDisclaimer, true);
     setPendingDisclaimer(null);
@@ -225,6 +235,32 @@ export default function OpenStreetMapV5Controls({
           <FiLayers size={20} />
           {activeCount > 0 && <span className="v5-fab-badge">{activeCount}</span>}
         </button>
+
+        {/* Map Style FAB: Vector map vs Satellite imagery toggle */}
+        {toggleMapStyle && (
+          <button
+            type="button"
+            onClick={toggleMapStyle}
+            className={`v5-fab ${isSatellite ? "on" : ""}`}
+            title={isSatellite ? "Switch to Vector Map" : "Switch to Satellite Imagery"}
+            aria-label="Map Style (Vector / Satellite)"
+          >
+            <FiMap size={19} />
+          </button>
+        )}
+
+        {/* Measure Tool: Interactive ruler for measuring distance between map points */}
+        {handleMeasure && (
+          <button
+            type="button"
+            onClick={handleMeasure}
+            className={`v5-fab ${measureMode ? "on" : ""}`}
+            title={measureMode ? "Exit Measure Tool" : "Measure Distance"}
+            aria-label="Measure Distance"
+          >
+            <TbRulerMeasure size={20} />
+          </button>
+        )}
 
         {/* Location Button */}
         <button
@@ -389,9 +425,8 @@ export default function OpenStreetMapV5Controls({
           {layerState.schools && (
             <div className="v5-sub-options">
               <label
-                className={`v5-checkbox-label ${
-                  activeSchoolFilters.elementary ? "active" : ""
-                }`}
+                className={`v5-checkbox-label ${activeSchoolFilters.elementary ? "active" : ""
+                  }`}
               >
                 <input
                   type="checkbox"
@@ -401,9 +436,8 @@ export default function OpenStreetMapV5Controls({
                 <span>Elementary</span>
               </label>
               <label
-                className={`v5-checkbox-label ${
-                  activeSchoolFilters.secondary ? "active" : ""
-                }`}
+                className={`v5-checkbox-label ${activeSchoolFilters.secondary ? "active" : ""
+                  }`}
               >
                 <input
                   type="checkbox"
@@ -463,7 +497,7 @@ export default function OpenStreetMapV5Controls({
           onClick={() => {
             try {
               localStorage.removeItem(ACK_KEY);
-            } catch {}
+            } catch { }
             setInternalSchoolFilters({ elementary: true, secondary: true });
             onResetDisclaimers();
             setLayersSheetOpen(false);

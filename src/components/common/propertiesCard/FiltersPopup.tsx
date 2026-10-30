@@ -136,7 +136,9 @@ import { useAuthContext } from "@/src/mainComponents/auth/AuthContext";
 const PriceSlider = styled(Slider)({
   color: "#E8A200",
   height: 6,
-  padding: "14px 0",
+  padding: "14px 10%",
+  width: "90%",
+  alignSelf: 'center',
   "& .MuiSlider-thumb": {
     height: 18,
     width: 18,
@@ -310,6 +312,18 @@ export default function FiltersPopup({
     }
   };
 
+  const formatNumber = (value: string | number) => {
+    const cleanedValue = String(value).replace(/,/g, "");
+
+    if (cleanedValue === "") return "";
+
+    const numericValue = Number(cleanedValue);
+
+    if (!Number.isFinite(numericValue)) return "";
+
+    return numericValue.toLocaleString("en-US");
+  };
+
   useEffect(() => {
     if (selectedLocations.length === 0) {
       setAvailableNeighborhoods([]);
@@ -400,23 +414,37 @@ export default function FiltersPopup({
       setAssociationFee([minFee, maxFee]);
 
       // input reset / sync
-      setMinPriceInput(minPrice > 0 ? String(minPrice) : "");
-      setMaxPriceInput(maxPrice < 100000000 ? String(maxPrice) : "");
+      setMinPriceInput(minPrice > 0 ? formatNumber(minPrice) : "");
+      setMaxPriceInput(
+        maxPrice < 100000000 ? formatNumber(maxPrice) : ""
+      );
 
-      setMinSqftInput(minSqft > 0 ? String(minSqft) : "");
-      setMaxSqftInput(maxSqft < 15000 ? String(maxSqft) : "");
+      setMinSqftInput(minSqft > 0 ? formatNumber(minSqft) : "");
+      setMaxSqftInput(
+        maxSqft < 15000 ? formatNumber(maxSqft) : ""
+      );
 
-      setMinLotSqftInput(minLot > 0 ? String(minLot) : "");
-      setMaxLotSqftInput(maxLot < 100000 ? String(maxLot) : "");
+      setMinLotSqftInput(minLot > 0 ? formatNumber(minLot) : "");
+      setMaxLotSqftInput(
+        maxLot < 100000 ? formatNumber(maxLot) : ""
+      );
 
-      setMinTaxInput(minTax > 0 ? String(minTax) : "");
-      setMaxTaxInput(maxTax < 50000 ? String(maxTax) : "");
+      setMinTaxInput(minTax > 0 ? formatNumber(minTax) : "");
+      setMaxTaxInput(
+        maxTax < 50000 ? formatNumber(maxTax) : ""
+      );
 
-      setMinPricePerSftInput(minPps > 0 ? String(minPps) : "");
-      setMaxPricePerSftInput(maxPps < 25000 ? String(maxPps) : "");
+      setMinPricePerSftInput(minPps > 0 ? formatNumber(minPps) : "");
+      setMaxPricePerSftInput(
+        maxPps < 25000 ? formatNumber(maxPps) : ""
+      );
 
-      setMinAssociationFeeInput(minFee > 0 ? String(minFee) : "");
-      setMaxAssociationFeeInput(maxFee < 3000 ? String(maxFee) : "");
+      setMinAssociationFeeInput(
+        minFee > 0 ? formatNumber(minFee) : ""
+      );
+      setMaxAssociationFeeInput(
+        maxFee < 3000 ? formatNumber(maxFee) : ""
+      );
 
       setBedrooms(
         currentFilters.activeBedRoom && currentFilters.activeBedRoom !== "any"
@@ -557,14 +585,20 @@ export default function FiltersPopup({
     defaultMin: number,
     defaultMax: number,
   ) => {
-    inputSetter(value);
+    const cleanedValue = value.replace(/,/g, "");
 
-    if (value === "") {
-      setter((prev) => (index === 0 ? [null, prev[1]] : [prev[0], null]));
+    inputSetter(cleanedValue);
+
+    if (cleanedValue === "") {
+      setter((prev) =>
+        index === 0 ? [null, prev[1]] : [prev[0], null]
+      );
       return;
     }
 
-    const num = Number(value);
+    const num = Number(cleanedValue);
+
+    if (!Number.isFinite(num)) return;
 
     setter((prev) => {
       const min = prev[0] ?? defaultMin;
@@ -585,7 +619,7 @@ export default function FiltersPopup({
           sx: {
             width: "100%",
             maxWidth: 650,
-            borderRadius: 5,
+            borderRadius: 2,
             margin: "24px",
           },
         },
@@ -593,7 +627,7 @@ export default function FiltersPopup({
     >
       {/* Popup Content */}
       <div
-        className="bg-white rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto md:px-6 md:pt-6 p-4 pb-0 w-full scrollbar-hide"
+        className="bg-white rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto md:px-6 md:pt-6 p-4 pb-0 w-full scrollbar-thumb-secondary scrollbar-gutter-stable"
         onClick={(e) => {
           e.stopPropagation();
           if (locationDropdownOpen) {
@@ -613,7 +647,7 @@ export default function FiltersPopup({
         </div>
 
         {/* Property Type Status */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           {[
             { k: "forSale", l: "For Sale", i: Images.forSale },
             { k: "sold", l: "Sold", i: Images.sold },
@@ -624,13 +658,13 @@ export default function FiltersPopup({
             <button
               key={s.k}
               onClick={() => {
-                if ((s.k === "sold" || s.k === "expired") && !isLoggedIn) {
+                if ((s.k === "sold" || s.k === "expired" || s.k === "forecloserSold") && !isLoggedIn) {
                   setOpenLogin(true);
                   return;
                 }
                 setStatus(s.k);
               }}
-              className={`border rounded-xl p-3 flex flex-col items-center gap-2 cursor-pointer transition ${status === s.k
+              className={`border rounded-lg p-3 flex flex-col items-center gap-2 cursor-pointer transition ${status === s.k
                 ? "bg-[#7c7c7c33] border-[#0F0F0F33]"
                 : "border-[#0F0F0F33]"
                 }`}
@@ -641,7 +675,7 @@ export default function FiltersPopup({
                 width={36}
                 height={36}
                 alt={s.l}
-                 loading="eager"
+                loading="eager"
               />
               <span className="text-sm font-medium">{s.l}</span>
             </button>
@@ -655,7 +689,7 @@ export default function FiltersPopup({
           <div className="relative w-full">
             <div
               onClick={() => setLocationDropdownOpen(!locationDropdownOpen)}
-              className="w-full border border-[#33333333] rounded-xl px-3 py-3 cursor-pointer text-sm flex justify-between items-center bg-white"
+              className="w-full border border-[#33333333] rounded-lg px-3 py-3 cursor-pointer text-sm flex justify-between items-center bg-white"
             >
               <span
                 className={`truncate ${selectedLocations.length > 0 ? "text-black" : "text-gray-500"
@@ -679,8 +713,7 @@ export default function FiltersPopup({
 
             {locationDropdownOpen && (
               <div
-                // onClick={(e) => e.stopPropagation()}
-                className="absolute top-full mt-1 w-full bg-white border border-[#33333333] shadow-lg rounded-xl z-50 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-hide py-2"
+                className="absolute top-full mt-1 w-full bg-white border border-[#33333333] shadow-lg rounded-lg z-50 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-hide py-2"
               >
                 {/* Popular Group */}
                 <div>
@@ -785,7 +818,7 @@ export default function FiltersPopup({
                   setNeighborhoodDropdownOpen(!neighborhoodDropdownOpen);
                 }
               }}
-              className={`w-full border border-[#33333333] rounded-xl px-3 py-3 text-sm flex justify-between items-center bg-white ${selectedLocations.length === 0
+              className={`w-full border border-[#33333333] rounded-lg px-3 py-3 text-sm flex justify-between items-center bg-white ${selectedLocations.length === 0
                 ? "opacity-60 cursor-not-allowed"
                 : "cursor-pointer"
                 }`}
@@ -819,7 +852,7 @@ export default function FiltersPopup({
             {neighborhoodDropdownOpen && selectedLocations.length > 0 && (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="absolute top-full mt-1 w-full bg-white border border-[#33333333] shadow-lg rounded-xl z-50 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-hide py-2"
+                className="absolute top-full mt-1 w-full bg-white border border-[#33333333] shadow-lg rounded-lg z-50 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-hide py-2"
               >
                 {/* Search Bar for Neighborhood */}
                 <div className="px-3 pb-2 pt-1 border-b border-gray-100">
@@ -913,7 +946,7 @@ export default function FiltersPopup({
                   onClick={() =>
                     setWhenListedDropdownOpen(!whenListedDropdownOpen)
                   }
-                  className="w-full border border-[#33333333] rounded-xl px-3 py-3 cursor-pointer text-sm flex justify-between items-center bg-white"
+                  className="w-full border border-[#33333333] rounded-lg px-3 py-3 cursor-pointer text-sm flex justify-between items-center bg-white"
                 >
                   <span
                     className={
@@ -934,7 +967,7 @@ export default function FiltersPopup({
                 </div>
 
                 {whenListedDropdownOpen && (
-                  <div className="absolute top-full mt-1 w-full bg-white border border-[#33333333] shadow-lg rounded-xl z-50 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-hide py-2">
+                  <div className="absolute top-full mt-1 w-full bg-white border border-[#33333333] shadow-lg rounded-lg z-50 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-hide py-2">
                     {[
                       { label: "Any time", value: "any" },
                       { label: "Today", value: "today" },
@@ -974,10 +1007,9 @@ export default function FiltersPopup({
         {/* Property Type */}
         <div className="mb-6 space-y-3 pt-5">
           <label className="font-medium">Property Type</label>
-          <div className="grid grid-cols-1 gap-8">
             <div className="flex flex-col gap-3 py-2">
               {/* Single Family Section */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-1">
+              <div className="grid grid-cols-2 gap-4 px-1">
                 {[
                   { label: "Townhouse", value: "Townhouse" },
                   { label: "Detached Home", value: "Single Family" },
@@ -1023,41 +1055,41 @@ export default function FiltersPopup({
                 ))}
               </div>
             </div>
-          </div>
         </div>
         <LineGradient />
 
         {/* Price Range */}
-        <div className="md:mb-6 mb-3 pt-5">
+        <div className="md:mb-6 mb-3 pt-5 w-full">
           <h3 className="font-medium md:mb-3">Price Range</h3>
-          <div className="relative">
+          <div className="relative w-full flex justify-center-safe">
             <PriceSlider
-              value={[price[0] ?? 1000, price[1] ?? 100000000]}
-              min={1000}
+              value={[price[0] ?? 10000, price[1] ?? 100000000]}
+              valueLabelFormat={(value) => formatNumber(value)}
+              min={10000}
               max={100000000}
               step={10000}
               onChange={(_, v) => {
                 const next = v as [number, number];
 
                 setPrice(next);
-                setMinPriceInput(String(next[0]));
-                setMaxPriceInput(String(next[1]));
+                setMinPriceInput(formatNumber(next[0]));
+                setMaxPriceInput(formatNumber(next[1]));
               }}
               disableSwap
               valueLabelDisplay="auto"
             />
           </div>
-
           <div className="flex flex-row flex-wrap items-center mt-5 justify-between gap-x-0.5 sm:gap-4">
             {/* Min */}
             <div className="flex items-center gap-1 sm:gap-4 h-full">
               <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                 Min Price
               </p>
-              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-30.5 px-2 sm:px-4 py-2 h-full">
+              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-30.5 p-2 h-full">
                 <span className="text-secondary">$</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={minPriceInput}
                   onChange={(e) =>
                     handleRangeInputChange(
@@ -1065,7 +1097,7 @@ export default function FiltersPopup({
                       0,
                       setPrice,
                       setMinPriceInput,
-                      1000,
+                      10000,
                       100000000,
                     )
                   }
@@ -1086,10 +1118,11 @@ export default function FiltersPopup({
               <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                 Max Price
               </p>
-              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-40.5 px-2 sm:px-4 py-2 h-full">
+              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-40.5 p-2 h-full">
                 <span className="text-secondary">$</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={maxPriceInput}
                   onChange={(e) =>
                     handleRangeInputChange(
@@ -1097,7 +1130,7 @@ export default function FiltersPopup({
                       1,
                       setPrice,
                       setMaxPriceInput,
-                      1000,
+                      10000,
                       100000000,
                     )
                   }
@@ -1111,29 +1144,25 @@ export default function FiltersPopup({
         <LineGradient />
 
         {/* Maintenance Fee Range */}
-        <div className="md:mb-6 mb-3 pt-5">
+        <div className="md:mb-6 mb-3 pt-5 w-full">
           <h3 className="font-medium md:mb-3">Maintenance Fee</h3>
-          <div className="relative">
+          <div className="relative w-full flex justify-center-safe">
             <PriceSlider
               value={[associationFee[0] ?? 0, associationFee[1] ?? 3000]}
+              valueLabelFormat={(value) => formatNumber(value)}
               min={0}
               max={3000}
               step={10}
               onChange={(_, v) => {
                 const next = v as [number, number];
                 setAssociationFee(next);
-                setMinAssociationFeeInput(String(next[0]));
-                setMaxAssociationFeeInput(String(next[1]));
+                setMinAssociationFeeInput(formatNumber(next[0]));
+                setMaxAssociationFeeInput(formatNumber(next[1]));
               }}
               disableSwap
               valueLabelDisplay="auto"
-            // marks={[
-            //   { value: 0, label: "$0" },
-            //   { value: 1000, label: "$1K" },
-            //   { value: 2000, label: "$2K" },
-            //   { value: 3000, label: "$3K" },
-            // ]}
             />
+            </div>
             {/* Input Boxes */}
             <div className="flex items-center justify-between gap-2 sm:gap-4 mt-3">
               {/* Min */}
@@ -1141,10 +1170,11 @@ export default function FiltersPopup({
                 <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                   Min Fee
                 </p>
-                <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-40.5 px-2 sm:px-4 py-2 h-full">
+                <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-40.5 p-2 h-full">
                   <span className="text-secondary">$</span>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     value={minAssociationFeeInput}
                     onChange={(e) =>
                       handleRangeInputChange(
@@ -1173,10 +1203,11 @@ export default function FiltersPopup({
                 <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                   Max Fee
                 </p>
-                <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-40.5 px-2 sm:px-4 py-2 h-full">
+                <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-40.5 p-2 h-full">
                   <span className="text-secondary">$</span>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     value={maxAssociationFeeInput}
                     onChange={(e) =>
                       handleRangeInputChange(
@@ -1194,14 +1225,13 @@ export default function FiltersPopup({
                 </div>
               </div>
             </div>
-          </div>
         </div>
         <LineGradient />
 
         {/* Living Area Range */}
-        <div className="md:mb-6 mb-3 pt-5">
+        <div className="md:mb-6 mb-3 pt-5 w-full">
           <h3 className="font-medium md:mb-3">Living Area</h3>
-          <div className="relative">
+          <div className="relative w-full flex justify-center-safe">
             <PriceSlider
               value={[sqft[0] ?? 100, sqft[1] ?? 15000]}
               min={100}
@@ -1224,7 +1254,7 @@ export default function FiltersPopup({
               <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                 Min Living Area
               </p>
-              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-30.5 px-2 sm:px-4 py-2 h-full">
+              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-30.5 p-2 h-full">
                 <input
                   type="number"
                   value={minSqftInput}
@@ -1241,7 +1271,7 @@ export default function FiltersPopup({
                   placeholder="Min"
                   className="w-full bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <span className="text-secondary">sq ft</span>
+                <span className="text-secondary text-nowrap">sq ft</span>
               </div>
             </div>
 
@@ -1256,7 +1286,7 @@ export default function FiltersPopup({
               <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                 Max Living Area
               </p>
-              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-30.5 px-2 sm:px-4 py-2 h-full">
+              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-30.5 p-2 h-full">
                 <input
                   type="number"
                   value={maxSqftInput}
@@ -1273,16 +1303,17 @@ export default function FiltersPopup({
                   placeholder="Max"
                   className="w-full bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <span className="text-secondary">sq ft</span>
+                <span className="text-secondary text-nowrap">sq ft</span>
               </div>
             </div>
           </div>
         </div>
         <LineGradient />
+
         {/* Lot Size Range */}
-        <div className="md:mb-6 mb-3 pt-5">
+        <div className="md:mb-6 mb-3 pt-5 w-full">
           <h3 className="font-medium md:mb-3">Lot Size</h3>
-          <div className="relative">
+          <div className="relative w-full flex justify-center-safe">
             <PriceSlider
               value={[lotSqft[0] ?? 100, lotSqft[1] ?? 100000]}
               min={100}
@@ -1305,7 +1336,7 @@ export default function FiltersPopup({
               <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                 Min Lot Size
               </p>
-              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-30.5 px-2 sm:px-4 py-2 h-full">
+              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-30.5 p-2 h-full">
                 <input
                   type="number"
                   value={minLotSqftInput}
@@ -1322,7 +1353,7 @@ export default function FiltersPopup({
                   placeholder="Min"
                   className="w-full bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <span className="text-secondary">sq ft</span>
+                <span className="text-secondary text-nowrap">sq ft</span>
               </div>
             </div>
 
@@ -1337,7 +1368,7 @@ export default function FiltersPopup({
               <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                 Max Lot Size
               </p>
-              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-30.5 px-2 sm:px-4 py-2 h-full">
+              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-30.5 p-2 h-full">
                 <input
                   type="number"
                   value={maxLotSqftInput}
@@ -1354,26 +1385,28 @@ export default function FiltersPopup({
                   placeholder="Max"
                   className="w-full bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <span className="text-secondary">sq ft</span>
+                <span className="text-secondary text-nowrap">sq ft</span>
               </div>
             </div>
           </div>
         </div>
         <LineGradient />
+
         {/* Price Per Sft Range */}
-        <div className="md:mb-6 mb-3 pt-5">
+        <div className="md:mb-6 mb-3 pt-5 w-full">
           <h3 className="font-medium md:mb-3">Price Per Sft</h3>
-          <div className="relative">
+          <div className="relative w-full flex justify-center-safe">
             <PriceSlider
               value={[pricePerSft[0] ?? 100, pricePerSft[1] ?? 25000]}
+              valueLabelFormat={(value) => formatNumber(value)}
               min={100}
               max={25000}
               step={100}
               onChange={(_, v) => {
                 const next = v as [number, number];
                 setPricePerSft(next);
-                setMinPricePerSftInput(String(next[0]));
-                setMaxPricePerSftInput(String(next[1]));
+                setMinPricePerSftInput(formatNumber(next[0]));
+                setMaxPricePerSftInput(formatNumber(next[1]));
               }}
               disableSwap
               valueLabelDisplay="auto"
@@ -1386,10 +1419,11 @@ export default function FiltersPopup({
               <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                 Min Price
               </p>
-              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-30.5 px-2 sm:px-4 py-2 h-full">
+              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-30.5 p-2 h-full">
                 <span className="text-secondary">$</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={minPricePerSftInput}
                   onChange={(e) =>
                     handleRangeInputChange(
@@ -1418,10 +1452,11 @@ export default function FiltersPopup({
               <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                 Max Price
               </p>
-              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-30.5 px-2 sm:px-4 py-2 h-full">
+              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-30.5 p-2 h-full">
                 <span className="text-secondary">$</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={maxPricePerSftInput}
                   onChange={(e) =>
                     handleRangeInputChange(
@@ -1443,19 +1478,20 @@ export default function FiltersPopup({
         <LineGradient />
 
         {/* Tax Range */}
-        <div className="md:mb-6 mb-3 pt-5">
+        <div className="md:mb-6 mb-3 pt-5 w-full">
           <h3 className="font-medium md:mb-3">Tax Range</h3>
-          <div className="relative">
+          <div className="relative w-full flex justify-center-safe">
             <PriceSlider
               value={[tax[0] ?? 0, tax[1] ?? 50000]}
+              valueLabelFormat={(value) => formatNumber(value)}
               min={0}
               max={50000}
               step={100}
               onChange={(_, v) => {
                 const next = v as [number, number];
                 setTax(next);
-                setMinTaxInput(String(next[0]));
-                setMaxTaxInput(String(next[1]));
+                setMinTaxInput(formatNumber(next[0]));
+                setMaxTaxInput(formatNumber(next[1]));
               }}
               disableSwap
               valueLabelDisplay="auto"
@@ -1468,10 +1504,11 @@ export default function FiltersPopup({
               <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                 Min Tax
               </p>
-              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-30.5 px-2 sm:px-4 py-2 h-full">
+              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-30.5 p-2 h-full">
                 <span className="text-secondary">$</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={minTaxInput}
                   onChange={(e) =>
                     handleRangeInputChange(
@@ -1500,10 +1537,11 @@ export default function FiltersPopup({
               <p className="text-[10px] sm:text-xs text-[#333]/30 mb-1 whitespace-nowrap">
                 Max Tax
               </p>
-              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-xl w-24 sm:w-30.5 px-2 sm:px-4 py-2 h-full">
+              <div className="flex text-xs sm:text-sm font-medium items-center gap-1 border border-[#33333333] rounded-lg w-24 sm:w-30.5 p-2 h-full">
                 <span className="text-secondary">$</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={maxTaxInput}
                   onChange={(e) =>
                     handleRangeInputChange(
@@ -1536,7 +1574,7 @@ export default function FiltersPopup({
                 <div key={label} className="flex items-center justify-between">
                   <span className="text-sm">{label}</span>
 
-                  <div className="flex items-center gap-3 border border-[rgba(15,15,15,0.12)] rounded-xl px-3 py-2">
+                  <div className="flex items-center gap-3 border border-[rgba(15,15,15,0.12)] rounded-lg px-3 py-2">
                     <button
                       className="w-7 h-7 rounded-lg bg-[#30548729]"
                       onClick={() => {
@@ -1569,7 +1607,6 @@ export default function FiltersPopup({
             })}
           </div>
         </div>
-
         <LineGradient />
 
         {/* Features */}
@@ -1589,7 +1626,7 @@ export default function FiltersPopup({
               <div
                 key={f.value}
                 onClick={() => handleToggleFeature(f.value)}
-                className={`text-center py-3 rounded-xl border cursor-pointer text-sm transition-all ${selectedFeatures.includes(f.value)
+                className={`text-center py-3 rounded-lg border cursor-pointer text-sm transition-all ${selectedFeatures.includes(f.value)
                   ? "bg-primary border-primary text-white"
                   : "border-[#0F0F0F1F] text-gray-400 hover:border-primary hover:text-primary"
                   }`}

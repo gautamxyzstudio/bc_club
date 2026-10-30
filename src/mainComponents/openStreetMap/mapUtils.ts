@@ -60,19 +60,3 @@ export function formatPriceAbbreviated(price: number) {
   }
   return "$" + price.toLocaleString();
 }
-
-// Marker Creator
-export function createPriceMarker(property: any, onClick: () => void) {
-  const el = document.createElement("div");
-  el.className =
-    "price-marker bg-white px-2 py-1 rounded-full shadow-md border border-primary text-primary font-bold text-xs cursor-pointer hover:bg-primary hover:text-white transition-all";
-
-  let abbreviatedPrice = formatPriceAbbreviated(Number(property.price));
-  el.innerText = abbreviatedPrice;
-
-  el.addEventListener("click", () => {
-    onClick();
-  });
-
-  return el;
-}

@@ -42,16 +42,18 @@ const HomeHeroSection = () => {
     <section className="xl:max-w-screen-2xl mx-auto xl:px-0 md:px-9 px-6 flex flex-col gap-y-8 xl:flex-row xl:flex-nowrap justify-between relative h-auto overflow-x-clip bg-background">
       <div className="flex flex-col h-auto xl:w-[48%] xl:pl-16 w-full xl:pt-49.5 pt-22">
         <h1 className="xl:text-6xl md:text-5xl text-4xl whitespace-break-spaces lg:text-start text-center font-bold self-stretch">
-          BC homes for sale, with the{" "}
+          {/* BC homes for sale, with the{" "}
           <span className="text-primary underline-offset-8 underline decoration-secondary">
             sold prices other sites don&apos;t show
-          </span>
+          </span> */}
+          See what the <span className="text-primary underline-offset-8 underline decoration-secondary">listing doesn&apos;t tell you.</span>
+
         </h1>
         <Heading
           tagType="h2"
           type={IHeadingTypes.heading16}
-          customClasses="lg:text-start text-center md:mt-5 mt-2.5 w-full md:whitespace-break-spaces font-normal!"
-          content={`Search MLS® listings in Greater Vancouver and the Fraser Valley`}
+          customClasses="lg:text-start text-center md:mt-5 mt-2.5 lg:w-[80%] md:whitespace-break-spaces font-normal!"
+          content={`See real sold prices, price drops, lot lines, flood risk and school ratings for every MLS® listing. Free.`}
         />
         <div className="w-full xl:mt-8 md:mt-6 mt-5 relative">
           <React.Suspense fallback={null}>

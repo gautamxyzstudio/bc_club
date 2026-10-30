@@ -43,7 +43,7 @@ export default function OpenStreetMapSidebar({
 
   if (assessmentDrawerOpen && selectedAssessmentProperty) {
     return (
-      <div className="hidden md:w-110 xl:flex flex-col bg-white md:border-r border-gray-200 z-10 h-full">
+      <div className="hidden md:w-85 xl:flex flex-col bg-white md:border-r border-gray-200 z-10 h-full">
         <div className="h-full w-full bg-white overflow-y-auto">
           {/* Header */}
           <div className="sticky top-0 bg-white z-10 border-b border-gray-200 p-5 pt-0">
@@ -193,9 +193,9 @@ export default function OpenStreetMapSidebar({
       </div>
     );
   }
-  console.log(visibleProperties[0])
+  
   return (
-    <div className="hidden md:w-95 xl:flex flex-col bg-white md:border-r border-gray-200 z-10 h-full">
+    <div className="hidden md:w-89 xl:flex flex-col bg-white md:border-r border-gray-200 z-10 h-full">
       <div className="p-4 pb-0 flex justify-between items-center text-sm font-semibold border-b border-gray-50">
 
         {isLoading ? <div className="w-full  bg-[#305487] animate-pulse rounded" />

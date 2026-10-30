@@ -210,8 +210,8 @@ export default function OpenStreetMapV5MarkerLayer({
               if (
                 item.properties &&
                 item.properties.length > 0 &&
-                propertyCount <= 10 &&
-                currentZoom >= 18
+                propertyCount <= 20 &&
+                currentZoom >= 20
               ) {
                 setSelectedClusterProperties(item.properties);
                 setClusterPosition({ lat, lng });

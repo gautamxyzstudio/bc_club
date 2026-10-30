@@ -34,18 +34,18 @@ export function OpenStreetMapPropertyPopup({
       offset={[0, 0]}
       closeButton
       autoPan
-      className="hidden lg:block"
+      className="hidden lg:block map-popup"
     >
       <div
         ref={popupRef}
         style={{
-          width: 260,
+          width: 220,
           background: "white",
           borderRadius: 6,
           fontFamily: "Plus Jakarta Display",
           cursor:
             selectedProperty.status === "Expired" ? "not-allowed" : "pointer",
-          padding: 4,
+          padding: 1,
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -133,7 +133,7 @@ export function OpenStreetMapPropertyPopup({
           </p>
           <LineGradient />
           <div className="w-full flex flex-row flex-wrap items-start justify-between gap-1">
-            <div className="min-w-0 flex-1" title={displayRealtor}>
+            <div className="min-w-0 flex-1 line-clamp-1" title={displayRealtor}>
               <Description
                 content={displayRealtor}
                 type={IDescriptionTypes.dec12}
@@ -175,12 +175,13 @@ export function OpenStreetMapClusterPopup({
     >
       <div
         style={{
-          width: 300,
+          width: 280,
           maxHeight: 320,
           overflowY: "auto",
-          padding: 8,
+          padding: 2,
           fontFamily: "Plus Jakarta Display",
         }}
+        className="scrollbar-thumb-primary"
       >
         <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>
           Properties ({selectedClusterProperties.length})

@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import MarketTrend from "./marketTrend/MarketTrend";
 import { FiPrinter, FiShare2 } from "react-icons/fi";
 import GetInTouch from "../getInTouch/GetInTouch";
@@ -8,8 +9,49 @@ import MonthlySaleChart from "./monthlySaleChart/MonthlySaleChart";
 import MonthlySalesReports from "./monthlySalesReports/MonthlySalesReports";
 import StatisticsSalesTable from "./statisticsSalesTable/StatisticsSalesTable";
 
-const TrendStepPage = () => {
-  const [activeTab, setActiveTab] = useState<number>(1);
+const getTabFromPathname = (pathname: string | null, fallback: number): number => {
+  if (pathname?.includes("monthly-sale-cart") || pathname?.includes("monthly-sale-chart")) {
+    return 1;
+  }
+  if (pathname?.includes("monthly-sale-reports")) {
+    return 2;
+  }
+  if (pathname?.includes("stats-map")) {
+    return 3;
+  }
+  return fallback;
+};
+
+interface TrendStepPageProps {
+  initialTab?: number;
+}
+
+const TrendStepPage: React.FC<TrendStepPageProps> = ({ initialTab = 1 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [localTab, setLocalTab] = useState<number>(() =>
+    getTabFromPathname(pathname, initialTab)
+  );
+
+  const activeTab = useMemo(() => {
+    if (pathname?.includes("monthly-sale-cart") || pathname?.includes("monthly-sale-chart")) {
+      return 1;
+    }
+    if (pathname?.includes("monthly-sale-reports")) {
+      return 2;
+    }
+    if (pathname?.includes("stats-map")) {
+      return 3;
+    }
+    return localTab;
+  }, [pathname, localTab]);
+
+  const handleTabClick = (tab: number, route?: string) => {
+    setLocalTab(tab);
+    if (route) {
+      router.push(route);
+    }
+  };
 
   return (
     <>
@@ -21,7 +63,7 @@ const TrendStepPage = () => {
           </h1>
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => setActiveTab(1)}
+              onClick={() => handleTabClick(1, "/market-trends/monthly-sale-cart")}
               className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${activeTab === 1
                   ? "bg-[#22558b] text-white border-[#22558b]"
                   : "border-borderColor text-gray-600"
@@ -31,7 +73,7 @@ const TrendStepPage = () => {
             </button>
 
             <button
-              onClick={() => setActiveTab(2)}
+              onClick={() => handleTabClick(2, "/market-trends/monthly-sale-reports")}
               className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${activeTab === 2
                   ? "bg-[#22558b] text-white border-[#22558b]"
                   : "border-borderColor text-gray-500"
@@ -41,7 +83,7 @@ const TrendStepPage = () => {
             </button>
 
             <button
-              onClick={() => setActiveTab(3)}
+              onClick={() => handleTabClick(3, "/market-trends/stats-map")}
               className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${activeTab === 3
                   ? "bg-[#22558b] text-white border-[#22558b]"
                   : "border-borderColor text-gray-500"
@@ -51,7 +93,7 @@ const TrendStepPage = () => {
             </button>
 
             <button
-              onClick={() => setActiveTab(4)}
+              onClick={() => handleTabClick(4)}
               className={`px-3 py-2 rounded-lg text-xs sm:text-sm border cursor-pointer ${activeTab === 4
                   ? "bg-[#22558b] text-white border-[#22558b]"
                   : "border-borderColor text-gray-500"

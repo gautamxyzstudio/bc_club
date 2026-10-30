@@ -13,15 +13,34 @@ import NavBarDrawer from "./NavBarDrawer";
 
 import { useAuthContext } from "../auth/AuthContext";
 import { usePathname } from "next/navigation";
-import { Heart, LogOut } from "lucide-react";
+import { ChevronDown, Heart, LogOut } from "lucide-react";
 import LineGradient from "@/src/components/common/lineGradient/LineGradient";
 import RippleButton from "@/src/components/button/RippleButton";
 import { isAdminUser } from "@/src/utilities/authUtils";
 
-export const menulist = [
+export interface SubRoute {
+  title: string;
+  href: string;
+}
+
+export interface MenuItem {
+  title: string;
+  href: string;
+  subRoutes?: SubRoute[];
+}
+
+export const menulist: MenuItem[] = [
   { title: "Homes for Sale", href: "/properties" },
   { title: "Map", href: "/map-search" },
-  { title: "Market Trends", href: "/market-trends" },
+  {
+    title: "Market Trends",
+    href: "#",
+    subRoutes: [
+      { title: "Monthly Sales Chart", href: "/market-trends/monthly-sale-cart" },
+      { title: "Monthly Sales Reports", href: "/market-trends/monthly-sale-reports" },
+      { title: "Stats Map", href: "/market-trends/stats-map" },
+    ],
+  },
   { title: "Home Value", href: "/home-estimation" },
   { title: "Blog", href: "/blogs" },
   { title: "Our Story", href: "/our-story" },
@@ -158,17 +177,80 @@ const Header = () => {
 
         <nav className="hidden xl:flex justify-end-safe items-center-safe gap-x-5">
           <div className="flex items-center gap-x-0.5">
-            {menulist.map((item, idx) => (
-              <Link
-                key={idx}
-                href={item.href}
-                className={`hover:text-brand-navy text-sm font-medium capitalize hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex flex-col relative ${pathname === item.href ? "font-semibold text-brand-navy bg-blue-50/80" : "text-slate-700"
+            {menulist.map((item, idx) => {
+              const hasSubRoutes = Boolean(item.subRoutes && item.subRoutes.length > 0);
+              const isItemActive =
+                pathname === item.href ||
+                (hasSubRoutes &&
+                  (pathname.startsWith(item.href + "/") ||
+                    item.subRoutes?.some((sub) => pathname === sub.href)));
+
+              if (hasSubRoutes && item.subRoutes) {
+                return (
+                  <div key={idx} className="relative group">
+                    <Link
+                      href={item.href}
+                      className={`hover:text-brand-navy text-sm font-medium capitalize hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex items-center gap-1 relative ${
+                        isItemActive
+                          ? "font-semibold text-brand-navy bg-blue-50/80"
+                          : "text-slate-700"
+                      }`}
+                    >
+                      <span className="flex flex-col relative">
+                        <span>{item.title}</span>
+                        <span
+                          className={`${
+                            isItemActive ? "scale-x-100" : "scale-x-0"
+                          } w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}
+                        ></span>
+                      </span>
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-500 group-hover:text-brand-navy transition-transform duration-200 group-hover:rotate-180" />
+                    </Link>
+
+                    {/* Sub Routes Dropdown Menu */}
+                    <div className="invisible opacity-0 -translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ease-out absolute top-full left-0 pt-1.5 z-50">
+                      <div className="min-w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 overflow-hidden">
+                        {item.subRoutes.map((sub, sIdx) => {
+                          const isSubActive = pathname === sub.href;
+                          return (
+                            <Link
+                              key={sIdx}
+                              href={sub.href}
+                              className={`flex items-center px-4 py-2.5 text-xs font-medium transition-colors duration-150 ${
+                                isSubActive
+                                  ? "bg-blue-50 text-brand-navy font-semibold"
+                                  : "text-slate-700 hover:bg-slate-50 hover:text-brand-navy"
+                              }`}
+                            >
+                              <span>{sub.title}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={idx}
+                  href={item.href}
+                  className={`hover:text-brand-navy text-sm font-medium capitalize hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex flex-col relative ${
+                    isItemActive
+                      ? "font-semibold text-brand-navy bg-blue-50/80"
+                      : "text-slate-700"
                   }`}
-              >
-                <span>{item.title}</span>
-                <span className={`${pathname === item.href ? "scale-x-100" : "scale-x-0"} w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}></span>
-              </Link>
-            ))}
+                >
+                  <span>{item.title}</span>
+                  <span
+                    className={`${
+                      isItemActive ? "scale-x-100" : "scale-x-0"
+                    } w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}
+                  ></span>
+                </Link>
+              );
+            })}
           </div>
         </nav>
         {/* LOGIN / SIGNUP BUTTONS */}

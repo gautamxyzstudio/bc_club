@@ -58,7 +58,7 @@ export default function MobileBottomBar() {
       label: "Market",
       href: "/market-trends",
       icon: TrendingUp,
-      isActive: (path) => path === "/market-trends",
+      isActive: (path) => path === "/market-trends" || path.startsWith("/market-trends/"),
     },
     {
       id: "auth",

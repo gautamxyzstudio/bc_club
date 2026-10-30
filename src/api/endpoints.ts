@@ -59,7 +59,7 @@ export const Endpoints = {
     `${BASE_URL}/api/real-estate-board/${id}/similar-sold?radiusKm=5&limit=20`,
   getRealEstatePropertiesListByAddress: `${BASE_URL}/api/real-estate-board/search-by-address`,
   getNearbyRealEstatePlaces: (id: string) =>
-    `${BASE_URL}/api/real-estate-board/${id}/neighborhood?radius=5000&limit=6`,
+    `${BASE_URL}/api/real-estate-board/${id}/neighborhood?radius=3000&limit=6`,
   getMyRealEstateFavorites: `${BASE_URL}/api/real-estate-board/my-favorites`,
   getUserFavorites: (userId: string | number) =>
     `${BASE_URL}/api/real-estate-board/user-favorites/${userId}`,

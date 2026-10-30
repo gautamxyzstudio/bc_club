@@ -76,7 +76,7 @@ export default function PropertyTabs() {
   return (
     <div
       className={`
-        ${isSticky ? "sticky xl:top-0 top-18" : "relative"}
+        ${isSticky ? "sticky md:top-0 top-16" : "relative"}
         z-50 bg-background xl:pt-13 py-3 w-full hidden md:block
       `}
     >

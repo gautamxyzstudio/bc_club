@@ -30,18 +30,18 @@ const PropertyTopAddressSection = ({ property }: { property: any }) => {
             <ArrowCircleDownFilled /> $96,000 on Sep 8, 2025
           </span>
         </div>
-        <div className="flex md:flex-row flex-col text-wrap md:items-center xl:text-base text-sm gap-y-1.5 text-black70">
+        <div className="flex flex-row flex-wrap items-center xl:text-base text-sm text-black70 gap-y-3">
           <span className="flex items-center gap-x-0.5">
             <LocationRippleFilled className="text-secondary md:w-8 md:h-8 w-6 h-6" />
             {property?.city}
           </span>
-          {property?.neighborhood && <><LineGradient vr customClasses="mx-2 md:block hidden" />
+          {property?.neighborhood && <><LineGradient vr customClasses="mx-2" />
             <span>{property?.neighborhood}</span></>}
-          <LineGradient vr customClasses="mx-2 md:block hidden" />
+          <LineGradient vr customClasses="mx-2" />
           <span>
             MLS® {property?.listing_id || property?.mls_number || "FPR345643E3"}
           </span>
-          <LineGradient vr customClasses="mx-2 md:block hidden" />
+          <LineGradient vr customClasses="mx-2" />
           <span>Courtesy of: {getOfficeName(property)}</span>
 
         </div>

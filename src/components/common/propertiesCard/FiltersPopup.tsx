@@ -136,7 +136,7 @@ import { useAuthContext } from "@/src/mainComponents/auth/AuthContext";
 const PriceSlider = styled(Slider)({
   color: "#E8A200",
   height: 6,
-  padding: "14px 10%",
+  padding: "14px 0",
   width: "90%",
   alignSelf: 'center',
   "& .MuiSlider-thumb": {

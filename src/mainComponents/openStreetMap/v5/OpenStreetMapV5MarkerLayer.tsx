@@ -168,7 +168,7 @@ export default function OpenStreetMapV5MarkerLayer({
 }) {
 
 
-  if (!clusters?.data) return null;
+  if (!clusters?.data || !layerState.listings) return null;
 
   return clusters.data.map((item: any, index: number) => {
     const lat = Number(item?.latitude || item?.lat);
@@ -251,6 +251,34 @@ export default function OpenStreetMapV5MarkerLayer({
     const propId = item.documentId || item.id || item.listing_id || String(index);
     const isHovered = hoveredPropertyId === propId;
     const isSelected = selectedPropertyId === propId;
+
+    if (!isCluster) {
+      const isHovered = hoveredPropertyId === item.documentId;
+      return (
+        <Marker
+          key={`property-${item.documentId}`}
+          position={[lat, lng]}
+          icon={v5PriceMarkerIcon({
+            price: Number(item.price || 0),
+            isDrop,
+            isSold,
+            isExpired,
+            isLoggedIn,
+            isSelected,
+            isHovered,
+          })}
+          eventHandlers={{
+            click: () => {
+              setSelectedClusterProperties([]);
+              setClusterPosition(null);
+              setSelectedProperty(item);
+            },
+            mouseover: () => setHoveredPropertyId(item.documentId),
+            mouseout: () => setHoveredPropertyId(null),
+          }}
+        />
+      );
+    }
 
     return (
       <Marker

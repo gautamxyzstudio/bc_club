@@ -1,5 +1,4 @@
 const Icons = {
-  bcClub: "../BCRealEstateMarket.svg",
   closeMenu: "../close-rounded.svg",
   openMenu: "../menu-motion.svg",
   heroMapVector: "../heroMapVector.svg",
@@ -45,6 +44,7 @@ const Icons = {
 };
 
 const Images = {
+  bcClub: "/bcrealestatemarket.webp",
   apartment: "/apartment.webp",
   condoTwo: "/condoTwo.webp",
   townHouse: "/townHouse.webp",

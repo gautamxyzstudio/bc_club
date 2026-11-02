@@ -6,12 +6,12 @@ import { formatPriceAbbreviated } from "./mapUtils";
 
 const getStatusColor = (status: string) =>
   status === "closed" ||
-  status === "sold" ||
-  status === "forecloserSold" ||
-  status === "forcecloserSold"
+    status === "sold" ||
+    status === "forecloserSold" ||
+    status === "forcecloserSold"
     ? "#9F1239"
     : status === "expired"
-      ? "#c8c8c8" 
+      ? "#c8c8c8"
       : "#1E4E8C";
 
 const clusterIcon = (count: number) => {
@@ -49,17 +49,15 @@ const priceIcon = (property: any, status: string, isHovered: boolean) => {
   return L.divIcon({
     className: "bc-osm-marker",
     html: `
-      <div class="bc-osm-price-marker" style="border-color:${
-        isHovered ? statusColor : "transparent"
+      <div class="bc-osm-price-marker" style="border-color:${isHovered ? statusColor : "transparent"
       }">
         <div class="bc-osm-price-bg" style="background:white"></div>
         <div class="bc-osm-price-content" style="color:${statusColor}">
           ${structureIconSvg(property.structure_type || property.structureType)}
           <span>${escapeHtml(formatPriceAbbreviated(property.price))}</span>
         </div>
-        <div class="bc-osm-price-tip" style="background:${
-          isHovered ? statusColor : "white"
-        };border-color:transparent;z-index:-10;"></div>
+        <div class="bc-osm-price-tip" style="background:${isHovered ? statusColor : "white"
+      };border-color:transparent;z-index:-10;"></div>
       </div>
     `,
     iconSize: [1, 1],

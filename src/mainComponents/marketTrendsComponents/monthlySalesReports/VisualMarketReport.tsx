@@ -134,7 +134,6 @@ export default function VisualMarketReport({
 
   const city = searchParams.get("city")
   const property = searchParams.get("propertyType")
-  console.log(city, property)
 
   const monthOptions = useMemo(() => getMonthOptions(), []);
   const { data: bridgeCitiesRes } = useGetBridgeCities();
@@ -177,7 +176,7 @@ export default function VisualMarketReport({
       propertyType: propertyType.toLowerCase(),
       year: selectedMonthOption.year,
       month: selectedMonthOption.month,
-      type: "report",
+      // type: "report",
     };
   }, [region, propertyType, selectedMonthOption]);
 
@@ -1780,7 +1779,7 @@ export default function VisualMarketReport({
               </div>
 
               <div className={styles.agentCard}>
-                <b className={styles.agentName}>Harjit Sidhu</b>
+                <b className={styles.agentName}>Best Realtor Agents</b>
                 <small className={styles.agentRole}>
                   Personal Real Estate Corporation<br />
                   The Sidhu Team | Planet Group Realty Inc.

@@ -183,7 +183,7 @@ const SearchPropertyTab = () => {
                   setDdfQuery("");
                   setShowDropdown(false);
                 } else {
-                  router.push(`/market-trends`);
+                  router.push(`/market-trends/monthly-sales-chart`);
                 }
               }}
             />

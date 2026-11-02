@@ -1,5 +1,5 @@
 "use client";
-import { Icons, } from "@/src/app/exports";
+import { Icons, Images, } from "@/src/app/exports";
 import Description, {
   IDescriptionTypes,
 } from "@/src/components/description/Description";
@@ -42,10 +42,8 @@ const Footer = () => {
     <footer className="xl:max-w-screen-2xl mx-auto w-full xl:px-16! md:px-9! p-6! md:pt-13! md:pb-8! bg-foreground text-background! flex flex-col md:gap-y-6 gap-y-5">
       <div className="w-full flex flex-col md:flex-row md:justify-between md:items-center-safe gap-y-4">
         <div className="flex flex-col gap-y-4 md:w-[60%]">
-          <Link href={"/"} title="BCRealEstateMarket">
-            <span className="text-2xl font-bold md:text-5xl">
-              BCRealEstateMarket
-            </span>
+          <Link href={"/"} title="BC Real Estate Market" className="bg-background w-fit p-2 rounded-lg" >
+            <Image alt="BC Real Estate Market logo" title="BC Real Estate Market" src={Images.bcClub} width={1200} height={1090} loading="eager" className="object-contain w-fit h-10 md:h-15" />
           </Link>
           <Description
             content="BC Real Estate Market helps you explore, buy, and sell properties across British Columbia with confidence and ease.

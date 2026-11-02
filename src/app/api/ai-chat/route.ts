@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 
 interface ChatMessage {
@@ -18,7 +19,7 @@ Core Knowledge & Guidance:
    - Foreign buyers ban & BC speculation / vacancy tax basics.
 4. Website features to recommend when relevant:
    - Home Evaluation & Free Valuation: /home-estimation
-   - Live Market Trends & Price Charts: /market-trends
+   - Live Market Trends & Price Charts: /market-trends/monthly-sales-reports
    - Interactive Map Search: /map-search
    - MLS® Properties Browser: /properties
    - Direct Specialist Connect: /contact-us
@@ -165,7 +166,7 @@ export async function POST(req: Request) {
       lastUserMessage.includes("market")
     ) {
       fallbackReply =
-        "📈 **BC Real Estate Market Snapshot:**\n\nGreater Vancouver and Fraser Valley are seeing active buyer demand in transit-connected condos (Brentwood, Metrotown, Surrey) and family townhomes. Single-family homes remain steady with strong long-term appreciation.\n\nExplore live charts on our **[Market Trends](/market-trends)** page!";
+        "📈 **BC Real Estate Market Snapshot:**\n\nGreater Vancouver and Fraser Valley are seeing active buyer demand in transit-connected condos (Brentwood, Metrotown, Surrey) and family townhomes. Single-family homes remain steady with strong long-term appreciation.\n\nExplore live charts on our **[Market Trends](/market-trends/monthly-sales-reports)** page!";
     } else if (
       lastUserMessage.includes("evaluation") ||
       lastUserMessage.includes("worth") ||

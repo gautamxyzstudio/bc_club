@@ -83,10 +83,10 @@ export function OpenStreetMapPropertyPopup({
           <Image
             src={selectedProperty.media_url || Images.apartment}
             alt={selectedProperty.address}
-            width={252}
-            height={130}
+            width={1292}
+            height={1130}
             loading="eager"
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            className="w-63 h-32.5 object-cover"
           />
         </div>
 
@@ -213,14 +213,10 @@ export function OpenStreetMapClusterPopup({
             <Image
               src={p.media_url || Images.apartment}
               alt={p.address}
-              width={70}
-              height={55}
+              width={1220}
+              height={1120}
               loading="eager"
-              style={{
-                objectFit: "cover",
-                borderRadius: 6,
-                background: "#f1f5f9",
-              }}
+              className="w-20 h-18 object-cover rounded-md bg-[#f1f5f9]"
             />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: 13, color: "#305487" }}>

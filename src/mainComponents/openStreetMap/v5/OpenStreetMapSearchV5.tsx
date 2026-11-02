@@ -406,10 +406,10 @@ export default function OpenStreetMapSearchV5() {
       typeParam = "Secondary";
     }
     return {
-      ...mapZoomParams,
+      // ...mapZoomParams,
       schoolType: typeParam,
     };
-  }, [mapZoomParams, schoolFilters]);
+  }, [schoolFilters]);
 
   const { data: querySchools } = useGetMapZoomSchools(schoolParams, {
     enabled:
@@ -803,7 +803,7 @@ export default function OpenStreetMapSearchV5() {
 
   return (
     <>
-      <div className="flex flex-col overflow-hidden lg:mt-19 mt-15 w-full lg:h-[calc(100vh-80px)] h-[calc(100vh-140px)]">
+      <div className="flex flex-col overflow-hidden md:mt-19 mt-15 w-full lg:h-[calc(100vh-80px)] h-[calc(100vh-140px)]">
         {/* Main Body with Sidebar + Map */}
         <div className="flex flex-1 flex-col md:flex-row overflow-hidden relative xl:max-w-screen-2xl mx-auto w-full h-full">
           {/* Same OpenStreetMapSidebar component */}
@@ -854,7 +854,7 @@ export default function OpenStreetMapSearchV5() {
               center={OpenStreetMapDefaultCenter}
               zoom={13}
               minZoom={8}
-              maxZoom={22}
+              maxZoom={20}
               zoomControl={false}
               scrollWheelZoom
               className="w-full h-full bc-osm-map"
@@ -866,7 +866,7 @@ export default function OpenStreetMapSearchV5() {
                 <TileLayer
                   attribution={OpenStreetMapSatelliteTile.attribution}
                   url={OpenStreetMapSatelliteTile.url}
-                  maxZoom={22}
+                  maxZoom={20}
                   maxNativeZoom={OpenStreetMapSatelliteTile.maxNativeZoom}
                 />
               ) : (

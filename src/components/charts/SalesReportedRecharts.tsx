@@ -256,7 +256,7 @@ const SalesReportedRecharts = ({ location }: { location: string }) => {
                 key={r}
                 onClick={() => {
                   if (r === "Custom") {
-                    router.push("/market-trends");
+                    router.push("/market-trends/monthly-sales-reports");
                   } else {
                     setRange(r);
                   }

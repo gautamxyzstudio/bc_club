@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Loader2, X } from "lucide-react";
@@ -144,7 +145,7 @@ const CityStatsPopup: React.FC<CityStatsPopupProps> = ({
       return;
     }
     router.push(
-      `/market-trends?city=${encodeURIComponent(
+      `/market-trends/monthly-sales-chart?city=${encodeURIComponent(
         city
       )}&propertyType=${encodeURIComponent(selectedType)}`
     );
@@ -159,7 +160,7 @@ const CityStatsPopup: React.FC<CityStatsPopupProps> = ({
 
   return (
     <div
-      className={`absolute z-99999 w-[445px] max-w-[calc(100vw-32px)] bg-background rounded-xl shadow-2xl p-4 animate-popupSlide border border-[#E6EAEE] flex flex-col gap-y-4 ${
+      className={`absolute z-99999 w-111.25 max-w-[calc(100vw-32px)] bg-background rounded-xl shadow-2xl p-4 animate-popupSlide border border-[#E6EAEE] flex flex-col gap-y-4 ${
         customClasses || "hidden lg:flex"
       }`}
       style={{

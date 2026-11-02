@@ -57,7 +57,7 @@ const HomeKnowMoreSection = () => {
 
   const handleMarketReportsClick = () => {
     const city = selectedCity || "Vancouver";
-    router.push(`/market-trends?city=${encodeURIComponent(city)}`);
+    router.push(`/market-trends/monthly-sales-reports?city=${encodeURIComponent(city)}`);
   };
 
   const cards: FeatureCard[] = [

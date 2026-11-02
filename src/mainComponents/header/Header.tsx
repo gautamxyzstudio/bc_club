@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Icons } from "@/src/app/exports";
+import { Images } from "@/src/app/exports";
 import { useMediaQuery } from "@/src/hooks/useMediaQuery";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
@@ -36,8 +36,8 @@ export const menulist: MenuItem[] = [
     title: "Market Trends",
     href: "#",
     subRoutes: [
-      { title: "Monthly Sales Chart", href: "/market-trends/monthly-sale-cart" },
-      { title: "Monthly Sales Reports", href: "/market-trends/monthly-sale-reports" },
+      { title: "Monthly Sales Chart", href: "/market-trends/monthly-sales-chart" },
+      { title: "Monthly Sales Reports", href: "/market-trends/monthly-sales-reports" },
       { title: "Stats Map", href: "/market-trends/stats-map" },
     ],
   },
@@ -140,38 +140,25 @@ const Header = () => {
         animate={isVisible ? "visible" : "exit"}
         variants={navVariants as any}
         className={`xl:max-w-screen-2xl mx-auto xl:px-16 md:px-9 px-6 xl:py-4 md:py-4 py-3 flex items-center justify-between w-full fixed top-0 left-0 right-0 z-999 shadow-xs   ${isLaptop
-            ? isScrolled
-              ? "bg-background shadow"
-              : "bg-white"
-            : "shadow bg-background"
+          ? isScrolled
+            ? "bg-background shadow"
+            : "bg-white"
+          : "shadow bg-background"
           }`}
       >
         {/* Logo */}
         <Link
           href={"/"}
           onClick={() => !isLaptop && setShowMenu(false)}
-          className="xl:hidden block"
         >
           <Image
             title="BC Real Estate Market place"
             alt="BC Real Estate Market place"
-            src={Icons.bcClub}
-            width={119}
+            src={Images.bcClub}
+            width={1390}
             loading="eager"
-            height={42}
-            className="w-45 h-8 object-contain"
-          />
-        </Link>
-
-        <Link href={"/"} className="xl:block hidden">
-          <Image
-            title="BC Real Estate Market place"
-            alt="BC Real Estate Market place"
-            src={Icons.bcClub}
-            width={119}
-            loading="eager"
-            height={42}
-            className="w-55 h-10 object-contain"
+            height={1142}
+            className="w-auto md:h-12 h-10 object-contain"
           />
         </Link>
 
@@ -190,18 +177,16 @@ const Header = () => {
                   <div key={idx} className="relative group">
                     <Link
                       href={item.href}
-                      className={`hover:text-brand-navy text-sm font-medium capitalize hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex items-center gap-1 relative ${
-                        isItemActive
+                      className={`hover:text-brand-navy text-sm font-medium capitalize hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex items-center gap-1 relative ${isItemActive
                           ? "font-semibold text-brand-navy bg-blue-50/80"
                           : "text-slate-700"
-                      }`}
+                        }`}
                     >
                       <span className="flex flex-col relative">
                         <span>{item.title}</span>
                         <span
-                          className={`${
-                            isItemActive ? "scale-x-100" : "scale-x-0"
-                          } w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}
+                          className={`${isItemActive ? "scale-x-100" : "scale-x-0"
+                            } w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}
                         ></span>
                       </span>
                       <ChevronDown className="w-3.5 h-3.5 text-slate-500 group-hover:text-brand-navy transition-transform duration-200 group-hover:rotate-180" />
@@ -216,11 +201,10 @@ const Header = () => {
                             <Link
                               key={sIdx}
                               href={sub.href}
-                              className={`flex items-center px-4 py-2.5 text-xs font-medium transition-colors duration-150 ${
-                                isSubActive
+                              className={`flex items-center px-4 py-2.5 text-xs font-medium transition-colors duration-150 ${isSubActive
                                   ? "bg-blue-50 text-brand-navy font-semibold"
                                   : "text-slate-700 hover:bg-slate-50 hover:text-brand-navy"
-                              }`}
+                                }`}
                             >
                               <span>{sub.title}</span>
                             </Link>
@@ -236,17 +220,15 @@ const Header = () => {
                 <Link
                   key={idx}
                   href={item.href}
-                  className={`hover:text-brand-navy text-sm font-medium capitalize hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex flex-col relative ${
-                    isItemActive
+                  className={`hover:text-brand-navy text-sm font-medium capitalize hover:bg-blue-50/80 px-3 py-2 transition-all duration-300 rounded-md flex flex-col relative ${isItemActive
                       ? "font-semibold text-brand-navy bg-blue-50/80"
                       : "text-slate-700"
-                  }`}
+                    }`}
                 >
                   <span>{item.title}</span>
                   <span
-                    className={`${
-                      isItemActive ? "scale-x-100" : "scale-x-0"
-                    } w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}
+                    className={`${isItemActive ? "scale-x-100" : "scale-x-0"
+                      } w-full h-0.5 bg-blue-500/60 rounded-full transition-all duration-300 origin-left`}
                   ></span>
                 </Link>
               );

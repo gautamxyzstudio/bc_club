@@ -7,9 +7,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes = [
     "",
     "/home-estimation",
-    "/market-trends",
-    "/market-trends/monthly-sale-cart",
-    "/market-trends/monthly-sale-reports",
+    "/market-trends/monthly-sales-chart",
+    "/market-trends/monthly-sales-reports",
     "/market-trends/stats-map",
     "/blogs",
     "/properties",

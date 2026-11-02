@@ -15,7 +15,7 @@ export const metadata: Metadata = {
       "Read the latest BC real estate news, market updates, home-buying tips, selling guides, and neighbourhood insights to make informed property decisions.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/BCRealEstateMarket.svg",
+        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title: "BC Real Estate Blog | Market News & Buying Guides",
     description:
       "Read the latest BC real estate news, market updates, home-buying tips, selling guides, and neighbourhood insights to make informed property decisions.",
-    images: ["https://bcrealestatemarket.com/BCRealEstateMarket.svg"],
+    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
   },
 };
 

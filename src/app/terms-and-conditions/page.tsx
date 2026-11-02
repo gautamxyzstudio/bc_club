@@ -14,7 +14,7 @@ export const metadata: Metadata = {
       "Review BC Real Estate Market's terms and conditions to understand the rules, responsibilities, and guidelines for using the website and its services.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/BCRealEstateMarket.svg",
+        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: "Terms & Conditions | BC Real Estate Market",
     description:
       "Review BC Real Estate Market's terms and conditions to understand the rules, responsibilities, and guidelines for using the website and its services.",
-    images: ["https://bcrealestatemarket.com/BCRealEstateMarket.svg"],
+    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
   },
 };
 

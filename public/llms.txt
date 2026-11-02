@@ -6,7 +6,7 @@
 
 - [Home](https://bcrealestatemarket.com/): Main entry point for property search and real-estate research.
 - [Home Estimation](https://bcrealestatemarket.com/home-estimation): Home-estimation tools and information to help users research property values. Estimates are informational and are not a substitute for a professional appraisal.
-- [Market Trends](https://bcrealestatemarket.com/market-trends): Real-estate market activity, trends, and related market insights.
+- [Market Trends](https://bcrealestatemarket.com/market-trends/monthly-sales-reports): Real-estate market activity, trends, and related market insights.
 - [Blogs](https://bcrealestatemarket.com/blogs): Real-estate articles, guides, and educational content.
 - [Properties](https://bcrealestatemarket.com/properties): Property listings and related property information. Listing details and access may depend on current availability, account status, and data restrictions.
 - [Map Search](https://bcrealestatemarket.com/map-search): Map-based property search and location exploration.
@@ -51,7 +51,9 @@ This summary describes broad website purposes; it does not guarantee that any sp
 
 - https://bcrealestatemarket.com/
 - https://bcrealestatemarket.com/home-estimation
-- https://bcrealestatemarket.com/market-trends
+- https://bcrealestatemarket.com/market-trends/monthly-sales-reports
+- https://bcrealestatemarket.com/market-trends/monthly-sales-chart
+- https://bcrealestatemarket.com/market-trends/stats-map
 - https://bcrealestatemarket.com/blogs
 - https://bcrealestatemarket.com/properties
 - https://bcrealestatemarket.com/map-search

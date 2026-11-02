@@ -49,7 +49,7 @@ export const buyAndSell: LinkListProps = {
     },
     {
       label: "Compare Market Trends",
-      href: "/market-trends",
+      href: "/market-trends/monthly-sales-reports",
     },
   ],
 };
@@ -59,23 +59,23 @@ export const marketTrends: LinkListProps = {
   linkList: [
     {
       label: "Detached Homes Statistics",
-      href: "/market-trends",
+      href: "/market-trends/monthly-sales-reports?propertyType=detached",
     },
     {
       label: "Townhouse Statistics",
-      href: "/market-trends",
+      href: "/market-trends/monthly-sales-reports?propertyType=townhouse",
     },
     {
       label: "Condo / Apartment Statistics",
-      href: "/market-trends",
+      href: "/market-trends/monthly-sales-reports?propertyType=apartment",
     },
     {
       label: "Monthly Sales Report",
-      href: "/market-trends",
+      href: "/market-trends/monthly-sales-reports",
     },
     {
       label: "Buyer vs Seller Market",
-      href: "/market-trends",
+      href: "/market-trends/monthly-sales-chart",
     },
   ],
 };

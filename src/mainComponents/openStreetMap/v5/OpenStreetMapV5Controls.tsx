@@ -126,10 +126,14 @@ export default function OpenStreetMapV5Controls({
   const handleLayerSwitch = (key: keyof MapLayerState) => {
     const nextVal = !layerState[key];
 
-    // If turning ON and requires legal disclaimer and not acknowledged yet
-    if (nextVal && (key === "lots" || key === "flood" || key === "schools")) {
+    // Check legal disclaimer before enabling protected layers
+    if (
+      nextVal &&
+      (key === "lots" || key === "flood" || key === "schools")
+    ) {
       try {
         const stored = JSON.parse(localStorage.getItem(ACK_KEY) || "{}");
+
         if (!stored[key]) {
           setPendingDisclaimer(key);
           setAckChecked(false);
@@ -140,6 +144,20 @@ export default function OpenStreetMapV5Controls({
         setAckChecked(false);
         return;
       }
+    }
+
+    // Handle mutually exclusive layers
+    if (key === "sold" && nextVal) {
+      onToggleLayer("sold", true);
+      onToggleLayer("listings", false);
+      onToggleLayer("drops", false);
+      return;
+    }
+
+    if (key === "listings" && nextVal) {
+      onToggleLayer("listings", true);
+      onToggleLayer("sold", false);
+      return;
     }
 
     onToggleLayer(key, nextVal);
@@ -361,7 +379,7 @@ export default function OpenStreetMapV5Controls({
               </svg>
             </div>
             <div className="v5-lt">
-              <b>Sold – last 12 months</b>
+              <b>Sold</b>
               <small>Dark red · prices after free sign-in</small>
             </div>
             <button

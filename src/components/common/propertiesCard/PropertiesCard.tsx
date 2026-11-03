@@ -247,7 +247,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
 
   if (forMap) {
     return <Link
-      href={`${!isLogin ? "#" : getHref}`}
+      href={`${getHref}`}
       className="w-full h-full flex"
       target={onCardClick ? "_self" : "_blank"}
       onClick={(e) => {
@@ -269,17 +269,17 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
           onCardClick(id, isSold);
         }
       }}
-    > <div className="w-full h-auto p-2 gap-3 flex flex-row items-center border border-[#E2E8F0] cursor-pointer hover:border-[#305487] hover:border-2 rounded-lg mb-2">
+    > <div className="w-full h-auto p-2 gap-3 flex flex-row items-center border border-[#E2E8F0] cursor-pointer hover:border-[#305487] hover:border rounded-lg mb-2">
         <Image src={imgSrc} alt={address} width={100} height={100} loading="eager"
-          onError={() => setImgSrc(Images.apartment)} className="rounded-lg h-auto w-[40%] object-cover" />
-        <div className="w-full space-y-1">
-          <p className="text-xl font-bold text-[#0F172A]">${price.toLocaleString()}</p>
+          onError={() => setImgSrc(Images.apartment)} className="rounded-lg h-25 w-[40%] object-cover" />
+        <div className="w-[58%] space-y-1">
+          <p className={`${isLogin ? 'text-xl': "text-base"} font-bold text-[#0F172A]`}>{displayPrice}</p>
           <div className="flex items-center space-x-1">
             <p className="text-xs text-[#475569]">{beds} bd</p><span>&#x2022;</span>
             <p className="text-xs text-[#475569]">{baths} ba</p><span>&#x2022;</span>
             <p className="text-xs text-[#475569]">{sqft?.toLocaleString()} sqft</p>
           </div>
-          <p className="text-xs text-[#475569] capitalize">{address}</p>
+          <p className="text-xs text-[#475569] capitalize">{displayAddress}</p>
         </div>
       </div>
     </Link>

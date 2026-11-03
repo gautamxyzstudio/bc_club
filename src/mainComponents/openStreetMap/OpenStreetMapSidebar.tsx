@@ -235,10 +235,11 @@ export default function OpenStreetMapSidebar({
                   forMap={true}
                   isLogin={isLoggedIn || p.status === "Active"}
                   isSold={
-                    status === "closed" ||
+                    p.status === "Closed"|| status === "closed" ||
                     status === "sold" ||
                     status === "forecloserSold" ||
                     status === "forcecloserSold"
+                   
                   }
                   isExpired={status === "expired"}
                   isDdf={p.isDdf}

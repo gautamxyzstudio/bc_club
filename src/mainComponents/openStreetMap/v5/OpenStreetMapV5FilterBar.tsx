@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { FiChevronDown, FiX, } from "react-icons/fi";
+import { FiChevronDown, FiX } from "react-icons/fi";
 import FiltersPopup from "@/src/components/common/propertiesCard/FiltersPopup";
 import { formatPriceAbbreviated } from "../mapUtils";
 
@@ -40,23 +40,25 @@ export default function OpenStreetMapV5FilterBar({
   const priceRef = useRef<HTMLDivElement>(null);
   const bedsRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
-  const typeRef = useRef<HTMLDivElement>(null);
 
   // Close dropdowns on outside click
   useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
       const target = e.target as Node;
       if (
         !priceRef.current?.contains(target) &&
         !bedsRef.current?.contains(target) &&
-        !statusRef.current?.contains(target) &&
-        !typeRef.current?.contains(target)
+        !statusRef.current?.contains(target)
       ) {
         setOpenDropdown(null);
       }
     };
     document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
   }, []);
 
   const toggleDropdown = (name: string) => {
@@ -81,7 +83,7 @@ export default function OpenStreetMapV5FilterBar({
       />
 
       {/* Modern Filter Chips Scroll Container */}
-      <div className="v5-chips-bar">
+      <div className="v5-chips-bar overflow-visible! z-1000!">
         {/* Segmented Area / Street View Toggle */}
         <div className="v5-segmented" title="Toggle zoom level">
           <button
@@ -127,7 +129,10 @@ export default function OpenStreetMapV5FilterBar({
         <div className="relative" ref={priceRef}>
           <button
             type="button"
-            onClick={() => toggleDropdown("price")}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleDropdown("price");
+            }}
             className={`v5-chip ${hasPriceFilter ? "active" : ""}`}
           >
             <span>
@@ -142,7 +147,12 @@ export default function OpenStreetMapV5FilterBar({
           </button>
 
           {openDropdown === "price" && (
-            <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-[0_12px_36px_rgba(15,23,42,0.18)] border border-slate-100 p-4 z-1050 animate-in fade-in duration-150">
+            <div
+              className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-[0_12px_36px_rgba(15,23,42,0.18)] border border-slate-100 p-4 z-1050 animate-in fade-in duration-150"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
               <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                 Price Range
               </div>
@@ -189,14 +199,14 @@ export default function OpenStreetMapV5FilterBar({
                     updateFilter("minPrice", 0);
                     updateFilter("maxPrice", 100000000);
                   }}
-                  className="text-xs text-slate-400 hover:text-slate-600 font-medium"
+                  className="text-xs text-slate-400 hover:text-slate-600 font-medium cursor-pointer"
                 >
                   Reset
                 </button>
                 <button
                   type="button"
                   onClick={() => setOpenDropdown(null)}
-                  className="px-3 py-1.5 bg-[#1E4E8C] text-white text-xs font-bold rounded-lg"
+                  className="px-3 py-1.5 bg-[#1E4E8C] text-white text-xs font-bold rounded-lg cursor-pointer hover:bg-[#163a69] transition-colors"
                 >
                   Done
                 </button>
@@ -209,7 +219,10 @@ export default function OpenStreetMapV5FilterBar({
         <div className="relative" ref={bedsRef}>
           <button
             type="button"
-            onClick={() => toggleDropdown("beds")}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleDropdown("beds");
+            }}
             className={`v5-chip ${hasBedFilter ? "active" : ""}`}
           >
             <span>{hasBedFilter ? `${activeBedRoom}+ Beds` : "Beds"}</span>
@@ -220,7 +233,12 @@ export default function OpenStreetMapV5FilterBar({
           </button>
 
           {openDropdown === "beds" && (
-            <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-[0_12px_36px_rgba(15,23,42,0.18)] border border-slate-100 p-4 z-1050 animate-in fade-in duration-150">
+            <div
+              className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-[0_12px_36px_rgba(15,23,42,0.18)] border border-slate-100 p-4 z-1050 animate-in fade-in duration-150"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
               <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                 Bedrooms
               </div>
@@ -233,7 +251,7 @@ export default function OpenStreetMapV5FilterBar({
                       updateFilter("activeBedRoom", b);
                       setOpenDropdown(null);
                     }}
-                    className={`py-2 rounded-xl text-xs font-bold transition-all ${
+                    className={`py-2 rounded-xl text-xs font-bold cursor-pointer transition-all ${
                       activeBedRoom === b
                         ? "bg-[#1E4E8C] text-white shadow-sm"
                         : "bg-slate-50 text-slate-700 hover:bg-slate-100"
@@ -251,12 +269,15 @@ export default function OpenStreetMapV5FilterBar({
         <div className="relative" ref={statusRef}>
           <button
             type="button"
-            onClick={() => toggleDropdown("status")}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleDropdown("status");
+            }}
             className={`v5-chip ${hasStatusFilter ? "active" : ""}`}
           >
             <span>
               {status === "closed"
-                ? "Sold: 12 mo"
+                ? "Sold"
                 : status === "forecloser"
                   ? "Foreclosure"
                   : status === "expired"
@@ -270,10 +291,15 @@ export default function OpenStreetMapV5FilterBar({
           </button>
 
           {openDropdown === "status" && (
-            <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-2xl shadow-[0_12px_36px_rgba(15,23,42,0.18)] border border-slate-100 p-2 z-1050 animate-in fade-in duration-150">
+            <div
+              className="absolute top-full left-0 mt-2 w-56 bg-white rounded-2xl shadow-[0_12px_36px_rgba(15,23,42,0.18)] border border-slate-100 p-2 z-1050 animate-in fade-in duration-150"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
               {[
                 { id: "forSale", label: "For Sale", color: "#1E4E8C" },
-                { id: "closed", label: "Sold: 12 mo", color: "#9F1239" },
+                { id: "closed", label: "Sold", color: "#9F1239" },
                 { id: "forecloser", label: "Foreclosure", color: "#EA580C" },
                 { id: "expired", label: "Expired", color: "#64748B" },
               ].map((item) => (
@@ -284,7 +310,7 @@ export default function OpenStreetMapV5FilterBar({
                     setStatus(item.id);
                     setOpenDropdown(null);
                   }}
-                  className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors ${
+                  className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
                     status === item.id
                       ? "bg-slate-100 text-[#0F172A]"
                       : "text-slate-600 hover:bg-slate-50"
@@ -308,17 +334,17 @@ export default function OpenStreetMapV5FilterBar({
 
         {/* Removable Active Filter Pills */}
         {activeFilterPills.length > 0 && (
-          <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200">
+          <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200 overflow-x-auto scrollbar-none max-w-full">
             {activeFilterPills.map((pill, idx) => (
               <span
                 key={idx}
-                className="flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-800 rounded-full text-xs font-semibold whitespace-nowrap"
+                className="flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-800 rounded-full text-xs font-semibold whitespace-nowrap shrink-0"
               >
                 {pill.label}
                 <button
                   type="button"
                   onClick={pill.onRemove}
-                  className="hover:text-red-600 transition-colors"
+                  className="hover:text-red-600 transition-colors cursor-pointer"
                 >
                   <FiX size={12} />
                 </button>
@@ -327,7 +353,7 @@ export default function OpenStreetMapV5FilterBar({
             <button
               type="button"
               onClick={resetAllFilters}
-              className="text-xs text-slate-500 hover:text-slate-800 font-bold underline px-2 cursor-pointer whitespace-nowrap"
+              className="text-xs text-slate-500 hover:text-slate-800 font-bold underline px-2 cursor-pointer whitespace-nowrap shrink-0"
             >
               Clear all
             </button>

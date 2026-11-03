@@ -5,8 +5,6 @@ import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { cities, PropertySoldData } from ".";
 import MarketDemandGauge from "@/src/components/charts/MarketDemandGauge";
 import PoweredBy from "@/src/components/common/poweredby/PoweredBy";
-import { useAuthContext } from "../auth/AuthContext";
-import ChartSignInOverlay from "@/src/components/common/charts/ChartSignInOverlay";
 import { useGetSoldMarketSummary } from "@/src/hooks/listing/useListingQueries";
 import { useGetBridgeCities } from "@/src/hooks/listing/useRealEstateListingQueries";
 
@@ -18,7 +16,6 @@ const HomePropertiesSold = () => {
       : cities;
 
   const [location, setLocation] = useState<string>("Surrey");
-  const { isLoggedIn, setOpenLogin } = useAuthContext();
 
   const handleChange = (event: SelectChangeEvent<string>) => {
     setLocation(event.target.value);
@@ -31,7 +28,7 @@ const HomePropertiesSold = () => {
   } = useGetSoldMarketSummary(
     { location },
     {
-      enabled: !!location && isLoggedIn,
+      enabled: !!location,
     },
   );
 
@@ -112,7 +109,6 @@ const HomePropertiesSold = () => {
           customClasses="font-bold md:text-start text-center"
         />
         {/* Location Selector */}
-        {isLoggedIn && (
           <Select
             value={location}
             onChange={handleChange}
@@ -152,19 +148,12 @@ const HomePropertiesSold = () => {
               </MenuItem>
             ))}
           </Select>
-        )}
       </div>
 
       {/* Property Cards */}
 
       <div className="w-full min-h-114 h-fit flex flex-row flex-wrap justify-between gap-y-6 relative">
-        {!isLoggedIn ? (
-          <ChartSignInOverlay
-            monthContent={"last month"}
-            onSignIn={() => setOpenLogin(true)}
-            bg="bg-gray"
-          />
-        ) : isDataLoading ? (
+        {isDataLoading ? (
           Array.from({ length: 3 }).map((_, index) => (
             <CardSkeleton key={index} />
           ))

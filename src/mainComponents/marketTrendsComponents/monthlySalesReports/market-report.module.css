@@ -948,8 +948,11 @@
 }
 
 .ctaBtnGold {
-  display: block;
+  display: flex;
   text-align: center;
+  align-items: center;
+  justify-content: center;
+  gap:4px;
   padding: 14px 22px;
   border-radius: 999px;
   font-weight: 700;
@@ -959,6 +962,8 @@
   color: var(--ink);
   transition: filter 0.2s;
   cursor: pointer;
+  outline: 3px solid var(--navy2);
+  outline-offset: 2px;
 }
 
 .ctaBtnGold:hover {
@@ -975,7 +980,7 @@
   text-decoration: none;
   font-size: 16px;
   background: #F0EADD;
-  border: 1.5px solid var(--ink);
+  border: 2px solid var(--ink);
   color: var(--ink);
   transition: all 0.2s;
   cursor: pointer;
@@ -983,6 +988,13 @@
 
 .ctaBtnLine:hover {
   background: #E5DEC9;
+}
+
+.ctaAssure{
+  margin:6px 0 0;text-align:center;font-size:14px;font-weight:600;color:var(--bcx-muted);
+}
+.ctaBroker{
+  margin:2px 0 0;text-align:center;font-size:12px;color:var(--bcx-fine);
 }
 
 /* Footer disclaimer */

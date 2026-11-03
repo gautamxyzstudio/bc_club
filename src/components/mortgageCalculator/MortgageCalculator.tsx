@@ -64,9 +64,9 @@ export function useMortgageCalculator({
   const [loanTerm, setLoanTerm] = useState<number>(initialLoanTerm);
 
   // Secondary configurable estimates
-  const [propertyTaxRate, setPropertyTaxRate] = useState<number>(1.2); // 1.2% annual
-  const [homeInsuranceRate, setHomeInsuranceRate] = useState<number>(0.35); // 0.35% annual
-  const [pmiRate, setPmiRate] = useState<number>(0.75); // 0.75% annual of principal when down payment < 20%
+  const [propertyTaxRate, setPropertyTaxRate] = useState<number>(0); // 1.2% annual
+  const [homeInsuranceRate, setHomeInsuranceRate] = useState<number>(0); // 0.35% annual
+  const [pmiRate, setPmiRate] = useState<number>(0); // 0.75% annual of principal when down payment < 20%
 
   // Sync if initialHomePrice prop changes
   useEffect(() => {
@@ -292,7 +292,7 @@ export function MortgageCalculator({
       </div>
 
       {/* Split Grid Container: single column on mobile/tablet, 12-col on lg+ */}
-      <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-8 xl:gap-10 items-start">
+      <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-8 items-start">
         {/* ================= LEFT COLUMN: Sliders & Form Fields ================= */}
         <div className="space-y-4 sm:space-y-6 lg:col-span-7 min-w-0">
           {/* 1. Home Price */}

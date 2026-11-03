@@ -1,29 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import CustomButton from "@/src/components/button/CustomButton";
-import CustomDialog from "@/src/components/common/customDialog/CustomDialog";
+
+import React, { useState } from "react";
 import {
+  Dialog,
   DialogActions,
-  IconButton,
-  InputAdornment,
-  TextField,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { signup } from "@/src/api/auth/authApi";
 import { GoogleLogin } from "@react-oauth/google";
 import { useAuthContext } from "./AuthContext";
 import { toast } from "react-toastify";
-import {
-  Checkbox,
-  FormControlLabel,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@mui/material";
 import Heading, { IHeadingTypes } from "@/src/components/heading/Heading";
-import Link from "next/link";
+import "../auth/index.css"
 
 interface SignupPopupProps {
   open: boolean;
@@ -31,6 +22,16 @@ interface SignupPopupProps {
   onOpenLogin: () => void;
   onOpenAccCreation: () => void;
 }
+
+const FREE_FEATURES = [
+  "Sold prices",
+  "Foreclosures",
+  "Floodplain maps",
+  "Lot lines",
+  "Map tools",
+  "School rankings",
+  "Catchments",
+];
 
 const SignupPopup = ({
   open,
@@ -85,7 +86,7 @@ const SignupPopup = ({
   const handleGoogleLogin = async (idToken: string) => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/google-login`, 
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/google-login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -100,7 +101,7 @@ const SignupPopup = ({
       const data = await res.json();
 
       if (data.message && !data.jwt) {
-        toast.info(data.message); // "Please verify your email"
+        toast.info(data.message);
         return;
       }
 
@@ -119,178 +120,398 @@ const SignupPopup = ({
   };
 
   return (
-    <CustomDialog
+    <Dialog
       open={open}
       onClose={onClose}
-      title="Create an Account"
-      description="Fill the information for real estate updates"
-    >
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {errorMsg && <p className="text-red-500 text-sm mb-4">{errorMsg}</p>}
-        <div className="flex gap-4 mb-7.75">
-          <TextField
-            label="First Name"
-            type="text"
-            className="w-full "
-            {...register("firstName", { required: "First Name is required" })}
-            error={!!errors.firstName}
-            helperText={errors.firstName?.message as string}
-          />
-          <TextField
-            label="Last Name"
-            type="text"
-            className="w-full"
-            {...register("lastName", { required: "Last Name is required" })}
-            error={!!errors.lastName}
-            helperText={errors.lastName?.message as string}
-          />
-        </div>
-        {/* Email */}
-        <TextField
-          label="Email"
-          type="email"
-          className="w-full"
-          {...register("email", { required: "Email is required" })}
-          error={!!errors.email}
-          helperText={errors.email?.message as string}
-          sx={{
-            "& .MuiOutlinedInput-input": {
-              height: "auto",
-              padding: 2,
+      maxWidth="xs"
+      fullWidth
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: "24px",
+            boxShadow: "0 24px 60px rgba(0,0,0,.3)",
+            maxWidth: "580px",
+            width: "100%",
+            margin: { xs: "16px", sm: "24px" },
+            backgroundColor: "#fff",
+            maxHeight: { xs: "calc(100dvh - 32px)", sm: "calc(100dvh - 48px)" },
+            overflowY: "auto",
+            overflowX: "hidden",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            "&::-webkit-scrollbar": {
+              display: "none",
             },
-          }}
-        />
-
-        {/* Password */}
-        <div className="relative mt-4">
-          <TextField
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            className="w-full p-4"
-            {...register("password", {
-              required: "Password is required",
-              minLength: {
-                value: 8,
-                message: "Password must be at least 8 characters",
-              },
-              pattern: {
-                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/,
-                message:
-                  "Password must include uppercase, lowercase, number, and special character",
-              },
-            })}
-            error={!!errors.password}
-            helperText={errors.password?.message as string}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)}>
-                      {showPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-        </div>
-
-        <div className="mt-5 border border-gray-200 rounded-lg p-4 bg-gray-50">
-          <p className="text-sm text-gray-700 mb-2">
-            Please review the VOW Terms of Use before creating your account.
-          </p>
-
+            WebkitOverflowScrolling: "touch",
+          },
+        },
+      }}
+    >
+      <div className="relative w-full bg-white text-[#111827]">
+        {/* Navy Header */}
+        <div className="bg-[#1F4F86] text-white p-5 sm:p-6 pb-4.5 sm:pb-4.5 flex flex-col gap-2.5 relative rounded-t-3xl">
+          {/* Close Button */}
           <button
             type="button"
-            onClick={() => setTermsOpen(true)}
-            className="text-[#22558B] font-semibold text-sm underline"
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute top-2.5 right-2.5 w-11 h-11 border-0 bg-transparent rounded-full flex items-center justify-center text-white hover:bg-white/12 transition cursor-pointer z-10"
           >
-            View VOW Terms of Use
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
           </button>
 
-          <FormControlLabel
-            sx={{
-              ml: 0,
-              mt: 1,
-              alignItems: "flex-start",
-              display: "flex",
-            }}
-            control={
-              <Checkbox
-                checked={acceptedVowTerms}
-                disabled={!termsViewed}
-                onChange={(e) => setAcceptedVowTerms(e.target.checked)}
-                sx={{
-                  padding: 0,
+          <span className="self-start inline-block bg-[#F5B800] text-[#111827] text-xs font-extrabold tracking-wider px-3 py-1.5 rounded-full uppercase">
+            FREE ACCOUNT
+          </span>
+
+          <h2
+            id="bc-signup-title"
+            className="text-[24px] sm:text-[26px] font-extrabold text-white tracking-tight leading-tight m-0 pr-9"
+          >
+            Unlock everything. Pay nothing.
+          </h2>
+
+          <ul
+            className="grid grid-cols-2 gap-x-3 gap-y-1.5 list-none m-0 p-0 text-[13px] font-semibold text-[#E5ECF5]"
+            aria-label="Included free"
+          >
+            {FREE_FEATURES.map((feature) => (
+              <li key={feature} className="flex items-center gap-1.5">
+                <svg
+                  className="w-4 h-4 flex-none text-[#F5B800]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12l5 5 9-10" />
+                </svg>
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Modal Body */}
+        <div className="p-6 sm:p-7 pt-4.5 sm:pt-4.5 flex flex-col gap-3.5">
+          {/* Google Sign Up */}
+          <div className="flex justify-center w-full">
+            {!acceptedVowTerms ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setTermsOpen(true);
+                  toast.info(
+                    "Please review and accept the VOW Terms of Use before signing up with Google.",
+                  );
                 }}
+                className="w-fit px-3 py-2 flex items-center justify-center gap-2 border-[1.5px] border-[#D1D5DB] bg-white hover:bg-[#F9FAFB] rounded-[14px] text-base font-mediumtext-[#111827] cursor-pointer transition shadow-none"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="#4285F4"
+                    d="M22.6 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2-1.9 3.3-4.7 3.3-8z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.1a11 11 0 0 0 0 9.9l3.7-2.8z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z"
+                  />
+                </svg>
+                Sign up with Google
+              </button>
+            ) : (
+              <div className="w-full flex justify-center ">
+                <GoogleLogin
+                  onSuccess={(credentialResponse) => {
+                    const idToken = credentialResponse.credential;
+                    if (idToken) handleGoogleLogin(idToken);
+                  }}
+                  onError={() => {
+                    setErrorMsg("Google Login Failed");
+                  }}
+                  text="signup_with"
+                  shape="pill"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 text-[#6B7280] text-[13px]">
+            <div className="flex-1 h-px bg-[#E5E7EB]" />
+            <span>or with email</span>
+            <div className="flex-1 h-px bg-[#E5E7EB]" />
+          </div>
+
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            className="flex flex-col gap-3"
+          >
+            {errorMsg && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                {errorMsg}
+              </div>
+            )}
+
+            {/* Name Fields */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="su-first"
+                  className="text-[13px] font-semibold text-[#1F2937]"
+                >
+                  First name
+                </label>
+                <input
+                  id="su-first"
+                  type="text"
+                  autoComplete="given-name"
+                  placeholder="Jordan"
+                  className={`w-full h-12.5 border-[1.5px] ${
+                    errors.firstName
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-100"
+                      : "border-[#D1D5DB] focus:border-[#1F4F86] focus:ring-[#1F4F86]/20"
+                  } rounded-xl px-3.5 text-base text-[#111827] placeholder:text-[#6B7280] bg-white outline-none focus:ring-4 transition`}
+                  {...register("firstName", {
+                    required: "First name is required",
+                  })}
+                />
+                {errors.firstName && (
+                  <span className="text-xs text-red-500">
+                    {errors.firstName.message as string}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="su-last"
+                  className="text-[13px] font-semibold text-[#1F2937]"
+                >
+                  Last name
+                </label>
+                <input
+                  id="su-last"
+                  type="text"
+                  autoComplete="family-name"
+                  placeholder="Lee"
+                  className={`w-full h-12.5 border-[1.5px] ${
+                    errors.lastName
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-100"
+                      : "border-[#D1D5DB] focus:border-[#1F4F86] focus:ring-[#1F4F86]/20"
+                  } rounded-xl px-3.5 text-base text-[#111827] placeholder:text-[#6B7280] bg-white outline-none focus:ring-4 transition`}
+                  {...register("lastName", {
+                    required: "Last name is required",
+                  })}
+                />
+                {errors.lastName && (
+                  <span className="text-xs text-red-500">
+                    {errors.lastName.message as string}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Email Field */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="su-email"
+                className="text-[13px] font-semibold text-[#1F2937]"
+              >
+                Email
+              </label>
+              <input
+                id="su-email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                className={`w-full h-12.5 border-[1.5px] ${
+                  errors.email
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-100"
+                    : "border-[#D1D5DB] focus:border-[#1F4F86] focus:ring-[#1F4F86]/20"
+                } rounded-xl px-3.5 text-base text-[#111827] placeholder:text-[#6B7280] bg-white outline-none focus:ring-4 transition`}
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Please enter a valid email address",
+                  },
+                })}
               />
-            }
-            label={
-              <span className="text-sm text-gray-700 ml-1">
-                I have reviewed and agree to the VOW Terms of Use.
-              </span>
-            }
-          />
+              {errors.email && (
+                <span className="text-xs text-red-500">
+                  {errors.email.message as string}
+                </span>
+              )}
+            </div>
 
-          {!termsViewed && (
-            <p className="text-xs text-red-500">
-              Please open the VOW Terms before accepting.
-            </p>
-          )}
-        </div>
+            {/* Password Field */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="su-pw"
+                className="text-[13px] font-semibold text-[#1F2937]"
+              >
+                Create a password
+              </label>
+              <div className="relative">
+                <input
+                  id="su-pw"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="8+ characters"
+                  className={`w-full h-12.5 border-[1.5px] ${
+                    errors.password
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-100"
+                      : "border-[#D1D5DB] focus:border-[#1F4F86] focus:ring-[#1F4F86]/20"
+                  } rounded-xl pl-3.5 pr-12 text-base text-[#111827] placeholder:text-[#6B7280] bg-white outline-none focus:ring-4 transition`}
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 characters",
+                    },
+                    pattern: {
+                      value:
+                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/,
+                      message:
+                        "Password must include uppercase, lowercase, number, and special character",
+                    },
+                  })}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-1 top-1 w-11 h-11 border-0 bg-transparent flex items-center justify-center text-[#4B5563] hover:text-[#111827] cursor-pointer"
+                >
+                  {showPassword ? (
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line x1="1" y1="23" x2="23" y2="1" />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <span className="text-xs text-red-500">
+                  {errors.password.message as string}
+                </span>
+              )}
+            </div>
 
-        <CustomButton
-          label={loading ? "Signing up..." : "Sign Up"}
-          buttonType={!acceptedVowTerms || loading ? "disabled" : "primary"}
-          customClasses="w-full mt-5"
-          type="submit"
-          disabled={loading || !acceptedVowTerms}
-        />
+            {/* VOW Terms Checkbox */}
+            <div
+              className={`rounded-[14px] p-3 sm:p-3.5 flex flex-col gap-1.5 transition ${
+                !acceptedVowTerms && errorMsg
+                  ? "bg-[#FEF2F2] border border-[#FCA5A5]"
+                  : "bg-[#F8FAFC] border border-[#E2E8F0]"
+              }`}
+            >
+              <label className="flex items-start gap-2.5 text-sm leading-[1.45] text-[#1F2937] cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  id="su-vow"
+                  checked={acceptedVowTerms}
+                  disabled={!termsViewed}
+                  onChange={(e) => setAcceptedVowTerms(e.target.checked)}
+                  className="w-5 h-5 mt-0.5 accent-[#1F4F86] flex-none rounded cursor-pointer disabled:cursor-not-allowed"
+                />
+                <span>
+                  I agree to the{" "}
+                  <button
+                    type="button"
+                    onClick={() => setTermsOpen(true)}
+                    className="font-bold text-[#1F4F86] underline hover:text-[#163A63] cursor-pointer bg-transparent border-0 p-0 inline"
+                  >
+                    VOW Terms of Use
+                  </button>
+                </span>
+              </label>
+              <p className="m-0 ml-7.5 text-xs leading-[1.45] text-[#4B5563]">
+                BC board rules ask for this one-time check before showing sold
+                data. It doesn&apos;t cost anything.
+              </p>
+              {!termsViewed && (
+                <p className="m-0 ml-7.5 text-xs text-red-600 font-medium">
+                  Please view the VOW Terms before agreeing.
+                </p>
+              )}
+            </div>
 
-        <div className="flex items-center gap-3 mt-5 mb-2.5">
-          <div className="flex-1 h-px bg-gray-300"></div>
-          <span className="text-[#000F0D] text-sm">or</span>
-          <div className="flex-1 h-px bg-gray-300"></div>
-        </div>
-        <div className="flex justify-center flex-col items-center gap-2 py-3 px-13 rounded-md">
-          {!acceptedVowTerms ? (
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading || !acceptedVowTerms}
+              className="w-full h-13.5 flex items-center justify-center gap-2 border-0 rounded-[14px] bg-[#1F4F86] hover:bg-[#163A63] text-white text-[17px] font-bold cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+            >
+              {loading ? "Creating account..." : "Create my free account"}
+            </button>
+          </form>
+
+          {/* Fine print & Switch */}
+          <p className="m-0 text-center text-[13px] text-[#4B5563]">
+            No credit card · No spam · Unsubscribe anytime
+          </p>
+          <p className="m-0 text-center text-[15px] text-[#4B5563]">
+            Already a member?{" "}
             <button
               type="button"
-              onClick={() => {
-                setTermsOpen(true);
-                toast.error(
-                  "Please review and accept the VOW Terms before signing in with Google.",
-                );
-              }}
-              className="border border-gray-300 rounded-full px-5 py-2 text-sm font-medium bg-white hover:bg-gray-50"
+              onClick={onOpenLogin}
+              className="font-bold text-[#111827] underline decoration-[#F5B800] decoration-[3px] underline-offset-4 hover:opacity-80 cursor-pointer bg-transparent border-0 p-0"
             >
-              Sign up with Google
+              Sign in
             </button>
-          ) : (
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                const idToken = credentialResponse.credential;
-                if (idToken) handleGoogleLogin(idToken);
-              }}
-              onError={() => {
-                setErrorMsg("Google Login Failed");
-              }}
-              text="signup_with"
-              shape="pill"
-            />
-          )}
+          </p>
         </div>
-
-        <p className="text-center flex justify-center text-gray-600 text-sm mt-4 gap-1.5">
-          Already have an account?
-          <span
-            onClick={onOpenLogin}
-            className="text-yellow-500 font-medium hover:underline cursor-pointer"
-          >
-            Sign in
-          </span>
-        </p>
-      </form>
+      </div>
 
       <Dialog
         open={termsOpen}
@@ -348,7 +569,7 @@ const SignupPopup = ({
                   databases, parcel data, or historical listing systems, you
                   (the “Participant,” “Registrant,” or “User”) explicitly affirm
                   your acceptance of and agreement to these Terms of Use
-                  ("Terms") and our Privacy Policy.
+                  (&quot;Terms&quot;) and our Privacy Policy.
                 </p>
                 <p>
                   This agreement constitutes a legally binding contract
@@ -442,8 +663,8 @@ const SignupPopup = ({
                       bcrealestatemarket.com
                     </a>
                     , whether manually or through automated software tools. The
-                    prohibited uses expressly include "screen scraping,"
-                    "database scraping," "data mining," or any other mechanism
+                    prohibited uses expressly include &quot;screen scraping,&quot;
+                    &quot;database scraping,&quot; &quot;data mining,&quot; or any other mechanism
                     intended to collect, store, re-organize, summarize, or
                     manipulate our property intelligence or listing information.
                   </li>
@@ -530,7 +751,7 @@ const SignupPopup = ({
                 </li>
                 <li>
                   <strong>No Warranties:</strong> This Website and all data
-                  streams are provided strictly on an "as is" and "as available"
+                  streams are provided strictly on an &quot;as is&quot; and &quot;as available&quot;
                   basis. No parties involved in the creation or maintenance of
                   this site guarantee the absolute accuracy, timeliness,
                   performance, completeness, or suitability of the content. You
@@ -665,9 +886,9 @@ const SignupPopup = ({
                         public forum.
                       </li>
                       <li>
-                        Engage in automated or programmatic "Scraping"
-                        (including screen scraping and database scraping), "data
-                        mining," or any other activity intended to collect,
+                        Engage in automated or programmatic &quot;Scraping&quot;
+                        (including screen scraping and database scraping), &quot;data
+                        mining,&quot; or any other activity intended to collect,
                         store, re-organize, summarize, or manipulate any MLS®
                         VOW Data or any related property indices.
                       </li>
@@ -676,8 +897,8 @@ const SignupPopup = ({
                   <li>
                     <strong>Validation of Board Intellectual Property:</strong>{" "}
                     You explicitly recognize and validate the respective
-                    regional Real Estate Boards' absolute ownership of, and the
-                    validity of the Boards' proprietary rights, database rights,
+                    regional Real Estate Boards&apos; absolute ownership of, and the
+                    validity of the Boards&apos; proprietary rights, database rights,
                     and copyrights in the MLS® VOW Data, MLS® Systems, and
                     listing compilations.
                   </li>
@@ -841,7 +1062,7 @@ const SignupPopup = ({
           </button>
         </DialogActions>
       </Dialog>
-    </CustomDialog>
+    </Dialog>
   );
 };
 

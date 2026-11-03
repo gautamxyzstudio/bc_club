@@ -340,7 +340,7 @@ export default function OpenStreetMapSearchV5() {
       pageSize: 50,
       isLogin: isLoggedIn,
     };
-  }, [mapZoomParams, currentPage, isLoggedIn]);
+  }, [mapZoomParams, currentPage, isLoggedIn, layerState]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -374,14 +374,21 @@ export default function OpenStreetMapSearchV5() {
     placeholderData: (previousData: any) => previousData,
   });
 
+  const soldMapZoomParams = useMemo(
+    () => ({
+      ...mapZoomParams,
+      status: "closed",
+    }),
+    [mapZoomParams]
+  );
   // Sold listings query
   const {
     data: queryDataSold,
     isLoading: isLoadingSold,
     isFetching: isFetchingSold,
-  } = useGetMapZoomSoldList(mapZoomParams, {
+  } = useGetMapZoomSoldList(soldMapZoomParams, {
     select: (res: any) => res.data.filter((l: any) => Number(l.price) > 0),
-    enabled: !isForecloser && isForSale && !!mapBounds && (mapZoomVal || 0) > 15,
+    enabled: !isForecloser && layerState.sold && !!mapBounds && (mapZoomVal || 0) > 14,
     staleTime: 1000 * 60 * 5,
     placeholderData: (previousData: any) => previousData,
   });
@@ -449,17 +456,34 @@ export default function OpenStreetMapSearchV5() {
     ? queryDataForecloserProperties
     : queryDataProperties;
 
-  const cleanData = useMemo(() => {
+  const activeProperties = useMemo(() => {
     if (!queryData?.data) return [];
+
     return queryData.data
       .map((listing: any) => transformActiveListing(listing, me))
       .filter(
-        (l: any) =>
-          Number(l.price) > 0 && (hasValidCoordinates(l) || l.address),
+        (listing: any) =>
+          Number(listing.price) > 0 &&
+          (hasValidCoordinates(listing) || listing.address)
       );
   }, [queryData?.data, me]);
 
-  const rawProperties = useMemo(() => cleanData || [], [cleanData]);
+  const soldProperties = useMemo(() => {
+    if (!queryDataSold) return [];
+
+    return queryDataSold
+      .filter(
+        (listing: any) =>
+          Number(listing.price) > 0 &&
+          hasValidCoordinates(listing)
+      )
+      .map((listing: any) => transformActiveListing(listing, me));
+  }, [queryDataSold, me]);
+
+  const rawProperties = layerState.sold
+    ? soldProperties
+    : activeProperties;
+
 
   // Geocoding fallback
   useEffect(() => {
@@ -525,11 +549,7 @@ export default function OpenStreetMapSearchV5() {
 
   // Update visible properties for the sidebar
   useEffect(() => {
-    if (!properties) {
-      setVisibleProperties([]);
-      return;
-    }
-    setVisibleProperties(properties);
+    setVisibleProperties(properties || []);
   }, [properties]);
 
   const isFetching = isForecloser
@@ -790,9 +810,11 @@ export default function OpenStreetMapSearchV5() {
     setCurrentPage(page);
   }, []);
 
-  const isSidebarLoading =
-    isLoadingData ||
-    (isForecloser ? isLoadingForecloserProperties : isLoadingProperties);
+  const isSidebarLoading = layerState.sold
+    ? isLoadingSold || isFetchingSold
+    : isForecloser
+      ? isLoadingForecloserProperties || isFetchingForecloserProperties
+      : isLoadingProperties || isFetchingProperties;
 
   const stableClusterPosition = useMemo(
     () => (clusterPosition ? { ...clusterPosition } : null),
@@ -810,9 +832,9 @@ export default function OpenStreetMapSearchV5() {
           <OpenStreetMapSidebar
             isLoading={isSidebarLoading}
             visibleProperties={visibleProperties}
-            properties={queryData}
+            properties={layerState.sold ? queryDataSold : queryData}
             isLoggedIn={isLoggedIn || isForecloserSold}
-            status={status}
+            status={layerState.sold ? "closed" : status}
             setHoveredPropertyId={setHoveredPropertyId}
             assessmentDrawerOpen={assessmentDrawerOpen}
             selectedAssessmentProperty={selectedAssessmentProperty}
@@ -834,20 +856,6 @@ export default function OpenStreetMapSearchV5() {
                 <div className="h-full w-1/3 animate-[mapLoading_1.2s_ease-in-out_infinite] bg-[#1E4E8C]" />
               </div>
             )}
-
-            {/* V5 Filter Chips Bar */}
-            <OpenStreetMapV5FilterBar
-              status={status}
-              setStatus={setStatus}
-              // search={search}
-              // setSearch={setSearch}
-              viewMode={viewMode}
-              setViewMode={handleViewModeChange}
-              activeFilterPills={activeFilterPills}
-              resetAllFilters={resetAllFilters}
-              filters={effectiveFilters}
-              updateFilter={(k, v) => updateInstanceFilter("map", k, v)}
-            />
 
             {/* Leaflet Map Container */}
             <MapContainer
@@ -1062,6 +1070,20 @@ export default function OpenStreetMapSearchV5() {
                 onClose={() => setSelectedClusterProperties([])}
               />
             </MapContainer>
+
+            {/* V5 Filter Chips Bar */}
+            <OpenStreetMapV5FilterBar
+              status={status}
+              setStatus={setStatus}
+              // search={search}
+              // setSearch={setSearch}
+              viewMode={viewMode}
+              setViewMode={handleViewModeChange}
+              activeFilterPills={activeFilterPills}
+              resetAllFilters={resetAllFilters}
+              filters={effectiveFilters}
+              updateFilter={(k, v) => updateInstanceFilter("map", k, v)}
+            />
 
             {/* Measurement Floating Banner */}
             {measureMode && (

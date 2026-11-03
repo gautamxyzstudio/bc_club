@@ -20,7 +20,8 @@ export const Endpoints = {
   // Call History Endpoints
   getCallHistories: `${BASE_URL}/api/call-histories`,
   createCallHistory: `${BASE_URL}/api/call-histories`,
-  deleteCallHistory: (id: string | number) => `${BASE_URL}/api/call-histories/${id}`,
+  deleteCallHistory: (id: string | number) =>
+    `${BASE_URL}/api/call-histories/${id}`,
 
   // Assignment List Properties
   getAssessmentPropertiesList: `${BASE_URL}/api/property-assignment-lists`,
@@ -110,6 +111,6 @@ export const Endpoints = {
   // Activity Logs Endpoints
   logActivity: `${BASE_URL}/api/activity-logs/log`,
   getActivityLogs: `${BASE_URL}/api/activity-logs`,
-  getUserActivityLogs: (userId: string | number) => `${BASE_URL}/api/activity-logs/user/${userId}`,
+  getUserActivityLogs: (userId: string | number) =>
+    `${BASE_URL}/api/activity-logs/user/${userId}`,
 };
-

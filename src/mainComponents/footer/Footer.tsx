@@ -88,9 +88,9 @@ From market insights to home valuation, every step of your real estate journey"
           </Link>{" "}
           Planet Group Realty Inc., Surrey, BC
         </span>
-        <Link href={"https://www.xyz.studio/"}>
+        {/* <Link href={"https://www.xyz.studio/"}>
           Designed and developed by <b>XYZ Studio</b>
-        </Link>
+        </Link> */}
       </div>
     </footer>
   );

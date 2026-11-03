@@ -12,6 +12,7 @@ import { useGetMonthlySalesReports } from "@/src/hooks/listing/useListingQueries
 import { useGetBridgeCities } from "@/src/hooks/listing/useRealEstateListingQueries";
 import { cities } from "../../home";
 import { useSearchParams } from "next/navigation";
+import { Phone } from "lucide-react";
 
 interface VisualMarketReportProps {
   onSwitchToTableView?: () => void;
@@ -176,7 +177,7 @@ export default function VisualMarketReport({
       propertyType: propertyType.toLowerCase(),
       year: selectedMonthOption.year,
       month: selectedMonthOption.month,
-      // type: "report",
+      type: "report",
     };
   }, [region, propertyType, selectedMonthOption]);
 
@@ -1779,17 +1780,20 @@ export default function VisualMarketReport({
               </div>
 
               <div className={styles.agentCard}>
-                <b className={styles.agentName}>Best Realtor Agents</b>
+                <b className={styles.agentName}>Talk to a local expert</b>
                 <small className={styles.agentRole}>
-                  Personal Real Estate Corporation<br />
-                  The Sidhu Team | Planet Group Realty Inc.
+                  Questions about a home, a neighbourhood or what your place is worth?
+                  Get straight answers from a licensed agent who knows the{" "}
+                  <strong className="capitalize">{city}</strong> market inside out.
                 </small>
                 <a href="tel:7788962478" className={styles.ctaBtnGold}>
-                  Call 778-896-2478
+                  <Phone size={16} />   <span>Call 778-896-2478</span>
                 </a>
                 <a href="/properties" className={styles.ctaBtnLine}>
                   Browse active &amp; sold homes
                 </a>
+                <p className={styles.ctaAssure}>Free advice · No pressure · No obligation</p>
+                <p className={styles.ctaBroker}>Featured agent · Planet Group Realty Inc.</p>
               </div>
             </div>
 

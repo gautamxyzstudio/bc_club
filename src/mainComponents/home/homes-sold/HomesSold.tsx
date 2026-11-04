@@ -2,20 +2,27 @@
 "use client";
 /* ==========================================================================
    "Homes sold" section (replaces "Number of Sales Reported")
-   Data: existing /api/real-estate-board/sales-reported endpoint via
-   useGetSalesReported({ location, days }) where days = 12D | 1M | 3M | 6M.
-   Each chartData row is one bar:
+
+   Every view is worked out from DAILY numbers, the same way as the design demo:
+     15 days  -> last 15 days, one bar per day
+     1 month  -> last 30 days, one bar per day
+     3 / 6 months -> one bar per calendar month (daily numbers added up);
+                     an unfinished month is marked "*" / "month so far"
+
+   Data: existing /api/real-estate-board/sales-reported endpoint
+   (useGetSalesReported). We ask for days=6M&full=1 once (full=1 = every
+   calendar day, zero-filled; added to the Strapi salesReported handler). Row:
      { name, detached_sold, detached_listed, apartment_sold, apartment_listed,
        townhouse_sold, townhouse_listed }
-   All styles live in homes-sold.css (every class prefixed .hs-).
+   If the server is still the old version (12 sampled dates per range), each
+   period is requested on its own and the totals come from its summary.
+
+   Public: no sign-in needed. Styles: homes-sold.css (classes prefixed .hs-).
    ========================================================================== */
 import React, { useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { Poppins, Roboto_Condensed } from "next/font/google";
 import { useGetSalesReported } from "@/src/hooks/listing/useListingQueries";
-import { useAuthContext } from "@/src/mainComponents/auth/AuthContext";
-import ChartSignInOverlay from "@/src/components/common/charts/ChartSignInOverlay";
-import { monthName } from "@/src/utilities/utilities";
 import "./homes-sold.css";
 
 const poppins = Poppins({
@@ -33,97 +40,171 @@ const robotoCondensed = Roboto_Condensed({
 
 type TypeKey = "det" | "town" | "apt";
 type FilterKey = "all" | TypeKey;
-
 const KEYS: TypeKey[] = ["det", "town", "apt"];
 
-/* API field prefix + listings-page structureType value for each home type */
-const TYPES: Record<
-  FilterKey,
-  { name: string; plural: string; api?: string; structureType?: string }
-> = {
+/* API field prefix + /properties structureType value for each home type */
+const TYPES: Record<FilterKey, { name: string; plural: string; api?: string; structureType?: string }> = {
   all: { name: "All homes", plural: "homes" },
   det: { name: "Detached", plural: "detached homes", api: "detached", structureType: "Single Family" },
   town: { name: "Townhouse", plural: "townhouses", api: "townhouse", structureType: "Townhouse" },
   apt: { name: "Condo / Apt", plural: "condos", api: "apartment", structureType: "Apartment" },
 };
 
-type Period = { id: string; short: string; long: string; kind: "day" | "month" };
+type Period = { id: string; api: string; short: string; long: string; kind: "day" | "month"; count: number };
 const PERIODS: Period[] = [
-  { id: "12D", short: "12 days", long: "12 days", kind: "day" },
-  { id: "1M", short: "1 month", long: "1 month", kind: "day" },
-  { id: "3M", short: "3 mo", long: "3 months", kind: "month" },
-  { id: "6M", short: "6 mo", long: "6 months", kind: "month" },
+  { id: "15d", api: "15D", short: "15 days", long: "15 days", kind: "day", count: 15 },
+  { id: "1m", api: "1M", short: "1 month", long: "1 month", kind: "day", count: 30 },
+  { id: "3m", api: "3M", short: "3 mo", long: "3 months", kind: "month", count: 3 },
+  { id: "6m", api: "6M", short: "6 mo", long: "6 months", kind: "month", count: 6 },
 ];
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-type Bucket = {
-  name: string;
-  short: string;
-  partial?: boolean;
-  sold: Record<TypeKey, number>;
-  listed: Record<TypeKey, number>;
-};
+type Counts = Record<TypeKey, number>;
+type Day = { y: number; m: number; d: number; sold: Counts; listed: Counts; missing?: boolean };
+type Bucket = { name: string; short: string; partial?: boolean; missing?: boolean; y?: number; m?: number; d?: number; sold: Counts; listed: Counts };
 
 const num = (v: any) => (typeof v === "number" ? v : Number(v) || 0);
 const sum = (a: number[]) => a.reduce((t, v) => t + v, 0);
 const fmt = (n: number) => n.toLocaleString("en-CA");
+const daysInMonth = (y: number, m: number) => new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+const zero = (): Counts => ({ det: 0, town: 0, apt: 0 });
 
-/* Pull day / month / year out of whatever label the API sends
+function rowCounts(row: any) {
+  const sold = zero();
+  const listed = zero();
+  KEYS.forEach((k) => {
+    sold[k] = num(row?.[`${TYPES[k].api}_sold`]);
+    listed[k] = num(row?.[`${TYPES[k].api}_listed`]);
+  });
+  return { sold, listed };
+}
+
+/* Read day / month / year out of whatever label the API sends
    ("2026-10-05", "Oct 5", "5 Oct", "Oct 2026", "October", ...) */
-function parseLabel(raw: string): { d?: number; m?: number; y?: number } {
-  const s = String(raw || "").trim();
+function parseLabel(raw: any): { d?: number; m?: number; y?: number } {
+  const s = String(raw ?? "").trim();
   const iso = s.match(/^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?/);
   if (iso) return { y: +iso[1], m: +iso[2] - 1, d: iso[3] ? +iso[3] : undefined };
-  const mi = MONTHS.findIndex((mo) => s.toLowerCase().includes(mo.toLowerCase()));
+  const lower = s.toLowerCase();
+  const mi = MONTHS.findIndex((mo) => lower.includes(mo.toLowerCase()));
   const nums = (s.match(/\d+/g) || []).map(Number);
   const y = nums.find((n) => n > 1900);
   const d = nums.find((n) => n >= 1 && n <= 31);
   return { m: mi >= 0 ? mi : undefined, d, y };
 }
 
-function toBuckets(chartData: any[], period: Period): Bucket[] {
-  const now = new Date();
-  return (chartData || []).map((row: any, i: number, arr: any[]) => {
-    const name = String(row?.name ?? "");
-    const p = parseLabel(name);
-    const sold = {} as Record<TypeKey, number>;
-    const listed = {} as Record<TypeKey, number>;
-    KEYS.forEach((k) => {
-      sold[k] = num(row?.[`${TYPES[k].api}_sold`]);
-      listed[k] = num(row?.[`${TYPES[k].api}_listed`]);
+/* Turn API rows into dated daily records (oldest first). Returns null if the
+   rows are not daily (e.g. monthly buckets). Missing years are worked out by
+   walking back from today. */
+function toDays(rows: any[], minRows = 20): Day[] | null {
+  if (!rows?.length || rows.length < minRows) return null;
+  const parsed = rows.map((r) => ({ ...parseLabel(r?.date ?? r?.name), ...rowCounts(r) }));
+  if (parsed.some((p) => p.m === undefined || p.d === undefined)) return null;
+  const today = new Date();
+  let year = parsed[parsed.length - 1].y ?? (parsed[parsed.length - 1].m! > today.getMonth() ? today.getFullYear() - 1 : today.getFullYear());
+  const out: Day[] = [];
+  for (let i = parsed.length - 1; i >= 0; i--) {
+    const p = parsed[i];
+    if (p.y) year = p.y;
+    else if (i < parsed.length - 1 && p.m! > out[0].m) year -= 1; /* crossed back over New Year */
+    out.unshift({ y: year, m: p.m!, d: p.d!, sold: p.sold, listed: p.listed });
+  }
+  return out;
+}
+
+/* Fill calendar days the API skipped (no activity) with zeros */
+function fillGaps(days: Day[], markMissing = false): Day[] {
+  if (days.length < 2) return days;
+  const key = (y: number, m: number, d: number) => Date.UTC(y, m, d);
+  const map = new Map(days.map((r) => [key(r.y, r.m, r.d), r]));
+  const out: Day[] = [];
+  const end = key(days[days.length - 1].y, days[days.length - 1].m, days[days.length - 1].d);
+  for (let t = key(days[0].y, days[0].m, days[0].d); t <= end; t += 86400000) {
+    const dt = new Date(t);
+    out.push(map.get(t) || { y: dt.getUTCFullYear(), m: dt.getUTCMonth(), d: dt.getUTCDate(), sold: zero(), listed: zero(), missing: markMissing });
+  }
+  return out;
+}
+
+/* Same bucket logic as the design demo */
+function bucketsFromDays(days: Day[], period: Period): Bucket[] {
+  if (period.kind === "day") {
+    /* exactly N calendar days ending on the latest day; a day the API did not
+       send (old sampled server) is an empty slot, not a fake 0 */
+    const last = days[days.length - 1];
+    const byKey = new Map(days.map((r) => [Date.UTC(r.y, r.m, r.d), r]));
+    const end = Date.UTC(last.y, last.m, last.d);
+    return Array.from({ length: period.count }, (_, i) => {
+      const t = end - (period.count - 1 - i) * 86400000;
+      const dt = new Date(t);
+      const r = byKey.get(t);
+      const y = dt.getUTCFullYear(), m = dt.getUTCMonth(), d = dt.getUTCDate();
+      return {
+        name: `${MONTHS[m]} ${d}`, short: String(d), y, m, d,
+        missing: !r || !!r.missing,
+        sold: r ? r.sold : zero(), listed: r ? r.listed : zero(),
+      };
     });
-    let short = name;
-    let partial = false;
+  }
+  const byMonth = new Map<string, { y: number; m: number; last: number; sold: Counts; listed: Counts }>();
+  days.forEach((r) => {
+    const key = `${r.y}-${r.m}`;
+    if (!byMonth.has(key)) byMonth.set(key, { y: r.y, m: r.m, last: 0, sold: zero(), listed: zero() });
+    const b = byMonth.get(key)!;
+    b.last = Math.max(b.last, r.d);
+    KEYS.forEach((k) => {
+      b.sold[k] += r.sold[k];
+      b.listed[k] += r.listed[k];
+    });
+  });
+  return Array.from(byMonth.values())
+    .slice(-period.count)
+    .map((b) => {
+      const partial = b.last < daysInMonth(b.y, b.m);
+      return {
+        name: `${MONTHS_LONG[b.m]} ${b.y}${partial ? " (so far)" : ""}`,
+        short: MONTHS[b.m] + (partial ? "*" : ""),
+        partial, y: b.y, m: b.m, sold: b.sold, listed: b.listed,
+      };
+    });
+}
+
+/* Fallback when the API only gives pre-grouped rows */
+function bucketsFromRows(rows: any[], period: Period): Bucket[] {
+  const now = new Date();
+  return rows.slice(-period.count).map((row, i, arr) => {
+    const p = parseLabel(row?.name);
+    const { sold, listed } = rowCounts(row);
     if (period.kind === "day") {
-      if (p.d !== undefined) short = String(p.d);
-    } else {
-      if (p.m !== undefined) short = MONTHS[p.m];
-      const isLast = i === arr.length - 1;
-      partial =
-        isLast &&
-        p.m === now.getMonth() &&
-        (p.y === undefined || p.y === now.getFullYear());
-      if (partial) short += "*";
+      return { name: String(row?.name ?? ""), short: p.d !== undefined ? String(p.d) : String(row?.name ?? ""), m: p.m, d: p.d, y: p.y, sold, listed };
     }
-    return { name: partial ? `${name} (so far)` : name, short, partial, sold, listed };
+    const partial = i === arr.length - 1 && p.m === now.getMonth() && (p.y === undefined || p.y === now.getFullYear()) && now.getDate() < daysInMonth(now.getFullYear(), now.getMonth());
+    const short = (p.m !== undefined ? MONTHS[p.m] : String(row?.name ?? "")) + (partial ? "*" : "");
+    return { name: `${row?.name ?? ""}${partial ? " (so far)" : ""}`, short, partial, m: p.m, y: p.y ?? (p.m !== undefined ? now.getFullYear() : undefined), sold, listed };
   });
 }
 
-/* Fake, deterministic bars shown blurred behind the sign-in card (no real data) */
-const PLACEHOLDER = [13, 4, 6, 17, 14, 11, 17, 15, 5, 7, 18, 15, 12, 15, 28, 6, 5, 17, 31, 13, 13, 16, 8, 5, 16, 19, 24, 12, 14, 9];
-function placeholderBuckets(period: Period): Bucket[] {
-  const count = period.id === "12D" ? 12 : period.id === "1M" ? 30 : period.id === "3M" ? 3 : 6;
-  return Array.from({ length: count }, (_, i) => {
-    const v = period.kind === "day" ? PLACEHOLDER[i % PLACEHOLDER.length] : 380 + ((i * 53) % 90);
-    const name = period.kind === "day" ? `Day ${i + 1}` : MONTHS[i];
-    return {
-      name,
-      short: period.kind === "day" ? String(i + 1) : MONTHS[i],
-      sold: { det: Math.round(v * 0.45), town: Math.round(v * 0.3), apt: v - Math.round(v * 0.45) - Math.round(v * 0.3) },
-      listed: { det: v, town: Math.round(v * 0.6), apt: Math.round(v * 0.6) },
-    };
-  });
+function captionFor(b: Bucket[], period: Period) {
+  const a = b[0];
+  const z = b[b.length - 1];
+  if (a.m === undefined || z.m === undefined) return `${a.name.replace(" (so far)", "")} – ${z.name.replace(" (so far)", "")}`;
+  if (period.kind === "day") {
+    return `${MONTHS[a.m]} ${a.d ?? ""} – ${MONTHS[z.m]} ${z.d ?? ""}${z.y ? `, ${z.y}` : ""}`;
+  }
+  return `${MONTHS[a.m]}${a.y && z.y && a.y !== z.y ? ` ${a.y}` : ""} – ${MONTHS[z.m]}${z.y ? ` ${z.y}` : ""}`;
+}
+
+function updatedText(iso: any) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const now = new Date();
+  if (d.toDateString() === now.toDateString()) {
+    return `Updated today at ${d.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" })}`;
+  }
+  return `Updated ${MONTHS[d.getMonth()]} ${d.getDate()}`;
 }
 
 function useIsWide() {
@@ -157,7 +238,7 @@ const ChevronDown = () => (
 export type HomesSoldProps = {
   cities: string[];
   defaultCity?: string;
-  /** Number of most recent daily bars drawn lighter ("may still update"). 0 = off */
+  /** Most recent daily bars drawn lighter ("may still update"). 0 = off */
   lagDays?: number;
   className?: string;
 };
@@ -166,40 +247,50 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
   const uid = "hs" + useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const wide = useIsWide();
   const [city, setCity] = useState(defaultCity);
-  const [periodId, setPeriodId] = useState("1M");
+  const [periodId, setPeriodId] = useState("1m");
   const [type, setType] = useState<FilterKey>("all");
   const [sel, setSel] = useState<number | null>(null);
 
-  /* keep the selected city valid once the city list arrives */
   useEffect(() => {
     if (cities.length && !cities.includes(city)) setCity(cities.includes(defaultCity) ? defaultCity : cities[0]);
   }, [cities, city, defaultCity]);
 
-  const { isLoggedIn, setOpenLogin, authLoading } = useAuthContext();
   const period = PERIODS.find((p) => p.id === periodId) || PERIODS[1];
-  /* Signed-out visitors: every period is locked. Nothing is fetched; a blurred
-     placeholder chart sits behind the sign-in card. */
-  const needsLogin = !isLoggedIn;
-  const locked = needsLogin && !authLoading;
-  const dataPeriod = period;
-  const params = useMemo(() => ({ location: city, days: dataPeriod.id }), [city, dataPeriod.id]);
-  const { data: res, isLoading, isFetching, isError, refetch } = useGetSalesReported(params, {
-    enabled: !!city && !needsLogin,
-    placeholderData: (prev: any) => prev,
-  } as any);
 
-  const summary = needsLogin ? undefined : res?.data?.summary;
-  const buckets = useMemo(
-    () => (needsLogin ? placeholderBuckets(dataPeriod) : toBuckets(res?.data?.chartData || [], dataPeriod)),
-    [needsLogin, res, dataPeriod],
-  );
+  /* One 6-month daily request feeds every view */
+  const sixParams = useMemo(() => ({ location: city, days: "6M", full: "1" }), [city]);
+  const six = useGetSalesReported(sixParams, { enabled: !!city, placeholderData: (prev: any) => prev } as any);
+  const sixRows: any[] = useMemo(() => six.data?.data?.chartData || [], [six.data]);
+  const days = useMemo(() => {
+    const d = toDays(sixRows);
+    return d ? fillGaps(d) : null;
+  }, [sixRows]);
+
+  /* Fallback for the old server (12 sampled dates): request this period on its
+     own; bars use the sampled dates, totals use the API summary (all days). */
+  const fallback = !!six.data && !days;
+  const perParams = useMemo(() => ({ location: city, days: period.api, full: "1" }), [city, period.api]);
+  const per = useGetSalesReported(perParams, { enabled: !!city && fallback, placeholderData: (prev: any) => prev } as any);
+
+  const buckets = useMemo<Bucket[]>(() => {
+    if (days) return bucketsFromDays(days, period);
+    const rows: any[] = per.data?.data?.chartData || [];
+    const d = toDays(rows, 1);
+    return d ? bucketsFromDays(period.kind === "day" ? fillGaps(d, true) : fillGaps(d), period) : bucketsFromRows(rows, period);
+  }, [days, period, per.data]);
+
+  const active = fallback ? per : six;
+  const res: any = active.data;
+  const isLoading = active.isLoading && !res;
+  const isError = active.isError && !res;
+  const fallbackSummary = fallback ? per.data?.data?.summary : undefined;
+  const updatedAt = six.data?.data?.updatedAt ?? six.data?.updatedAt;
 
   const choosePeriod = (id: string) => {
     setPeriodId(id);
     setSel(null);
   };
 
-  /* ---------- links into the existing /properties page ---------- */
   const soldHref = (k: FilterKey) => {
     const q = new URLSearchParams({ location: city, status: "sold" });
     if (TYPES[k].structureType) q.set("structureType", TYPES[k].structureType!);
@@ -211,7 +302,6 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
     return `/properties?${q.toString()}`;
   };
 
-  /* ---------- header (always shown) ---------- */
   const header = (
     <div className="hs-head">
       <div>
@@ -247,52 +337,46 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
     </div>
   );
 
-  /* ---------- content ---------- */
   let content: React.ReactNode;
 
-  if (authLoading || (!needsLogin && isLoading && !res)) {
+  if (isLoading || (!res && !isError)) {
     content = <div className="hs-loading" aria-label="Loading sales" />;
-  } else if (!needsLogin && isError && !res) {
+  } else if (isError) {
     content = (
       <div className="hs-empty">
         <h3>Sales numbers are unavailable</h3>
         <p>Please try again in a few minutes.</p>
-        <button type="button" onClick={() => refetch()}>Try again</button>
+        <button type="button" onClick={() => active.refetch()}>Try again</button>
       </div>
     );
   } else {
-    /* totals per type: prefer the API summary, fall back to summing the bars */
+    /* Totals are added up from the daily bars, so they match the chart.
+       (Old-server fallback: use the API summary, which covers every day.) */
     const totals = {} as Record<FilterKey, { sold: number; listed: number }>;
     KEYS.forEach((k) => {
-      const api = TYPES[k].api;
-      const s = summary?.[`total_${api}_sold`];
-      const l = summary?.[`total_${api}_listed`];
+      const fs = fallbackSummary?.[`total_${TYPES[k].api}_sold`];
+      const fl = fallbackSummary?.[`total_${TYPES[k].api}_listed`];
       totals[k] = {
-        sold: s !== undefined ? num(s) : sum(buckets.map((b) => b.sold[k])),
-        listed: l !== undefined ? num(l) : sum(buckets.map((b) => b.listed[k])),
+        sold: fs !== undefined ? num(fs) : sum(buckets.map((b) => b.sold[k])),
+        listed: fl !== undefined ? num(fl) : sum(buckets.map((b) => b.listed[k])),
       };
     });
-    totals.all = {
-      sold: summary?.sold !== undefined ? num(summary.sold) : sum(KEYS.map((k) => totals[k].sold)),
-      listed: summary?.newListings !== undefined ? num(summary.newListings) : sum(KEYS.map((k) => totals[k].listed)),
-    };
+    totals.all = { sold: sum(KEYS.map((k) => totals[k].sold)), listed: sum(KEYS.map((k) => totals[k].listed)) };
 
-    const grand = totals.all.sold || sum(buckets.map((b) => sum(KEYS.map((k) => b.sold[k]))));
-
-    if (!grand || !buckets.length) {
+    if (!totals.all.sold || !buckets.length) {
       content = (
         <div className="hs-empty">
           <h3>No sales reported yet</h3>
           <p>There are no recorded sales in {city} for this period yet.</p>
-          {period.id !== "6M" && (
-            <button type="button" onClick={() => choosePeriod("6M")}>Show last 6 months</button>
+          {period.id !== "6m" && (
+            <button type="button" onClick={() => choosePeriod("6m")}>Show last 6 months</button>
           )}
         </div>
       );
     } else {
       const n = buckets.length;
-      const active = type === "all" ? KEYS : [type];
-      const series = buckets.map((b) => sum(active.map((k) => b.sold[k])));
+      const act = type === "all" ? KEYS : [type];
+      const series = buckets.map((b) => sum(act.map((k) => b.sold[k])));
       const totSold = totals[type].sold;
       const max = Math.max(1, ...series);
       const selIdx = sel === null ? n - 1 : Math.min(sel, n - 1);
@@ -300,16 +384,19 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
       const mid = n > 10 && !dense;
       const every = !wide && dense ? 5 : 1;
       const maxH = wide ? 200 : 90;
-      const lag = dataPeriod.kind === "day" ? lagDays : 0;
+      const lag = period.kind === "day" ? lagDays : 0;
       const T = TYPES[type];
       const scale = Math.max(totals.all.listed, totals.all.sold, 1);
 
       const notes: string[] = [];
       if (lag) notes.push(`Lighter bars: last ${lag} days may still update`);
-      if (dataPeriod.kind === "month" && buckets[n - 1].partial) notes.push("* month so far");
+      if (period.kind === "month" && buckets[n - 1].partial) notes.push("* month so far");
+      const source = ["Fraser Valley Real Estate Board data, counted daily by BCRealEstateMarket", updatedText(updatedAt)]
+        .filter(Boolean)
+        .join(" · ");
 
       content = (
-        <div className={`hs-body${isFetching ? " is-fetching" : ""}`}>
+        <div className={`hs-body${active.isFetching ? " is-fetching" : ""}`}>
           <div>
             <Link className="hs-hero" href={soldHref(type)} aria-label={`See the ${fmt(totSold)} sold ${T.plural}`}>
               <b>{fmt(totSold)}</b>
@@ -330,11 +417,11 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
                     type="button"
                     className={`hs-col${recent ? " is-recent" : ""}`}
                     aria-pressed={on}
-                    aria-label={`${b.name}: ${v} ${T.plural} sold${recent ? " (may still update)" : ""}`}
+                    aria-label={b.missing ? `${b.name}: no daily figure` : `${b.name}: ${v} ${T.plural} sold${recent ? " (may still update)" : ""}`}
                     onClick={() => setSel(i)}
                   >
-                    <span className="hs-val">{v}</span>
-                    <span className="hs-bar" style={{ height: h }} />
+                    <span className="hs-val">{b.missing ? "" : v}</span>
+                    <span className="hs-bar" style={{ height: b.missing ? 0 : h }} />
                     <span className="hs-lab">{showLabel ? b.short : ""}</span>
                   </button>
                 );
@@ -342,9 +429,7 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
             </div>
 
             <div className="hs-caption">
-              <strong>
-                {buckets[0].name.replace(" (so far)", "")} – {buckets[n - 1].name.replace(" (so far)", "")}
-              </strong>
+              <strong>{captionFor(buckets, period)}</strong>
               {notes.map((t) => (
                 <span key={t}>{t}</span>
               ))}
@@ -399,10 +484,7 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
             <Link className="hs-cta" href={soldHref(type)}>
               See the {fmt(totSold)} sold {T.plural} <Arrow />
             </Link>
-            <Link className="hs-more" href="/market-trends/monthly-sales-reports">
-              Custom date range &amp; monthly reports
-            </Link>
-            <p className="hs-source">Source: Fraser Valley Real Estate Board</p>
+            <p className="hs-source">Source: {source}</p>
           </div>
         </div>
       );
@@ -410,26 +492,10 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
   }
 
   return (
-    <section
-      className={`hs ${poppins.variable} ${robotoCondensed.variable} ${className}`}
-      aria-labelledby={`${uid}-title`}
-    >
+    <section className={`hs ${poppins.variable} ${robotoCondensed.variable} ${className}`} aria-labelledby={`${uid}-title`}>
       {header}
-      <div className={`hs-content${locked ? " is-locked" : ""}`} aria-live="polite">
-        {locked ? (
-          <>
-            <div className="hs-locked-body" aria-hidden="true" inert>
-              {content}
-            </div>
-            <ChartSignInOverlay
-              content={`Sign in to see homes sold in the ${monthName(period.id)}.`}
-              onSignIn={() => setOpenLogin(true)}
-              className="max-md:!items-start max-md:pt-24"
-            />
-          </>
-        ) : (
-          content
-        )}
+      <div className="hs-content" aria-live="polite">
+        {content}
       </div>
     </section>
   );

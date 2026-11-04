@@ -171,3 +171,8 @@
 .hs-more:hover { color: var(--hs-navy-dark); }
 .hs-body.is-fetching { opacity: .6; transition: opacity .15s; }
 .hs-hero b, .hs-hero span, .hs-hero svg { transition: none; }
+
+/* ---------- Signed-out lock (periods longer than 12 days) ---------- */
+.hs-content { position: relative; }
+.hs-content.is-locked { min-height: 380px; }
+.hs-locked-body { pointer-events: none; user-select: none; }

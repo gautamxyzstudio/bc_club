@@ -13,6 +13,9 @@ import React, { useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { Poppins, Roboto_Condensed } from "next/font/google";
 import { useGetSalesReported } from "@/src/hooks/listing/useListingQueries";
+import { useAuthContext } from "@/src/mainComponents/auth/AuthContext";
+import ChartSignInOverlay from "@/src/components/common/charts/ChartSignInOverlay";
+import { monthName } from "@/src/utilities/utilities";
 import "./homes-sold.css";
 
 const poppins = Poppins({
@@ -107,6 +110,22 @@ function toBuckets(chartData: any[], period: Period): Bucket[] {
   });
 }
 
+/* Fake, deterministic bars shown blurred behind the sign-in card (no real data) */
+const PLACEHOLDER = [13, 4, 6, 17, 14, 11, 17, 15, 5, 7, 18, 15, 12, 15, 28, 6, 5, 17, 31, 13, 13, 16, 8, 5, 16, 19, 24, 12, 14, 9];
+function placeholderBuckets(period: Period): Bucket[] {
+  const count = period.id === "12D" ? 12 : period.id === "1M" ? 30 : period.id === "3M" ? 3 : 6;
+  return Array.from({ length: count }, (_, i) => {
+    const v = period.kind === "day" ? PLACEHOLDER[i % PLACEHOLDER.length] : 380 + ((i * 53) % 90);
+    const name = period.kind === "day" ? `Day ${i + 1}` : MONTHS[i];
+    return {
+      name,
+      short: period.kind === "day" ? String(i + 1) : MONTHS[i],
+      sold: { det: Math.round(v * 0.45), town: Math.round(v * 0.3), apt: v - Math.round(v * 0.45) - Math.round(v * 0.3) },
+      listed: { det: v, town: Math.round(v * 0.6), apt: Math.round(v * 0.6) },
+    };
+  });
+}
+
 function useIsWide() {
   const [wide, setWide] = useState(false);
   useEffect(() => {
@@ -156,15 +175,24 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
     if (cities.length && !cities.includes(city)) setCity(cities.includes(defaultCity) ? defaultCity : cities[0]);
   }, [cities, city, defaultCity]);
 
+  const { isLoggedIn, setOpenLogin, authLoading } = useAuthContext();
   const period = PERIODS.find((p) => p.id === periodId) || PERIODS[1];
-  const params = useMemo(() => ({ location: city, days: period.id }), [city, period.id]);
+  /* Signed-out visitors: every period is locked. Nothing is fetched; a blurred
+     placeholder chart sits behind the sign-in card. */
+  const needsLogin = !isLoggedIn;
+  const locked = needsLogin && !authLoading;
+  const dataPeriod = period;
+  const params = useMemo(() => ({ location: city, days: dataPeriod.id }), [city, dataPeriod.id]);
   const { data: res, isLoading, isFetching, isError, refetch } = useGetSalesReported(params, {
-    enabled: !!city,
+    enabled: !!city && !needsLogin,
     placeholderData: (prev: any) => prev,
   } as any);
 
-  const summary = res?.data?.summary;
-  const buckets = useMemo(() => toBuckets(res?.data?.chartData || [], period), [res, period]);
+  const summary = needsLogin ? undefined : res?.data?.summary;
+  const buckets = useMemo(
+    () => (needsLogin ? placeholderBuckets(dataPeriod) : toBuckets(res?.data?.chartData || [], dataPeriod)),
+    [needsLogin, res, dataPeriod],
+  );
 
   const choosePeriod = (id: string) => {
     setPeriodId(id);
@@ -222,9 +250,9 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
   /* ---------- content ---------- */
   let content: React.ReactNode;
 
-  if (isLoading && !res) {
+  if (authLoading || (!needsLogin && isLoading && !res)) {
     content = <div className="hs-loading" aria-label="Loading sales" />;
-  } else if (isError && !res) {
+  } else if (!needsLogin && isError && !res) {
     content = (
       <div className="hs-empty">
         <h3>Sales numbers are unavailable</h3>
@@ -272,13 +300,13 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
       const mid = n > 10 && !dense;
       const every = !wide && dense ? 5 : 1;
       const maxH = wide ? 200 : 90;
-      const lag = period.kind === "day" ? lagDays : 0;
+      const lag = dataPeriod.kind === "day" ? lagDays : 0;
       const T = TYPES[type];
       const scale = Math.max(totals.all.listed, totals.all.sold, 1);
 
       const notes: string[] = [];
       if (lag) notes.push(`Lighter bars: last ${lag} days may still update`);
-      if (period.kind === "month" && buckets[n - 1].partial) notes.push("* month so far");
+      if (dataPeriod.kind === "month" && buckets[n - 1].partial) notes.push("* month so far");
 
       content = (
         <div className={`hs-body${isFetching ? " is-fetching" : ""}`}>
@@ -387,8 +415,21 @@ export default function HomesSold({ cities, defaultCity = "Surrey", lagDays = 3,
       aria-labelledby={`${uid}-title`}
     >
       {header}
-      <div className="hs-content" aria-live="polite">
-        {content}
+      <div className={`hs-content${locked ? " is-locked" : ""}`} aria-live="polite">
+        {locked ? (
+          <>
+            <div className="hs-locked-body" aria-hidden="true" inert>
+              {content}
+            </div>
+            <ChartSignInOverlay
+              content={`Sign in to see homes sold in the ${monthName(period.id)}.`}
+              onSignIn={() => setOpenLogin(true)}
+              className="max-md:!items-start max-md:pt-24"
+            />
+          </>
+        ) : (
+          content
+        )}
       </div>
     </section>
   );

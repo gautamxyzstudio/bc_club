@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
+
 import React, { useState, useEffect, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -30,6 +31,25 @@ interface DisplayStatRow {
   change?: string | null;
   trend?: "up" | "down" | "neutral";
 }
+
+const FRASER_VALLEY_CITIES = [
+  "langley",
+  "abbotsford",
+  "surrey",
+  "delta",
+  "mission",
+  "chilliwack",
+  "hope",
+  "white rock",
+];
+
+const getSourceBoard = (cityName: string): string => {
+  if (!cityName) return "Real Estate Board of Greater Vancouver";
+  if (FRASER_VALLEY_CITIES.includes(cityName.toLowerCase().trim())) {
+    return "Fraser Valley Real Estate Board";
+  }
+  return "Greater Vancouver Realtors";
+};
 
 const CityStatsPopup: React.FC<CityStatsPopupProps> = ({
   city,
@@ -79,51 +99,53 @@ const CityStatsPopup: React.FC<CityStatsPopupProps> = ({
     return `${Math.abs(pct)}%`;
   };
 
-  // Derive stat rows directly from the API response
-  const statsRows: DisplayStatRow[] = useMemo(() => {
-    if (!currentMonth) return [];
+  const metrics = currentMonth?.metrics;
 
-    const metrics = currentMonth.metrics;
+  const medianSoldPriceStat = useMemo(() => {
+    if (!metrics?.medianSoldPrice) return null;
+    return {
+      label: "Median sold price",
+      value: metrics.medianSoldPrice.formatted || "$0",
+      change: formatPercent(metrics.medianSoldPrice.percent),
+      trend: metrics.medianSoldPrice.direction || "neutral",
+    };
+  }, [metrics]);
 
+  const remainingStats: DisplayStatRow[] = useMemo(() => {
+    if (!metrics) return [];
     return [
       {
-        label: "Median Sold Price",
-        value: metrics?.medianSoldPrice?.formatted || "$0",
-        change: formatPercent(metrics?.medianSoldPrice?.percent),
-        trend: metrics?.medianSoldPrice?.direction || "neutral",
+        label: "Price per sq ft",
+        value: metrics.medianPricePerSqFt?.formatted || "$0",
+        change: formatPercent(metrics.medianPricePerSqFt?.percent),
+        trend: metrics.medianPricePerSqFt?.direction || "neutral",
       },
       {
-        label: "Median Price per SqFt",
-        value: metrics?.medianPricePerSqFt?.formatted || "$0",
-        change: formatPercent(metrics?.medianPricePerSqFt?.percent),
-        trend: metrics?.medianPricePerSqFt?.direction || "neutral",
+        label: "Homes sold",
+        value: metrics.sales?.formatted || "0",
+        change: formatPercent(metrics.sales?.percent),
+        trend: metrics.sales?.direction || "neutral",
       },
       {
-        label: "Sales",
-        value: metrics?.sales?.formatted || "0",
-        change: formatPercent(metrics?.sales?.percent),
-        trend: metrics?.sales?.direction || "neutral",
+        label: "Homes for sale",
+        value: metrics.inventory?.formatted || "0",
+        change: formatPercent(metrics.inventory?.percent),
+        trend: metrics.inventory?.direction || "neutral",
       },
       {
-        label: "Inventory",
-        value: metrics?.inventory?.formatted || "0",
-        change: formatPercent(metrics?.inventory?.percent),
-        trend: metrics?.inventory?.direction || "neutral",
+        label: "New listings",
+        value: metrics.newListings?.formatted || "0",
+        change: formatPercent(metrics.newListings?.percent),
+        trend: metrics.newListings?.direction || "neutral",
       },
       {
-        label: "New Listings",
-        value: metrics?.newListings?.formatted || "0",
-        change: formatPercent(metrics?.newListings?.percent),
-        trend: metrics?.newListings?.direction || "neutral",
-      },
-      {
-        label: "Median Days on Market",
-        value: metrics?.medianDaysOnMarket?.formatted || "0",
-        change: formatPercent(metrics?.medianDaysOnMarket?.percent),
-        trend: metrics?.medianDaysOnMarket?.direction || "neutral",
+        label: "Days to sell",
+        value: metrics.medianDaysOnMarket?.formatted || "0",
+        change: formatPercent(metrics.medianDaysOnMarket?.percent),
+        trend: metrics.medianDaysOnMarket?.direction || "neutral",
       },
     ];
-  }, [currentMonth]);
+  }, [metrics]);
 
   if (!isVisible) return null;
 
@@ -152,221 +174,204 @@ const CityStatsPopup: React.FC<CityStatsPopupProps> = ({
   };
 
   const monthTitle = currentMonth?.monthName;
-  const subtitle =
-    currentMonth?.subtitle ||
-    (currentMonth?.comparisonMonthName
-      ? `Trends reflect changes from ${currentMonth.comparisonMonthName}`
-      : "");
+  const subtitle = currentMonth?.comparisonMonthName
+    ? `vs. ${currentMonth.comparisonMonthName}`
+    : "vs. last year";
 
   return (
-    <div
-      className={`absolute z-99999 w-111.25 max-w-[calc(100vw-32px)] bg-background rounded-xl shadow-2xl p-4 animate-popupSlide border border-[#E6EAEE] flex flex-col gap-y-4 ${
-        customClasses || "hidden lg:flex"
-      }`}
+    <article
+      className={`absolute z-99999 w-72.5 max-w-[calc(100vw-32px)] bg-white rounded-[18px] overflow-hidden shadow-[0_18px_44px_rgba(20,40,74,0.3)] border border-[#E7E9EE] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] text-[#0F0F0F] transition-all duration-200 animate-popupSlide ${customClasses || "hidden lg:flex"
+        }`}
       style={{
         ...position,
         pointerEvents: "auto",
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      aria-live="polite"
     >
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">
-            {city}
-          </h2>
-          {isFetching && (
-            <Loader2 size={16} className="animate-spin text-primary" />
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-2 border border-[#E6EAEE] rounded-full px-4 py-2 text-sm font-medium text-black70 hover:bg-gray transition cursor-pointer"
-            >
-              {selectedType}
-              <ChevronDown
-                size={18}
-                className={
-                  isDropdownOpen ? "rotate-180 transition" : "transition"
-                }
-              />
-            </button>
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-background border border-[#E6EAEE] rounded-2xl shadow-xl overflow-hidden z-50">
-                {propertyTypes.map((type) => (
-                  <button
-                    key={type}
-                    onClick={() => {
-                      setSelectedType(type);
-                      setIsDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-5 py-3 text-sm hover:bg-gray transition font-medium cursor-pointer ${
-                      selectedType === type
-                        ? "text-primary font-bold bg-gray/50"
-                        : "text-black70"
-                    }`}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
+      {/* Header section (ch) */}
+      <div className="px-3.5 pt-3 pb-2 flex flex-col gap-1.5 justify-between items-start">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-1.5">
+            <p className="m-0 text-[10px] font-extrabold tracking-[0.6px] uppercase text-[#5B6472]">
+              Market snapshot
+            </p>
+            {isFetching && (
+              <Loader2 size={12} className="animate-spin text-[#102A43]" />
             )}
           </div>
-          {onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1.5 rounded-full hover:bg-gray text-gray-400 hover:text-foreground transition cursor-pointer"
-              title="Close"
-              aria-label="Close"
-            >
-              <X size={18} />
-            </button>
-          )}
+          <div className="flex items-center gap-1.5">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-1 border border-[#E7E9EE] rounded-full px-2.5 py-1 text-[11px] font-semibold text-[#5B6472] hover:bg-[#F3F4F6] transition cursor-pointer"
+              >
+                {selectedType}
+                <ChevronDown
+                  size={13}
+                  className={isDropdownOpen ? "rotate-180 transition" : "transition"}
+                />
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-1.5 w-32 bg-white border border-[#E7E9EE] rounded-xl shadow-xl overflow-hidden z-50">
+                  {propertyTypes.map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => {
+                        setSelectedType(type);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs font-semibold cursor-pointer transition ${selectedType === type
+                        ? "text-[#102A43] bg-[#E6F4EE]/60 font-bold"
+                        : "text-[#374151] hover:bg-[#F9FAFB]"
+                        }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-1 rounded-full hover:bg-[#F3F4F6] text-[#5B6472] hover:text-[#0F0F0F] transition cursor-pointer"
+                title="Close"
+                aria-label="Close"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Property Type Dropdown & Close */}
+        <b
+          id="city"
+          className="text-[20px] font-bold tracking-[-0.4px] text-[#0F0F0F] block leading-tight mt-0.5"
+        >
+          {city}
+        </b>
       </div>
 
       {isLoading && !currentMonth ? (
-        <div className="py-12 flex flex-col items-center justify-center gap-2 text-sm text-black70">
-          <Loader2 size={24} className="animate-spin text-primary" />
-          <span>Loading market data...</span>
+        <div className="py-12 flex flex-col items-center justify-center gap-2 text-xs text-[#5B6472]">
+          <Loader2 size={24} className="animate-spin text-[#102A43]" />
+          <span>Loading market snapshot...</span>
         </div>
       ) : totalMonthsCount === 0 ? (
-        <div className="py-8 text-center text-sm text-black70">
-          No market data available for {city} ({selectedType})
+        <div className="py-8 text-center text-xs text-[#5B6472] px-4">
+          No market snapshot available for {city} ({selectedType})
         </div>
       ) : (
         <>
-          {/* Month Navigator */}
-          <div className="bg-primary text-background rounded-lg px-4 py-2 flex flex-col items-center relative overflow-hidden">
-            <div className="flex justify-between w-full items-center z-10">
-              <button
-                onClick={handlePrevMonth}
-                disabled={dataIndex >= totalMonthsCount - 1}
-                className="p-1 hover:bg-white/10 rounded-full transition disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
-                title="Previous month"
-                aria-label="Previous month"
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <div className="text-center">
-                <span className="text-lg font-bold">
-                  {monthTitle || "—"}
-                </span>
-                {subtitle && (
-                  <p className="text-[11px] text-white/70 z-10 font-medium">
-                    {subtitle}
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={handleNextMonth}
-                disabled={dataIndex <= 0}
-                className="p-1 hover:bg-white/10 rounded-full transition disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
-                title="Next month"
-                aria-label="Next month"
-              >
-                <ChevronRight size={20} />
-              </button>
+          {/* Month Banner (mo) */}
+          <div className="mx-2.25 bg-[#102A43] text-white rounded-[10px] py-1.75 px-2 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={handlePrevMonth}
+              disabled={dataIndex >= totalMonthsCount - 1}
+              className="p-1 hover:bg-white/10 rounded-full transition disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
+              title="Previous month"
+              aria-label="Previous month"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            <div className="flex-1 text-center px-1">
+              <span className="font-extrabold text-[13px] leading-tight block">
+                {monthTitle || "—"}
+              </span>
+              <small className="block font-medium text-[10px] text-[#C9D5E6] leading-none mt-0.5">
+                {subtitle}
+              </small>
             </div>
+
+            <button
+              type="button"
+              onClick={handleNextMonth}
+              disabled={dataIndex <= 0}
+              className="p-1 hover:bg-white/10 rounded-full transition disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
+              title="Next month"
+              aria-label="Next month"
+            >
+              <ChevronRight size={16} />
+            </button>
           </div>
 
-          {/* Stats Table */}
-          <div className="rounded-[10px] border border-[#3333331F] overflow-hidden">
-            <table className="w-full text-xs text-foreground">
-              <tbody>
-                {statsRows.map((row, idx) => (
-                  <tr
-                    key={row.label}
-                    className={`${idx % 2 === 0 ? "bg-[#F0F0F0]" : "bg-background"}`}
-                  >
-                    <td className="py-3 px-4 leading-tight font-medium">
-                      {row.label}
-                    </td>
-                    <td className="py-3 px-4 text-right font-semibold">
-                      {row.value}
-                    </td>
-                    <td className="py-3 px-4 text-right w-20">
-                      {row.change && row.trend === "up" ? (
-                        <div className="flex items-center justify-end gap-1.5 font-bold text-green">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                          >
-                            <path
-                              d="M8 0.5C3.858 0.5 0.5 3.858 0.5 8C0.5 12.142 3.858 15.5 8 15.5C12.142 15.5 15.5 12.142 15.5 8C15.5 3.858 12.142 0.5 8 0.5ZM9.28575 7.57625V12.25H6.71425V7.57625H4L8 3.75L12 7.57625H9.28575Z"
-                              fill="#14B514"
-                            />
-                          </svg>
-                          {row.change}
-                        </div>
-                      ) : row.change && row.trend === "down" ? (
-                        <div className="flex items-center justify-end gap-1.5 font-bold text-red">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                          >
-                            <path
-                              d="M8 15.5C3.858 15.5 0.5 12.142 0.5 8C0.5 3.858 3.858 0.5 8 0.5C12.142 0.5 15.5 3.858 15.5 8C15.5 12.142 12.142 15.5 8 15.5ZM9.28575 8.42375V3.75H6.71425V8.42375H4L8 12.25L12 8.42375H9.28575Z"
-                              fill="#FF0000"
-                            />
-                          </svg>
-                          {row.change}
-                        </div>
-                      ) : row.change ? (
-                        <div className="flex items-center justify-end font-semibold text-black70">
-                          {row.change}
-                        </div>
-                      ) : (
-                        <span className="text-lightWhite">-</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Hero Stat: Median Sold Price (hs) */}
+          <div className="px-3.5 pt-2.75 pb-0.75 flex justify-between items-end">
+            <div>
+              <span className="text-[10px] text-[#5B6472] block font-medium">
+                Median sold price
+              </span>
+              <b className="text-[24px] font-bold tracking-[-0.8px] text-[#0F0F0F] leading-tight block">
+                {medianSoldPriceStat?.value || "$0"}
+              </b>
+            </div>
+            {medianSoldPriceStat?.change && (
+              <span
+                id="hchg"
+                className={`text-[11px] font-bold py-0.75 px-1.75 rounded-full whitespace-nowrap ${medianSoldPriceStat.trend === "up"
+                  ? "bg-[#E6F4EE] text-[#0D7A68]"
+                  : "bg-[#FDECEC] text-[#B42318]"
+                  }`}
+              >
+                {medianSoldPriceStat.trend === "up" ? "▲ +" : "▼ −"}
+                {medianSoldPriceStat.change}
+              </span>
+            )}
           </div>
+
+          {/* Stats List (ul / li) */}
+          <ul className="list-none mt-1.5 mb-0 px-3.5 text-xs">
+            {remainingStats.map((row) => (
+              <li
+                key={row.label}
+                className="flex justify-between items-center gap-2 py-1.5 border-t border-[#E7E9EE]"
+              >
+                <span className="flex-1 text-[#374151] font-medium">{row.label}</span>
+                <b className="text-[#0F0F0F] font-bold">{row.value}</b>
+                {row.change ? (
+                  <span
+                    className={`text-[11px] font-bold py-0.5 px-1.75 rounded-full whitespace-nowrap ${row.trend === "up"
+                      ? "bg-[#E6F4EE] text-[#0D7A68]"
+                      : row.trend === "down"
+                        ? "bg-[#FDECEC] text-[#B42318]"
+                        : "bg-[#F3F4F6] text-[#5B6472]"
+                      }`}
+                  >
+                    {row.trend === "up" ? "▲ +" : row.trend === "down" ? "▼ −" : ""}
+                    {row.change}
+                  </span>
+                ) : (
+                  <span className="text-[#9CA3AF] text-[11px]">—</span>
+                )}
+              </li>
+            ))}
+          </ul>
         </>
       )}
 
-      {/* Footer */}
+      {/* CTA Button (cta) */}
       <button
+        type="button"
+        id="cta"
         onClick={handleNavigateToTrends}
-        className="w-full py-2.5 bg-gray hover:bg-[#E4E7EC] text-secondary flex items-center justify-center gap-2 rounded-xl transition group cursor-pointer"
+        className="block m-2.25 bg-[#EEA500] hover:bg-[#d89600] rounded-[10px] text-center font-extrabold p-2.5 text-[13px] text-[#0F0F0F] transition cursor-pointer"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <path
-            d="M21 6L15.707 11.293C15.5195 11.4805 15.2652 11.5858 15 11.5858C14.7348 11.5858 14.4805 11.4805 14.293 11.293L12.707 9.707C12.5195 9.51953 12.2652 9.41421 12 9.41421C11.7348 9.41421 11.4805 9.51953 11.293 9.707L7 14"
-            stroke="#eea500"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M3 3V17.8C3 18.92 3 19.48 3.218 19.908C3.40974 20.2843 3.71569 20.5903 4.092 20.782C4.52 21 5.08 21 6.2 21H21"
-            stroke="#eea500"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-        Show detailed Charts
+        See full {city} report
       </button>
-    </div>
+
+      {/* Source (src) */}
+      <p className="-mt-0.5 mb-2.5 text-center text-[10px] text-[#5B6472]">
+        Source: {getSourceBoard(city)}
+      </p>
+    </article>
   );
 };
 

@@ -168,7 +168,7 @@ const SearchPropertyTab = () => {
         </div>
       )}
 
-      <div className="xl:w-183.75 w-full xl:absolute p-3 flex flex-col gap-y-4 justify-between shadow-[0_0_16px_0_rgba(0,0,0,0.12)] rounded-xl bg-background z-99">
+      <div className="xl:w-175.75 w-full xl:absolute p-3 flex flex-col gap-y-4 justify-between shadow-[0_0_16px_0_rgba(0,0,0,0.12)] rounded-xl bg-background z-99">
         <div className="flex flex-nowrap gap-2.5 w-full">
           {tabList.map((item, idx) => (
             <CustomButton
@@ -198,7 +198,7 @@ const SearchPropertyTab = () => {
             }`}
           >
             <input
-              className="outline-0 px-3 cursor-pointer lg:w-[80%] w-[60%] h-12 bg-transparent"
+              className="outline-0 px-3 cursor-pointer w-[60%] h-12 bg-transparent"
               placeholder="City, neighbourhood, address or MLS®"
               required
               value={ddfQuery}

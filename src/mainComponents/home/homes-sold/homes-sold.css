@@ -1,0 +1,173 @@
+/* ==========================================================================
+   BCRealEstateMarket — "Homes sold" section
+   All classes are prefixed .hs- so they won't clash with the rest of the site.
+   Fonts: Poppins (400/500/600/700) + Roboto Condensed (600/700) from Google Fonts.
+   ========================================================================== */
+
+.hs {
+  /* ---- Brand colours ---- */
+  --hs-navy: #21548B;        /* primary brand blue: headings, big number, bars */
+  --hs-navy-dark: #12304F;   /* text on gold, "All homes" colour */
+  --hs-gold: #FEA400;        /* brand gold: accents, selected bar, CTA button */
+  --hs-gold-hover: #F09C00;
+  --hs-green: #007C63;       /* townhouse */
+  --hs-condo: #E39A00;       /* condo / apartment */
+
+  /* ---- Neutrals ---- */
+  --hs-ink: #1B2533;         /* main text */
+  --hs-muted: #4A5568;       /* secondary text (passes 4.5:1 on white) */
+  --hs-line: #E4E8EE;        /* chart baseline */
+  --hs-soft: #EEF1F5;        /* tab background, empty bar track */
+  --hs-row-on: #F2F5F9;      /* selected row background */
+  --hs-card: #FFFFFF;
+
+  font-family: var(--hs-font-poppins), Poppins, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--hs-ink);
+  background: var(--hs-card);
+  border-top: 4px solid var(--hs-gold);
+  border-radius: 22px;
+  padding: 18px 16px 16px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .08);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.hs *, .hs *::before, .hs *::after { box-sizing: border-box; }
+.hs button, .hs select { font-family: inherit; }
+.hs button:focus-visible, .hs a:focus-visible, .hs select:focus-visible { outline: 3px solid var(--hs-gold); outline-offset: 2px; }
+.hs-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- Header ---------- */
+.hs-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.hs-eyebrow { font-size: 12px; font-weight: 600; color: var(--hs-navy); text-transform: uppercase; letter-spacing: .8px; }
+.hs-title { margin: 0; font-size: 21px; font-weight: 700; line-height: 1.25; }
+.hs-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; width: 100%; }
+
+.hs-select { position: relative; }
+.hs-select select {
+  height: 44px; appearance: none; -webkit-appearance: none; cursor: pointer;
+  border: 1px solid #D5DBE3; border-radius: 12px; background: #fff;
+  padding: 0 38px 0 14px; font-size: 15px; font-weight: 600; color: var(--hs-ink);
+}
+.hs-select svg { position: absolute; right: 12px; top: 13px; pointer-events: none; }
+
+/* ---------- Period tabs ---------- */
+.hs-tabs { flex: 1 1 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; background: var(--hs-soft); padding: 4px; border-radius: 12px; }
+.hs-tabs button { height: 42px; border: 0; border-radius: 9px; background: transparent; color: var(--hs-muted); font-size: 13px; font-weight: 500; white-space: nowrap; padding: 0 2px; cursor: pointer; }
+.hs-tabs button[aria-pressed="true"] { background: var(--hs-navy); color: #fff; font-weight: 700; }
+.hs-tabs .hs-long { display: none; }
+
+/* ---------- Body ---------- */
+.hs-body { display: flex; flex-direction: column; gap: 16px; }
+.hs-hero { display: inline-flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.hs-hero b { font-size: 48px; line-height: 1; font-weight: 700; color: var(--hs-navy); letter-spacing: -1px; padding-bottom: 4px; border-bottom: 4px solid var(--hs-gold); }
+.hs-hero span { font-size: 16px; font-weight: 600; }
+
+/* ---------- Chart ---------- */
+.hs-chart { display: flex; align-items: flex-end; margin-top: 16px; }
+.hs-chart.is-dense { margin-left: -6px; margin-right: -6px; }
+.hs-col {
+  flex: 1 1 0; min-width: 0; height: 150px; border: 0; background: transparent; padding: 0 2px; cursor: pointer;
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px;
+}
+.is-dense .hs-col { padding: 0 1px; }
+.hs-val { white-space: nowrap; font-weight: 700; font-size: 13px; color: var(--hs-muted); }
+.is-mid .hs-val { font-size: 11px; }
+.is-dense .hs-val { font-family: var(--hs-font-condensed), "Roboto Condensed", Poppins, sans-serif; font-size: 10px; letter-spacing: -.4px; }
+.hs-bar { display: block; width: 100%; max-width: 56px; border-radius: 7px 7px 0 0; background: var(--hs-bar, var(--hs-navy)); }
+.is-mid .hs-bar, .is-dense .hs-bar { border-radius: 3px 3px 0 0; }
+.hs-col[aria-pressed="true"] .hs-bar { background: var(--hs-bar-on, var(--hs-gold)); }
+.hs-col.is-recent .hs-bar { opacity: .55; }             /* days that may still update */
+.hs-lab {
+  align-self: stretch; height: 18px; margin: 0 -2px; padding-top: 5px; border-top: 2px solid var(--hs-line);
+  text-align: center; white-space: nowrap; font-size: 11px; color: var(--hs-muted); font-weight: 500;
+}
+.is-dense .hs-lab { margin: 0 -1px; }
+.hs-col[aria-pressed="true"] .hs-val, .hs-col[aria-pressed="true"] .hs-lab { color: var(--hs-navy-dark); font-weight: 700; }
+.hs-caption { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 12px; }
+.hs-caption strong { font-weight: 600; }
+.hs-caption span { color: var(--hs-muted); }
+
+/* ---------- Sold vs. listed ---------- */
+.hs-side { display: flex; flex-direction: column; gap: 8px; }
+.hs-side-head { display: flex; justify-content: space-between; align-items: baseline; }
+.hs-side-head strong { font-size: 14px; }
+.hs-side-head span { font-size: 12px; color: var(--hs-muted); }
+.hs-row { width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; cursor: pointer; background: #fff; border: 2px solid var(--hs-soft); }
+.hs-row.is-on { background: var(--hs-row-on); border-color: var(--hs-type); }
+.hs-row-name { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 28px; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--hs-ink); }
+.hs-dot { width: 10px; height: 10px; border-radius: 5px; flex-shrink: 0; background: var(--hs-type); }
+.hs-grid { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; column-gap: 8px; row-gap: 2px; }
+.hs-k { font-size: 12px; font-weight: 600; color: var(--hs-ink); }
+.hs-k.is-listed { font-weight: 500; color: var(--hs-muted); }
+.hs-track { display: block; height: 10px; border-radius: 5px; background: var(--hs-soft); overflow: hidden; }
+.hs-track i { display: block; height: 100%; border-radius: 5px; }
+.hs-v { font-size: 15px; font-weight: 700; text-align: right; }
+.hs-v.is-listed { font-weight: 600; color: var(--hs-muted); }
+
+/* Clickable numbers (sold / listed / big number) */
+.hs-link { display: inline-flex; align-items: center; justify-content: flex-end; gap: 2px; min-width: 56px; min-height: 32px; padding: 0 2px 0 6px;
+  border-radius: 8px; color: var(--hs-navy); text-decoration: underline; text-decoration-color: rgba(33, 84, 139, .35); text-underline-offset: 3px; }
+.hs-link.is-listed { color: var(--hs-muted); text-decoration-color: rgba(74, 85, 104, .35); }
+.hs-link:hover { background: var(--hs-soft); text-decoration-color: currentColor; }
+.hs-hero { text-decoration: none; color: var(--hs-ink); border-radius: 10px; }
+.hs-hero svg { color: var(--hs-navy); align-self: center; }
+.hs-hero:hover span { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Type colours (sold bar = solid, listed bar = light tint) */
+.hs-t-all  { --hs-type: #12304F; --hs-tint: #B9C4D3; }
+.hs-t-det  { --hs-type: #21548B; --hs-tint: #B5CBE4; }
+.hs-t-town { --hs-type: #007C63; --hs-tint: #A8DACD; }
+.hs-t-apt  { --hs-type: #E39A00; --hs-tint: #FFDD94; }
+.hs-track i.is-sold { background: var(--hs-type); }
+.hs-track i.is-listed { background: var(--hs-tint); }
+
+/* Chart bar colours per filter (unselected / selected) */
+.hs-f-all  { --hs-bar: #21548B; --hs-bar-on: #FEA400; }
+.hs-f-det  { --hs-bar: #6E95C4; --hs-bar-on: #FEA400; }
+.hs-f-town { --hs-bar: #4FAE97; --hs-bar-on: #FEA400; }
+.hs-f-apt  { --hs-bar: #F7BE4A; --hs-bar-on: #21548B; }
+
+/* ---------- CTA + source ---------- */
+.hs-cta { display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px; border-radius: 12px; margin-top: 4px; background: var(--hs-gold); color: var(--hs-navy-dark); font-size: 15px; font-weight: 700; text-decoration: none; }
+.hs-cta:hover { background: var(--hs-gold-hover); color: var(--hs-navy-dark); }
+.hs-source { margin: 0; font-size: 12px; line-height: 1.5; color: var(--hs-muted); text-align: center; }
+
+/* ---------- Empty / loading / error ---------- */
+.hs-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 18px 8px 8px; }
+.hs-empty h3 { margin: 0; font-size: 17px; }
+.hs-empty p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--hs-muted); }
+.hs-empty button { margin-top: 6px; height: 46px; padding: 0 20px; border: 0; border-radius: 12px; background: var(--hs-gold); color: var(--hs-navy-dark); font-size: 15px; font-weight: 700; cursor: pointer; }
+.hs-loading { height: 320px; border-radius: 14px; background: linear-gradient(90deg, #F2F4F7 0%, #E9EDF2 50%, #F2F4F7 100%); background-size: 200% 100%; animation: hs-shimmer 1.2s infinite linear; }
+@keyframes hs-shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .hs-loading { animation: none; } }
+
+/* ==========================================================================
+   Tablet / desktop (900px and up): two columns
+   ========================================================================== */
+@media (min-width: 900px) {
+  .hs { padding: 28px 36px 32px; border-top-width: 5px; border-radius: 24px; gap: 24px; }
+  .hs-title { font-size: 30px; }
+  .hs-eyebrow { font-size: 13px; }
+  .hs-controls { width: auto; }
+  .hs-tabs { flex: 0 0 420px; }
+  .hs-tabs button { font-size: 14px; height: 40px; }
+  .hs-tabs .hs-short { display: none; }
+  .hs-tabs .hs-long { display: inline; }
+  .hs-body { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: 40px; align-items: start; }
+  .hs-hero b { font-size: 64px; border-bottom-width: 5px; }
+  .hs-hero span { font-size: 20px; }
+  .hs-col { height: 270px; padding: 0 3px; }
+  .hs-chart.is-dense { margin-left: 0; margin-right: 0; }
+  .is-dense .hs-col { padding: 0 2px; }
+  .hs-val { font-size: 15px; }
+  .is-mid .hs-val, .is-dense .hs-val { font-size: 12px; font-family: var(--hs-font-poppins), Poppins, sans-serif; letter-spacing: 0; }
+  .hs-lab { font-size: 12px; }
+  .hs-side-head strong { font-size: 17px; }
+}
+
+/* ---------- bc_club additions ---------- */
+.hs-more { display: block; text-align: center; font-size: 13px; font-weight: 600; color: var(--hs-navy); text-decoration: underline; text-underline-offset: 3px; }
+.hs-more:hover { color: var(--hs-navy-dark); }
+.hs-body.is-fetching { opacity: .6; transition: opacity .15s; }
+.hs-hero b, .hs-hero span, .hs-hero svg { transition: none; }

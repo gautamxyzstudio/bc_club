@@ -1,0 +1,234 @@
+{
+  "built": "2026-11-03",
+  "levels_weekday_buses": {
+    "15": 48,
+    "30": 24
+  },
+  "levels_weekend_buses": {
+    "15": 32,
+    "30": 16
+  },
+  "sources": [
+    "TransLink GTFS static, published 2026-10-30",
+    "BC Transit GTFS, downloaded 2026-11-03"
+  ],
+  "systems": {
+    "translink-metro-vancouver": {
+      "area": "Metro Vancouver",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20260907",
+        "20270103"
+      ],
+      "weekday_30": 6962,
+      "weekday_15": 3025,
+      "weekend_30": 6185,
+      "weekend_15": 2342,
+      "all_week_30": 6083,
+      "all_week_15": 2252
+    },
+    "victoria": {
+      "area": "Victoria",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20270103"
+      ],
+      "weekday_30": 1050,
+      "weekday_15": 310,
+      "weekend_30": 708,
+      "weekend_15": 173,
+      "all_week_30": 629,
+      "all_week_15": 173
+    },
+    "kelowna": {
+      "area": "Kelowna",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20261219"
+      ],
+      "weekday_30": 317,
+      "weekday_15": 90,
+      "weekend_30": 95,
+      "all_week_30": 95
+    },
+    "kamloops": {
+      "area": "Kamloops",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20270103"
+      ],
+      "weekday_30": 300,
+      "weekday_15": 59,
+      "weekend_30": 144,
+      "all_week_30": 144
+    },
+    "nanaimo": {
+      "area": "Nanaimo",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20261219"
+      ],
+      "weekday_30": 264,
+      "weekday_15": 92,
+      "weekend_30": 105,
+      "all_week_30": 105
+    },
+    "comox-valley": {
+      "area": "Comox Valley",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20270331"
+      ],
+      "weekday_30": 60
+    },
+    "fraser-valley-chilliwack-hope": {
+      "area": "Fraser Valley",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20270102"
+      ],
+      "weekday_30": 200
+    },
+    "whistler": {
+      "area": "Whistler",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20270417"
+      ],
+      "weekday_30": 74,
+      "weekend_30": 98,
+      "all_week_30": 74
+    },
+    "vernon-shuswap": {
+      "area": "Vernon",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20271231"
+      ],
+      "weekday_30": 27
+    },
+    "south-okanagan-similkameen": {
+      "area": "Penticton",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20270906"
+      ],
+      "weekday_30": 19
+    },
+    "prince-george-bulkley-nechako": {
+      "area": "Prince George",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20270102"
+      ],
+      "weekday_30": 174,
+      "weekend_30": 18,
+      "all_week_30": 18
+    },
+    "campbell-river": {
+      "area": "Campbell River",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20270905"
+      ],
+      "weekday_30": 64
+    },
+    "sunshine-coast": {
+      "area": "Sunshine Coast",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20270510"
+      ],
+      "weekday_30": 57
+    },
+    "kitimat-stikine-terrace": {
+      "area": "Terrace & Kitimat",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261101",
+        "20270626"
+      ]
+    },
+    "prince-rupert-port-edward": {
+      "area": "Prince Rupert",
+      "dates": {
+        "weekday": "20261104",
+        "saturday": "20261107",
+        "sunday": "20261108"
+      },
+      "feed_dates": [
+        "20261102",
+        "20270626"
+      ],
+      "weekday_30": 6
+    }
+  }
+}

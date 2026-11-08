@@ -79,6 +79,7 @@ import OpenStreetMapV5Controls, {
 } from "./OpenStreetMapV5Controls";
 import OpenStreetMapV5MarkerLayer from "./OpenStreetMapV5MarkerLayer";
 import OpenStreetMapV5PropertyCard from "./OpenStreetMapV5PropertyCard";
+import { addTransitLayers, type TransitLayers } from "./transitLayers";
 
 function MapReady({ onReady }: { onReady: (map: L.Map) => void }) {
   const map = useMap();
@@ -219,6 +220,23 @@ export default function OpenStreetMapSearchV5() {
     schools: false,
     flood: false,
   });
+
+  // Transit layers (SkyTrain + frequent buses). Data in /public/layers, loaded on first use.
+  const [transit, setTransit] = useState<TransitLayers | null>(null);
+  useEffect(() => {
+    if (!map) return;
+    const t = addTransitLayers(map, {
+      L,
+      dataUrl: "/layers/",
+      panel: null,
+      avoid: () => document.querySelector<HTMLElement>(".v5-lsheet"),
+    });
+    setTransit(t);
+    return () => {
+      t.destroy();
+      setTransit(null);
+    };
+  }, [map]);
 
   const floodLayerRef = useRef<L.GeoJSON | null>(null);
   const [, setLoadingFloodProvince] = useState(false);
@@ -1145,6 +1163,8 @@ export default function OpenStreetMapSearchV5() {
               toggleMapStyle={toggleMapStyle}
               measureMode={measureMode}
               handleMeasure={handleMeasure}
+              transit={transit}
+              onToast={showToast}
             />
 
             {/* Mobile Bottom Sliding Property Card */}

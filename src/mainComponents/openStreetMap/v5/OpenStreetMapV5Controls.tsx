@@ -7,6 +7,8 @@ import {
   FiMap,
 } from "react-icons/fi";
 import { TbRulerMeasure } from "react-icons/tb";
+import TransitLayerRows, { TRANSIT_NOTE, type TransitActive } from "./TransitLayerRows";
+import type { TransitLayers } from "./transitLayers";
 
 export interface MapLayerState {
   listings: boolean;
@@ -73,6 +75,8 @@ export default function OpenStreetMapV5Controls({
   toggleMapStyle,
   measureMode = false,
   handleMeasure,
+  transit = null,
+  onToast,
 }: {
   layerState: MapLayerState;
   onToggleLayer: (key: keyof MapLayerState, value: boolean) => void;
@@ -86,6 +90,8 @@ export default function OpenStreetMapV5Controls({
   toggleMapStyle?: () => void;
   measureMode?: boolean;
   handleMeasure?: () => void;
+  transit?: TransitLayers | null;
+  onToast?: (msg: string) => void;
 }) {
   const [layersSheetOpen, setLayersSheetOpen] = useState(false);
   const [pendingDisclaimer, setPendingDisclaimer] = useState<
@@ -93,6 +99,7 @@ export default function OpenStreetMapV5Controls({
   >(null);
   const [ackChecked, setAckChecked] = useState(false);
   const [showHint, setShowHint] = useState(true);
+  const [transitActive, setTransitActive] = useState<TransitActive>({ sky: false, bus: false });
 
   const [internalSchoolFilters, setInternalSchoolFilters] =
     useState<SchoolFilterState>({
@@ -120,7 +127,10 @@ export default function OpenStreetMapV5Controls({
   }, []);
 
   // Compute active layers count for the badge
-  const activeCount = Object.values(layerState).filter(Boolean).length;
+  const activeCount =
+    Object.values(layerState).filter(Boolean).length +
+    Number(transitActive.sky) +
+    Number(transitActive.bus);
 
   // Handle layer toggle with disclaimer check
   const handleLayerSwitch = (key: keyof MapLayerState) => {
@@ -207,6 +217,14 @@ export default function OpenStreetMapV5Controls({
     });
   }
 
+  if (transitActive.sky || transitActive.bus) {
+    activeNotes.push({
+      key: "transit",
+      color: "#0D9488",
+      label: TRANSIT_NOTE,
+    });
+  }
+
   return (
     <>
       {/* Toast Notification */}
@@ -219,7 +237,7 @@ export default function OpenStreetMapV5Controls({
         className={`v5-hint ${!showHint ? "hide" : ""}`}
         onClick={() => setShowHint(false)}
       >
-        Lot lines, floodplain &amp; schools are in <b>Layers</b>. Tap any home for details.
+        Lot lines, floodplain, schools &amp; transit are in <b>Layers</b>. Tap any home for details.
       </div>
 
       {/* Persistent Notes (Bottom-Left) */}
@@ -507,6 +525,13 @@ export default function OpenStreetMapV5Controls({
               aria-label="Toggle floodplain"
             />
           </div>
+
+          {/* 7. Transit: SkyTrain nearby + Frequent buses (open to everyone, no sign-in) */}
+          <TransitLayerRows
+            transit={transit}
+            onActiveChange={setTransitActive}
+            onToast={onToast}
+          />
         </div>
 
         {/* Reset disclaimers button */}

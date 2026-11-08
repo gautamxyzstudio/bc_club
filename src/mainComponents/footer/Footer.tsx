@@ -43,7 +43,7 @@ const Footer = () => {
       <div className="w-full flex flex-col md:flex-row md:justify-between md:items-center-safe gap-y-4">
         <div className="flex flex-col gap-y-4 md:w-[60%]">
           <Link href={"/"} title="BC Real Estate Market" className="bg-background w-fit p-2 rounded-lg" >
-            <Image alt="BC Real Estate Market logo" title="BC Real Estate Market" src={Images.bcClub} width={1200} height={1090} loading="eager" className="object-contain w-fit h-10 md:h-15" />
+            <Image alt="BC Real Estate Market logo" title="BC Real Estate Market" src={Images.bcClub} width={1200} height={1090} sizes="240px" className="object-contain w-fit h-10 md:h-15" />
           </Link>
           <Description
             content="BC Real Estate Market helps you explore, buy, and sell properties across British Columbia with confidence and ease.

@@ -270,7 +270,7 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
         }
       }}
     > <div className="w-full h-auto p-2 gap-3 flex flex-row items-center border border-[#E2E8F0] cursor-pointer hover:border-[#305487] hover:border rounded-lg mb-2">
-        <Image src={imgSrc} alt={address} width={100} height={100} loading="eager"
+        <Image src={imgSrc} alt={address} width={100} height={100} sizes="160px"
           onError={() => setImgSrc(Images.apartment)} className="rounded-lg h-25 w-[40%] object-cover" />
         <div className="w-[58%] space-y-1">
           <p className={`${isLogin ? 'text-xl': "text-base"} font-bold text-[#0F172A]`}>{displayPrice}</p>
@@ -320,7 +320,9 @@ const PropertiesCard: React.FC<PropertyCardProps> = ({
               title={title || "Property Image"}
               width={700}
               height={525}
-              loading="eager"
+              // Download only the size the card is shown at (1 col phone, 2 tablet, 3-4 desktop),
+              // and only when the card scrolls near the screen.
+              sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, (max-width: 1535px) 33vw, 25vw"
               onError={() => setImgSrc(Images.apartment)}
               className={`w-full h-full object-cover transition-transform duration-500 ${isLogin ? "group-hover:scale-105" : "blur-sm"
                 }`}

@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.1.69"],
 
   images: {
+    // Listing photos don't change: keep resized copies for 30 days instead of re-resizing every few hours
+    minimumCacheTTL: 2592000,
     dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {

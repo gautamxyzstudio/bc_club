@@ -156,8 +156,9 @@ const Header = () => {
             alt="BC Real Estate Market place"
             src={Images.bcClub}
             width={1390}
-            loading="eager"
             height={1142}
+            sizes="240px"
+            priority
             className="w-auto md:h-12 h-10 object-contain"
           />
         </Link>

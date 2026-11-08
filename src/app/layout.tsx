@@ -100,6 +100,8 @@ export default function RootLayout({
               {children}
               <Footer />
               <MobileBottomBar />
+              {/* AI assistant chat button (files in public/assistant, API in app/api/assistant) */}
+              <Script src="/assistant/widget.js" data-app="/assistant/index.html" strategy="lazyOnload" />
               <ToastContainer />
             </AuthProvider>
           </GoogleOAuthProvider>

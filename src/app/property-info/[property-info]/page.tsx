@@ -1,5 +1,5 @@
 import { getListingById } from "@/src/api/listing/realEstateListing";
-import PropertyInfo from "@/src/mainComponents/propertyInfo/PropertyInfo";
+import BCListingPage from "@/src/mainComponents/bcListing/BCListingPage";
 
 interface Params {
   "property-info": string;
@@ -40,7 +40,7 @@ const page = async ({ params }: { params: Promise<Params> }) => {
   const resolvedParams = await params;
   const paramsId = resolvedParams["property-info"];
   return (
-    <PropertyInfo paramsId={paramsId} />
+    <BCListingPage key={paramsId} paramsId={paramsId} />
   );
 };
 

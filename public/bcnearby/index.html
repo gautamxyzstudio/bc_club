@@ -1,0 +1,168 @@
+<!doctype html>
+<!-- BC Nearby map · bcrealestatemarket.com (c) BC Real Estate Market. All rights reserved.
+     Loaded inside /map-search as a same-origin iframe. Settings come from the parent page (window.parent.BCNearbyConfig).
+     Opened on its own (no parent config) it runs the original demo with sample homes. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Map search · BC Real Estate Market</title>
+<script>
+  // settings from the site page that holds this frame (same origin). Stand-alone: demo mode.
+  (function () { var cfg = null; try { if (window.parent && window.parent !== window) cfg = window.parent.BCNearbyConfig || null; } catch (e) {}
+    window.BCNearbyConfig = cfg || window.BCNearbyConfig || { demo: true, basemap: { style: "https://tiles.openfreemap.org/styles/positron" } }; })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="./vendor/leaflet.css">
+<link rel="stylesheet" href="./vendor/maplibre-gl.css">
+<link rel="stylesheet" href="./bcnearby.css?v=20261113ae">
+<link rel="stylesheet" href="./bcnearby-live.css?v=20261113ae">
+<style>html, body { height: 100%; } html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; } body { margin: 0; background: #fff; overflow: hidden; }</style>
+</head>
+<body>
+<!-- ######## PART 2: PAGE MARKUP. Live site: you only need the map area and the boxes inside it ######## -->
+<div class="app">
+  <div id="map">
+    <aside class="bcn-sheet" id="sheet" aria-label="Commute view">
+      <p class="showing" id="showing"></p>
+      <button type="button" class="peekbtn" id="peekbtn">More options: walk rings, bus times, map icons &#9650;</button>
+      <div class="panel-head">
+        <div><h3>Commute &amp; nearby</h3><p class="sub">Tap any home to see what&rsquo;s close by.</p></div>
+        <button type="button" class="hide-btn" id="hide">Hide</button>
+      </div>
+      <div class="seg view" id="view" role="radiogroup" aria-label="View">
+        <button type="button" data-v="tap">Tap to check</button>
+        <button type="button" data-v="areas">Areas</button>
+      </div>
+      <div class="explain" id="explain"></div>
+      <div hidden>
+        <p class="bcn-label">Show distance to</p>
+        <div class="seg dview" id="dview" role="radiogroup" aria-label="Show distance to">
+          <button type="button" data-v="places" role="radio">Places</button>
+          <button type="button" data-v="transit" role="radio">SkyTrain &amp; buses</button>
+        </div>
+        <p class="limitnote" id="limitnote" hidden></p>
+      </div>
+      <p class="steps"><span>1</span>Tap the yellow layers button on the map <span>2</span>Tap a home (price tag) <span>3</span>Follow the lines to see how far</p>
+
+      <div>
+        <p class="bcn-label">Transit</p>
+        <div class="vrows">
+          <div class="vrow tgrow">
+            <div class="vsw"><svg width="40" height="22" viewBox="0 0 40 22"><path d="M3 15c10-1 14-11 34-9" fill="none" stroke="#fff" stroke-width="7"/><path d="M3 15c10-1 14-11 34-9" fill="none" stroke="#0f766e" stroke-width="4" stroke-linecap="round"/><circle cx="20" cy="9.3" r="3.2" fill="#fff" stroke="#0d9488" stroke-width="2"/></svg></div>
+            <div class="vt"><b>SkyTrain</b><small>Stations and the walk to the closest</small></div>
+            <div class="tgs"><button type="button" class="tg" id="map-sky" aria-pressed="true" title="Show SkyTrain lines and stations on the map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10" r="2.3"/></svg>On map</button><button type="button" class="tg tdist" id="dist-sky" aria-pressed="false" title="Show walk time to the closest SkyTrain station"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="18" r="2.2"/><circle cx="19" cy="6" r="2.2"/><path d="M7 16.5 17 7.5" stroke-dasharray="2.5 3"/></svg>Distance</button></div>
+          </div>
+          <div class="vrow tgrow">
+            <div class="vsw"><svg width="40" height="22" viewBox="0 0 40 22"><path d="M4 6c9 2 18 10 33 11" fill="none" stroke="#4d6b1f" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="8.6" r="2.6" fill="#fff" stroke="#4d6b1f" stroke-width="1.6"/><circle cx="27" cy="14.6" r="2.6" fill="#fff" stroke="#4d6b1f" stroke-width="1.6"/></svg></div>
+            <div class="vt"><b>Buses</b><small>Every 15&ndash;30 min, with bus numbers</small></div>
+            <div class="tgs"><button type="button" class="tg" id="map-bus" aria-pressed="true" title="Show frequent bus routes and stops on the map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10" r="2.3"/></svg>On map</button><button type="button" class="tg tdist" id="dist-bus" aria-pressed="false" title="Show the closest frequent buses and how often they come"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="18" r="2.2"/><circle cx="19" cy="6" r="2.2"/><path d="M7 16.5 17 7.5" stroke-dasharray="2.5 3"/></svg>Distance</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="when-wrap">
+        <p class="bcn-label">Bus times</p>
+        <div class="seg" id="when" role="radiogroup" aria-label="When">
+          <button type="button" data-v="weekday">Weekdays</button>
+          <button type="button" data-v="weekend">Weekends</button>
+          <button type="button" data-v="all_week">Every day</button>
+        </div>
+        <p class="whenhelp">How often buses come changes by day. <b>Weekdays</b> 7am&ndash;7pm &middot; <b>Weekends</b> 10am&ndash;6pm &middot; <b>Every day</b> shows only buses that are frequent all week.</p>
+      </div>
+
+      <div>
+        <p class="bcn-label">Walking circles</p>
+        <div class="vrows"><div class="vrow tgrow">
+          <div class="vsw"><svg width="40" height="22" viewBox="0 0 40 22"><circle cx="20" cy="11" r="9.5" fill="none" style="stroke:var(--bcn-navy)" stroke-width="1" stroke-dasharray="2 2" opacity=".5"/><circle cx="20" cy="11" r="5" fill="rgba(30,78,140,.08)" style="stroke:var(--bcn-navy)" stroke-width="1.4" stroke-dasharray="2.5 2"/><circle cx="20" cy="11" r="2" style="fill:var(--bcn-navy)"/></svg></div>
+          <div class="vt"><b>How far you can walk</b><small>Rings around the home you tap</small></div>
+          <div class="tgs"><button type="button" class="tg" id="w10-sw" aria-pressed="true" title="Show the 10-minute walk ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="3 3"><circle cx="12" cy="12" r="9"/></svg>10 min</button><button type="button" class="tg" id="w20-sw" aria-pressed="false" title="Show the 20-minute walk ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="3 3"><circle cx="12" cy="12" r="9"/></svg>20 min</button></div>
+        </div></div>
+      </div>
+
+      <div class="alegend" id="legend-wrap">
+        <div><span class="k" style="background:rgba(101,163,13,.16);border:1.5px solid rgba(77,124,15,.75)"></span>About a 5-min walk to a bus that comes every 15&ndash;30 min</div>
+        <div><span class="k" style="background:rgba(13,148,136,.16);border:1.5px solid rgba(15,118,110,.8)"></span>About a 10-min walk to SkyTrain</div>
+        <p class="disc">Approximate, for general guidance only. Not an official city or provincial designation. Check with the city before relying on it.</p>
+      </div>
+
+
+      <div>
+        <p class="bcn-label">Nearby places</p>
+        <div class="keyhelp">
+          <div><span class="kpill nv">On map</span>shows every one as an icon on the map</div>
+          <div><span class="kpill og">Distance</span>same as the layers button on the map: a line to the closest one</div>
+        </div>
+        <div class="presets" id="presets" hidden>
+          <button type="button" class="pre" data-p="everyday"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Everyday</button>
+          <button type="button" class="pre" data-p="commuter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 11h14M9 20l-2 2M15 20l2 2"/></svg>Commuter</button>
+          <button type="button" class="pre" data-p="family"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="6" r="2.5"/><circle cx="16.5" cy="7.5" r="2"/><path d="M4 21v-5a4 4 0 0 1 8 0v5M13.5 21v-4a3 3 0 0 1 6 0v4"/></svg>Family</button>
+          <button type="button" class="pre" data-p="faith"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M10 5h4M5 21V11l7-4 7 4v10M9.5 21v-5h5v5"/></svg>Faith &amp; community</button>
+          <button type="button" class="pre" data-p="pet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="9" r="1.6"/><circle cx="12" cy="6.5" r="1.6"/><circle cx="17" cy="9" r="1.6"/><path d="M8.5 16c0-2.5 1.6-4 3.5-4s3.5 1.5 3.5 4c0 1.6-1.4 2.4-3.5 2.4S8.5 17.6 8.5 16z"/></svg>Pet owner</button>
+        </div>
+        <div class="refine" id="refine" aria-live="polite"></div>
+        <details class="custom" id="custom" hidden>
+          <summary>+ Add more places</summary>
+          <div class="label-row" style="margin-top:8px"><p class="bcn-label">Nearby places</p><button type="button" class="allbtn" id="allbtn">All distances on</button></div>
+          <p class="nhelp"><b>Map</b> shows them all on the map. <b>Distance</b> shows how far the closest one is when you tap a home.</p>
+          <div class="vrows" id="chips"></div>
+        <div class="vsub" id="grocs" hidden></div>
+        <div class="vsub" id="faiths" hidden></div>
+        </details>
+      </div>
+
+      <p class="sr" id="card" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></p>
+
+      <div>
+        <p class="bcn-label">Jump to</p>
+        <div class="cities" id="cities"></div>
+      </div>
+      <p class="foot">Transit: TransLink and BC Transit schedules (Nov 2026). Places: Government of BC open data and OpenStreetMap. Distances are straight-line; walk and drive times are estimates that allow for streets.</p>
+    </aside>
+    <button type="button" class="reopen" id="reopen" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>Commute view</button>
+    <div class="nearbox" id="nearbox" aria-hidden="true"></div>
+    <div class="welcome" id="welcome" role="dialog" aria-labelledby="wl-t"><button type="button" class="wlx" id="wl-x" aria-label="Close">&times;</button>
+      <p class="wk">New on BC Real Estate Market</p>
+      <h4 id="wl-t">See what&rsquo;s near any home</h4>
+      <ul>
+        <li><span class="wi sk"></span><span><b>SkyTrain</b> and <b>buses</b>: walk and drive times to the closest station or stop, and how often buses come</span></li>
+        <li><span class="wi hc"></span><span><b>Hospitals, groceries &amp; parks</b>: the closest of each</span></li>
+        <li><span class="wi wor"></span><span><b>Gurdwaras, mandirs, mosques &amp; churches</b>, plus community grocery stores</span></li>
+      </ul>
+      <p class="wtx"><b>Tap the yellow layers button</b> at the top right, pick what you care about, then <b>tap any home</b>. Lines show how far the closest ones are.</p>
+      <button type="button" id="wl-go">Try it</button>
+    </div>
+    <div class="chipbar" id="chipbar" role="toolbar" aria-label="Show distance to"></div>
+    <button type="button" class="bcn-fab" id="fab" aria-expanded="false" aria-controls="lymenu" title="Choose what to show"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 8 12 13l9.5-5z"/><path d="m2.5 12.5 9.5 5 9.5-5"/><path d="m2.5 16.5 9.5 5 9.5-5" opacity=".55"/></svg><b class="fbadge" id="fbadge"></b></button>
+    <div class="fabhint gone" id="fabhint"><span class="fhl">Tap here to choose</span><span class="fhs">Choose</span> what to show</div>
+    <div class="lymenu" id="lymenu" hidden role="dialog" aria-label="Choose what to show"></div>
+    <div class="fack" id="fack" hidden role="dialog" aria-modal="true" aria-labelledby="fack-t"><div class="fbox">
+      <p class="fk" id="fack-k"></p><h4 id="fack-t">Publicly available information</h4><div id="fack-b"></div>
+      <label class="fchk"><input type="checkbox" id="fack-c"><span>I understand this is general information only</span></label>
+      <div class="fbtn"><button type="button" id="fack-x">Cancel</button><button type="button" id="fack-ok" disabled></button></div></div></div>
+    <div class="dd" id="dd" hidden></div>
+    <div class="bcn-toast" id="toast" hidden></div>
+    <div class="lcard small" id="lcard" hidden><button type="button" class="lx" id="lx" aria-label="Close this home"><span>Close</span> &#10005;</button><p class="lpr" id="lpr"></p><p class="lsm"></p><div class="lplace" id="lplace" hidden></div><div class="wn" id="wn"></div></div>
+    <div class="rcol" id="rcol"><button type="button" class="rtool" id="measBtn" aria-label="Measure a lot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6.5 8v3M10 8v4M13.5 8v3M17 8v4"/></svg><span>Measure</span></button><button type="button" class="rtool" id="sbarDraw" aria-label="Draw an area, and my saved and hidden homes" title="Draw an area · my saved and hidden homes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20c3-1 4-3 6-3s3 2 6 2 4-3 4-3"/><path d="M14.5 4.5l3 3L9 16l-4 1 1-4z"/></svg><span>Lists</span></button>
+    <button type="button" class="nearme rtool" id="nearme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg><span>Near me</span></button></div>
+    <div class="sbar" id="sbar"><button type="button" class="sbar-main" id="sbarMain" aria-label="Search an address"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span id="sbarTxt">Search an address</span></button><button type="button" class="sbar-flt" id="fltBtn" aria-haspopup="dialog" aria-label="Filters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg><span>Filters</span><b class="fltn" id="fltN" hidden></b></button></div>
+    <button type="button" class="drawbtn" id="drawBtn" aria-label="Draw an area" title="Draw an area to search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20c3-1 4-3 6-3s3 2 6 2 4-3 4-3"/><path d="M14.5 4.5l3 3L9 16l-4 1 1-4z"/></svg></button>
+    <button type="button" class="srchbtn" id="srchBtn" aria-label="Search an address" title="Search an address"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button>
+    <div class="srch" id="srch" role="search" hidden><span class="srch-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></span><input id="srchIn" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" spellcheck="false" placeholder="Search an address" aria-label="Search an address" aria-autocomplete="list" aria-controls="srchDD" aria-expanded="false"><button type="button" class="srch-x" id="srchX" aria-label="Clear search" hidden>&times;</button><button type="button" class="srch-close" id="srchClose" aria-label="Close search">Cancel</button></div>
+    <div class="srch-dd" id="srchDD" role="listbox" hidden></div>
+    <div class="hint" id="hint">Tap any home or spot on the map to see what&rsquo;s nearby</div>
+  </div>
+</div>
+
+<script src="./vendor/leaflet.js"></script>
+<script>
+  // the site can hand over a lot-lines layer built with this frame's Leaflet (BCNearbyConfig.makeLotLinesLayer(L))
+  try { var C0 = window.BCNearbyConfig; if (C0 && typeof C0.makeLotLinesLayer === "function" && !C0.lotLinesLayer) C0.lotLinesLayer = C0.makeLotLinesLayer(window.L); } catch (e) { console.error(e); }
+</script>
+<script src="./bcnearby-basemap.js?v=20261113ae"></script>
+<script src="./bcnearby-data.js?v=20261113ae"></script>
+<script src="./bcnearby.js?v=20261113ae"></script>
+</body>
+</html>

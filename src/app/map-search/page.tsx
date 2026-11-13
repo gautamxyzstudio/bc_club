@@ -1,7 +1,7 @@
 import MapLoading from "@/src/mainComponents/openStreetMap/MapLoading";
 import { Suspense } from "react";
 import { Metadata } from "next";
-import { OpenStreetMapV5Wrapper } from "@/src/mainComponents/openStreetMap";
+import BCNearbyMapWrapper from "@/src/mainComponents/bcNearbyMap";
 
 export const metadata: Metadata = {
   title: "BC Real Estate Map Search | Explore Properties",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 export default function MapSearchPage() {
   return (
     <Suspense fallback={<MapLoading />}>
-      <OpenStreetMapV5Wrapper />
+      <BCNearbyMapWrapper />
     </Suspense>
   );
 }

@@ -1,0 +1,36 @@
+<!doctype html>
+<!-- BC Nearby map · bcrealestatemarket.com (c) BC Real Estate Market. All rights reserved.
+     Loaded inside /map-search as a same-origin iframe. Settings come from the parent page (window.parent.BCNearbyConfig).
+     Opened on its own (no parent config) it runs the original demo with sample homes. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Map search · BC Real Estate Market</title>
+<script>
+  // settings from the site page that holds this frame (same origin). Stand-alone: demo mode.
+  (function () { var cfg = null; try { if (window.parent && window.parent !== window) cfg = window.parent.BCNearbyConfig || null; } catch (e) {}
+    window.BCNearbyConfig = cfg || window.BCNearbyConfig || { demo: true, basemap: { style: "https://tiles.openfreemap.org/styles/positron" } }; })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="./vendor/leaflet.css">
+<link rel="stylesheet" href="./vendor/maplibre-gl.css">
+<link rel="stylesheet" href="./bcnearby.css?v={{VER}}">
+<link rel="stylesheet" href="./bcnearby-live.css?v={{VER}}">
+<style>html, body { height: 100%; } html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; } body { margin: 0; background: #fff; overflow: hidden; }</style>
+</head>
+<body>
+<!-- ######## PART 2: PAGE MARKUP. Live site: you only need the map area and the boxes inside it ######## -->
+<!--APP-->
+<script src="./vendor/leaflet.js"></script>
+<script>
+  // the site can hand over a lot-lines layer built with this frame's Leaflet (BCNearbyConfig.makeLotLinesLayer(L))
+  try { var C0 = window.BCNearbyConfig; if (C0 && typeof C0.makeLotLinesLayer === "function" && !C0.lotLinesLayer) C0.lotLinesLayer = C0.makeLotLinesLayer(window.L); } catch (e) { console.error(e); }
+</script>
+<script src="./bcnearby-basemap.js?v={{VER}}"></script>
+<script src="./bcnearby-data.js?v={{VER}}"></script>
+<script src="./bcnearby.js?v={{VER}}"></script>
+</body>
+</html>

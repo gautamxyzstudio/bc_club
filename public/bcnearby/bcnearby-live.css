@@ -1,0 +1,14 @@
+/* BC Nearby · live-site additions (cluster bubbles, search result tags). Loaded after bcnearby.css. */
+.lpc { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); min-width: 30px; height: 30px; padding: 0 7px; box-sizing: border-box;
+  border-radius: 15px; display: grid; place-items: center; background: var(--bcn-navy); color: #fff; font: 800 12px/1 var(--bcn-font);
+  border: 2px solid #fff; box-shadow: 0 0 0 5px rgba(30,78,140,.18), 0 2px 6px rgba(15,23,42,.25); cursor: pointer; white-space: nowrap; }
+.lpc.big { min-width: 38px; height: 38px; border-radius: 19px; font-size: 12.5px; box-shadow: 0 0 0 7px rgba(30,78,140,.16), 0 2px 6px rgba(15,23,42,.25); }
+.lpc.sold { background: #9f1239; box-shadow: 0 0 0 5px rgba(159,18,57,.16), 0 2px 6px rgba(15,23,42,.25); }
+.lpc.fc { background: #6d28d9; box-shadow: 0 0 0 5px rgba(109,40,217,.16), 0 2px 6px rgba(15,23,42,.25); }
+.lpc.exp { background: #64748b; box-shadow: 0 0 0 5px rgba(100,116,139,.18), 0 2px 6px rgba(15,23,42,.25); }
+.lpc:hover { filter: brightness(1.08); }
+.lpfade .lpc { opacity: .35; }
+.sdg { border-top: 1px solid var(--bcn-line); margin-top: 2px; } .srch-dd .sdg:first-child { border-top: 0; margin-top: 0; }
+.sdp .sdtag { font: 800 9.5px/1 var(--bcn-font); font-style: normal; color: #fff; background: var(--bcn-navy); padding: 4px 4px; border-radius: 5px; max-width: 34px; overflow: hidden; text-overflow: clip; white-space: nowrap; }
+.sdp:has(.sdtag) { width: 40px; border-radius: 8px; background: transparent; }
+.sdp .sdtag.drop { background: var(--bcn-orange); } .sdp .sdtag.sold { background: #9f1239; } .sdp .sdtag.lot { background: #e2e8f0; color: #334155; }

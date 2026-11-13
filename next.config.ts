@@ -24,6 +24,15 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: false,
 
+  // Map search frame (public/bcnearby): the big data file and map libraries rarely change; their URLs carry ?v=
+  async headers() {
+    const longCache = [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }];
+    return [
+      { source: "/bcnearby/vendor/:path*", headers: longCache },
+      { source: "/bcnearby/bcnearby-data.js", headers: longCache },
+    ];
+  },
+
   async redirects() {
     return [
       {

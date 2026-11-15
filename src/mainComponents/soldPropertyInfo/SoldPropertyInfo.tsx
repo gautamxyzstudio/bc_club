@@ -15,7 +15,8 @@ import PropertyInformation from "../propertyInfo/propertyInformation/PropertyInf
 import PropertyInfoSkeleton from "../propertyInfo/PropertyInfoSkeleton";
 import { logPropertySearchActivity } from "@/src/api/activityLog/activityLogApi";
 
-const SoldPropertyInfo = ({ paramsId }: { paramsId: string }) => {
+// seo = "Questions about <address>" + structured data from the server (no sold price: members only)
+const SoldPropertyInfo = ({ paramsId, seo }: { paramsId: string; seo?: React.ReactNode }) => {
   const { isLoggedIn, setOpenLogin, setOpenSignup, authLoading } = useAuthContext();
   const {
     data: listing,
@@ -43,7 +44,7 @@ const SoldPropertyInfo = ({ paramsId }: { paramsId: string }) => {
     }
   }, [isLoggedIn, listing, paramsId]);
 
-  if (authLoading || (isLoggedIn && loading)) return <PropertyInfoSkeleton />;
+  if (authLoading || (isLoggedIn && loading)) return <><PropertyInfoSkeleton />{seo}</>;
   if (isLoggedIn && error)
     return (
       <div className="p-10 text-red-500 xl:max-w-screen-2xl mx-auto w-full h-[50svh] flex justify-center items-center">
@@ -253,6 +254,7 @@ const SoldPropertyInfo = ({ paramsId }: { paramsId: string }) => {
         livingArea={listing.area}
       />
 
+      {seo}
       <FaqsSection />
 
       <GetInTouch />

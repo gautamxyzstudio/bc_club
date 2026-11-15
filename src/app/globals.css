@@ -514,3 +514,34 @@ body::-webkit-scrollbar {
 @media (min-width: 601px) and (max-width: 1023px) {
   .bcre-panel { bottom: calc(150px + env(safe-area-inset-bottom, 0px)) !important; height: min(680px, calc(100vh - 170px)) !important; }
 }
+
+
+/* map search page lock (phones + tablets, below the lg breakpoint where the bottom bar shows):
+   the page doesn't scroll; the map fills the space between the header and the bottom bar.
+   The class and the two heights are set by BCNearbyMap.tsx. */
+@media (max-width: 1023.98px) {
+  html.bcn-map-page,
+  html.bcn-map-page body {
+    overflow: hidden;
+    overscroll-behavior: none;
+    height: 100%;
+  }
+  html.bcn-map-page body {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+  }
+  html.bcn-map-page .bcn-map-shell {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: var(--bcn-top, 64px);
+    bottom: var(--bcn-bottom, 64px);
+    height: auto;
+    margin-top: 0;
+  }
+  html.bcn-map-page .bcn-map-below,
+  html.bcn-map-page footer {
+    display: none;
+  }
+}

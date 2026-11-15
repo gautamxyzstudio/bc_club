@@ -29,7 +29,7 @@ import PropertiesCard, {
 } from "@/src/components/common/propertiesCard/PropertiesCard";
 import PropertyCardSkeleton from "@/src/components/common/propertiesCard/PropertyCardSkeleton";
 import FilterPillSelect from "@/src/components/filterPillSelect/FilterPillSelect";
-import PropertyInfo from "@/src/mainComponents/propertyInfo/PropertyInfo";
+import BCListingPage from "@/src/mainComponents/bcListing/BCListingPage";
 
 import { useListingStore } from "@/src/store/useListingStore";
 import { useGetMe } from "@/src/hooks/listing/useListingQueries";
@@ -1735,7 +1735,12 @@ export default function PropertiesListingPage() {
           {/* Content Body */}
           <div className="w-full flex-1 overflow-y-auto">
             {selectedPropertyId && (
-              <PropertyInfo paramsId={selectedPropertyId} isDialog={true} />
+              <BCListingPage
+                key={selectedPropertyId}
+                paramsId={selectedPropertyId}
+                kind={isSelectedForeclosure ? "fc" : isSelectedSold ? "sold" : "sale"}
+                isDialog
+              />
             )}
           </div>
         </div>

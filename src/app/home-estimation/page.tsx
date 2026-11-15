@@ -18,7 +18,7 @@ export const metadata: Metadata = {
       "Estimate your home's value in British Columbia using property insights and local market trends to better understand its potential selling price.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
+        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title: "Free Home Evaluation in BC | Estimate Your Property Value",
     description:
       "Estimate your home's value in British Columbia using property insights and local market trends to better understand its potential selling price.",
-    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
+    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
   },
 };
 const page = () => {

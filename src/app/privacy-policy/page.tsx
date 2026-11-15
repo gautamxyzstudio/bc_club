@@ -14,7 +14,7 @@ export const metadata: Metadata = {
       "Read the BC Real Estate Market privacy policy to understand how personal information is collected, used, protected, and managed on the website.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
+        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: "Privacy Policy | BC Real Estate Market",
     description:
       "Read the BC Real Estate Market privacy policy to understand how personal information is collected, used, protected, and managed on the website.",
-    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
+    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
   },
 };
 const page = () => {

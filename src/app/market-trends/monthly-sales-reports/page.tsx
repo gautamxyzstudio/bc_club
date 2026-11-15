@@ -16,7 +16,7 @@ export const metadata: Metadata = {
       "Explore comprehensive BC real estate monthly sales reports, market activity, sales to active ratios, and inventory stats.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
+        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate Monthly Sales Reports",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     title: "Monthly Sales Reports | BC Real Estate Market Trends",
     description:
       "Explore comprehensive BC real estate monthly sales reports, market activity, sales to active ratios, and inventory stats.",
-    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
+    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
   },
 };
 

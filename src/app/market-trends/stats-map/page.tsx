@@ -15,7 +15,7 @@ export const metadata: Metadata = {
       "Interactive BC real estate statistics map. View regional property benchmarks, sales data, and price trends across British Columbia.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
+        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate Stats Map",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title: "Stats Map | BC Real Estate Market Trends",
     description:
       "Interactive BC real estate statistics map. View regional property benchmarks, sales data, and price trends across British Columbia.",
-    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
+    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
   },
 };
 

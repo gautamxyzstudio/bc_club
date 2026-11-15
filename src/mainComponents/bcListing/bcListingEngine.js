@@ -227,7 +227,7 @@ export function mountBCListing(host, CFG = {}) {
       dr.addEventListener("input", () => { MC.down = Math.round(l.price * dr.value / 100); dp.value = MC.down; calcRender(); });
       rt.addEventListener("input", () => { const v = parseFloat(rt.value); if (v > 0 && v < 25) { MC.rate = v; calcRender(); } });
       $("#bclAm").addEventListener("click", e => { const b = e.target.closest("button"); if (!b || b.disabled) return; MC.amort = +b.dataset.am; calcRender(); }); }
-    jsonLd(l); spy(); }
+    if (!CFG.noJsonLd) jsonLd(l); spy(); }
 
   // section tabs follow the scroll
   let spyObs = null;
@@ -277,6 +277,7 @@ export function mountBCListing(host, CFG = {}) {
 
   // ######## PART 6: START-UP ########
   if (CFG.listing || DEMO) render(CFG.listing || SAMPLES.condo);
-  return { render: l => render(l), refresh: l => { const y = window.scrollY; render(l || L, true); window.scrollTo(0, y); }, get listing() { return L; },
+  function scrollBox() { for (let el = host.parentElement; el && el !== document.body; el = el.parentElement) { const o = getComputedStyle(el).overflowY; if ((o === "auto" || o === "scroll") && el.scrollHeight > el.clientHeight) return el; } return null; }
+  return { render: l => render(l), refresh: l => { const y = window.scrollY, box = scrollBox(), by = box ? box.scrollTop : 0; render(l || L, true); window.scrollTo(0, y); if (box) box.scrollTop = by; },   // box: the pop-up's own scroll area, when shown in one get listing() { return L; },
     destroy: () => { offs.forEach(f => f()); if (spyObs) spyObs.disconnect(); clearTimeout(toast.t); document.body.style.overflow = ""; const ld = document.getElementById("bclLd"); if (ld) ld.remove(); host.innerHTML = ""; } };
 }

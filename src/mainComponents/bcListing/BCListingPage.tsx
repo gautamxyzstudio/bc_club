@@ -9,7 +9,7 @@
  */
 import "./bcListing.css";
 import "yet-another-react-lightbox/styles.css";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Lightbox from "yet-another-react-lightbox";
 import { toast } from "react-toastify";
@@ -38,7 +38,9 @@ const sendLead = async (lead: any) => {
   }
 };
 
-export default function BCListingPage({ paramsId, kind = "sale" }: { paramsId: string; kind?: ListingKind }) {
+/** seo = "Questions about <address>" + structured data, drawn on the server (seo/ListingFaq.tsx); shown in every state so Google always gets it */
+/** isDialog = shown inside the "Property Details" pop-up (Homes for Sale, home page): no room for the site header */
+export default function BCListingPage({ paramsId, kind = "sale", seo, isDialog = false }: { paramsId: string; kind?: ListingKind; seo?: ReactNode; isDialog?: boolean }) {
   const router = useRouter();
   const { isLoggedIn, setOpenLogin } = useAuthContext();
   const { data: me } = useGetMe();
@@ -95,6 +97,7 @@ export default function BCListingPage({ paramsId, kind = "sale" }: { paramsId: s
   useEffect(() => {
     cfgRef.current = Object.assign(cfgRef.current || {}, {
       demo: false,
+      noJsonLd: true,   // the server prints the structured data (seo/ListingFaq.tsx)
       theme: { brand: "#1e4e8c", accent: "#f5a20a", font: "Plus Jakarta Sans" },
       agent: { name: "BC Real Estate Market", role: "Book a private showing or ask us anything" },
       signedIn: isLoggedIn,
@@ -128,7 +131,7 @@ export default function BCListingPage({ paramsId, kind = "sale" }: { paramsId: s
   // a different listing (or leaving the page): start clean
   useEffect(() => () => { engineRef.current?.destroy(); engineRef.current = null; }, [paramsId]);
 
-  if (isLoading) return <PropertyInfoSkeleton />;
+  if (isLoading) return <><PropertyInfoSkeleton />{seo}</>;
   if (error || !listing) {
     return (
       <div className="p-10 text-gray-500 xl:max-w-screen-2xl mx-auto w-full h-[50svh] flex justify-center items-center">
@@ -141,8 +144,9 @@ export default function BCListingPage({ paramsId, kind = "sale" }: { paramsId: s
   return (
     <>
       {/* the site header is fixed: sticky tabs and the side card sit just under it */}
-      <div className="xl:pt-24 md:pt-20 pt-16 bg-[#f8fafc] [--bcl-sticky-top:64px] md:[--bcl-sticky-top:80px]">
+      <div className={isDialog ? "pt-1 bg-[#f8fafc] [--bcl-sticky-top:0px]" : "xl:pt-24 md:pt-20 pt-16 bg-[#f8fafc] [--bcl-sticky-top:64px] md:[--bcl-sticky-top:80px]"}>
         <div ref={hostRef} />
+        {seo}
       </div>
       <Lightbox
         open={photoIndex >= 0}

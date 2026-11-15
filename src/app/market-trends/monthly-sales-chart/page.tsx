@@ -16,7 +16,7 @@ export const metadata: Metadata = {
       "Explore BC real estate monthly sales charts, median and average prices, active listings, and market trends across British Columbia.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
+        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate Monthly Sales Chart",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     title: "Monthly Sales Chart | BC Real Estate Market Trends",
     description:
       "Explore BC real estate monthly sales charts, median and average prices, active listings, and market trends across British Columbia.",
-    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
+    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
   },
 };
 

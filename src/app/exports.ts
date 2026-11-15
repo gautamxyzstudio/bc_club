@@ -44,7 +44,10 @@ const Icons = {
 };
 
 const Images = {
-  bcClub: "/bcrealestatemarket.webp",
+  bcClub: "/brand/logo-horizontal.png",
+  bcClubSmall: "/brand/logo-header-small.png",
+  bcClubTagline: "/brand/logo-horizontal-tagline.png",
+  bcClubMark: "/brand/logo-mark.svg",
   apartment: "/apartment.webp",
   condoTwo: "/condoTwo.webp",
   townHouse: "/townHouse.webp",

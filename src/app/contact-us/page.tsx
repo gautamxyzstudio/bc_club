@@ -14,7 +14,7 @@ export const metadata: Metadata = {
       "Contact BC Real Estate Market for assistance with property searches, home evaluations, neighbourhood insights, and real estate market information.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
+        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: "Contact BC Real Estate Market | Get in Touch",
     description:
       "Contact BC Real Estate Market for assistance with property searches, home evaluations, neighbourhood insights, and real estate market information.",
-    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
+    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
   },
 };
 

@@ -40,7 +40,7 @@ import { useRouter } from "next/navigation";
 import RippleButton from "@/src/components/button/RippleButton";
 import { useAuthContext } from "../auth/AuthContext";
 import { useGetRealEstateListings } from "@/src/hooks/listing/useRealEstateListingQueries";
-import PropertyInfo from "@/src/mainComponents/propertyInfo/PropertyInfo";
+import BCListingPage from "@/src/mainComponents/bcListing/BCListingPage";
 
 const tabList = [
   "New listings",
@@ -899,7 +899,12 @@ const OurProperty = () => {
           {/* Content Body */}
           <div className="w-full flex-1 overflow-y-auto">
             {selectedPropertyId && (
-              <PropertyInfo paramsId={selectedPropertyId} isDialog={true} />
+              <BCListingPage
+                key={selectedPropertyId}
+                paramsId={selectedPropertyId}
+                kind={isSelectedSold ? "sold" : "sale"}
+                isDialog
+              />
             )}
           </div>
         </div>

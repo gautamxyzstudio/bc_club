@@ -326,6 +326,7 @@ export default function MobileBottomBar() {
 
       {/* Main Bottom Bar */}
       <nav
+        data-mobile-bottom-bar
         aria-label="Mobile Bottom Navigation"
         className="fixed bottom-0 left-0 right-0 z-90 lg:hidden bg-white border-t border-slate-200/90 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pb-[env(safe-area-inset-bottom,0px)]"
       >

@@ -152,14 +152,24 @@ const Header = () => {
           onClick={() => !isLaptop && setShowMenu(false)}
         >
           <Image
-            title="BC Real Estate Market place"
-            alt="BC Real Estate Market place"
+            title="BC Real Estate Market"
+            alt="BC Real Estate Market"
             src={Images.bcClub}
-            width={1390}
-            height={1142}
-            sizes="240px"
+            width={1834}
+            height={496}
+            sizes="200px"
             priority
-            className="w-auto md:h-12 h-10 object-contain"
+            className="hidden md:block w-auto h-12 object-contain"
+          />
+          <Image
+            title="BC Real Estate Market"
+            alt="BC Real Estate Market"
+            src={Images.bcClubSmall}
+            width={734}
+            height={200}
+            sizes="160px"
+            priority
+            className="md:hidden w-auto h-10 object-contain"
           />
         </Link>
 

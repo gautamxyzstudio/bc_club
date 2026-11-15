@@ -22,13 +22,22 @@ export const metadata: Metadata = {
   keywords:
     "BC Real Estate, British Columbia Real Estate, Condos for Sale BC, Houses for Sale BC, Townhouses for Sale BC, Vancouver Real Estate, Burnaby Real Estate, Surrey Real Estate, Richmond Real Estate, Coquitlam Real Estate, Victoria Real Estate, Kelowna Real Estate, Abbotsford Real Estate, White Rock Real Estate, Nanaimo Real Estate, New Westminster Real Estate, North Vancouver Real Estate, West Vancouver Real Estate, Langley Real Estate, Delta Real Estate, Maple Ridge Real Estate, Chilliwack Real Estate",
   robots: "index, follow",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-16.png", type: "image/png", sizes: "16x16" },
+      { url: "/favicon-48.png", type: "image/png", sizes: "48x48" },
+    ],
+    apple: [{ url: "/app-icon-180.png", sizes: "180x180" }],
+  },
   openGraph: {
     title: "BC Homes for Sale & Sold Prices | BC Real Estate Market",
     description:
       "Search MLS® listings in Greater Vancouver and the Fraser Valley. See sold prices, lot lines, flood risk and monthly market reports. Free.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
+        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -40,7 +49,7 @@ export const metadata: Metadata = {
     title: "BC Homes for Sale & Sold Prices | BC Real Estate Market",
     description:
       "Search MLS® listings in Greater Vancouver and the Fraser Valley. See sold prices, lot lines, flood risk and monthly market reports. Free.",
-    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
+    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
   },
 };
 

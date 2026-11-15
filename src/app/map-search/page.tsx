@@ -16,7 +16,7 @@ export const metadata: Metadata = {
       "Explore real estate across British Columbia with map-based property search. Discover locations and find homes in neighbourhoods that suit your needs.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
+        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     title: "BC Real Estate Map Search | Explore Properties",
     description:
       "Explore real estate across British Columbia with map-based property search. Discover locations and find homes in neighbourhoods that suit your needs.",
-    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
+    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
   },
 };
 

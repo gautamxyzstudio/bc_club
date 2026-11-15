@@ -9,6 +9,9 @@
 */
 (function () {
   if (window.__bcreWidget) return; window.__bcreWidget = true;
+  // Hidden on phones/small tablets (below 768px, Tailwind's md breakpoint). Change MOBILE_MAX to adjust.
+  var MOBILE_MAX = 767;
+  var mobileMQ = window.matchMedia('(max-width:' + MOBILE_MAX + 'px)');
   var me = document.currentScript;
   var APP = (me && me.getAttribute('data-app')) || '/assistant/index.html';
   var css = ''
@@ -28,6 +31,7 @@
   + '@media (max-width:600px){.bcre-panel{left:0;right:0;bottom:0;width:auto;height:86vh;height:86dvh;border-radius:20px 20px 0 0;border-bottom:0}'
   + '.bcre-open .bcre-bubble,.bcre-open .bcre-hello{display:none}.bcre-open .bcre-scrim{display:block;position:fixed;inset:0;z-index:2147483000;background:rgba(15,27,45,.38)}'
   + '.bcre-head{padding-top:16px}.bcre-head:before{content:"";position:absolute;top:6px;left:50%;width:38px;height:4px;margin-left:-19px;border-radius:9px;background:#e7ebf1}}';
+  css += '@media (max-width:' + MOBILE_MAX + 'px){.bcre-root{display:none!important}}';
   var style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
 
   var house = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>';
@@ -63,5 +67,8 @@
   hello.addEventListener('click', function (e) { if (e.target.tagName === 'B') { hello.classList.remove('show'); try { sessionStorage.setItem('bcreHello', '1'); } catch (_) {} } else open(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   var seen = false; try { seen = sessionStorage.getItem('bcreHello') === '1'; } catch (_) {}
-  if (!seen) setTimeout(function () { if (!root.classList.contains('bcre-open')) hello.classList.add('show'); }, 3000);
+  if (!seen) setTimeout(function () { if (!mobileMQ.matches && !root.classList.contains('bcre-open')) hello.classList.add('show'); }, 3000);
+  // If the window shrinks to mobile size while the chat is open, close it.
+  (mobileMQ.addEventListener ? mobileMQ.addEventListener('change', onMQ) : mobileMQ.addListener(onMQ));
+  function onMQ(e) { if (e.matches) { root.classList.remove('bcre-open'); hello.classList.remove('show'); } }
 })();

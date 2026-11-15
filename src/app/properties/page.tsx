@@ -15,7 +15,7 @@ export const metadata: Metadata = {
       "Browse homes for sale in BC, compare property prices, and filter listings by location, budget, bedrooms, and bathrooms to find your ideal property.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
+        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title: "Properties for Sale in BC | Search Homes & Condos",
     description:
       "Browse homes for sale in BC, compare property prices, and filter listings by location, budget, bedrooms, and bathrooms to find your ideal property.",
-    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
+    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
   },
 };
 

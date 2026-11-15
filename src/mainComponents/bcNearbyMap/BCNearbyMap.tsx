@@ -72,6 +72,33 @@ export default function BCNearbyMap() {
   const lotLayerRef = useRef<any>(null);
   const lastQuery = useRef<BCNQuery | null>(null);
 
+  // Phones and tablets: the page itself must not scroll, or the map slides under the fixed header
+  // and its buttons get hidden. Lock the page and pin the map between the header and the bottom bar
+  // (CSS in globals.css, "map search page lock"). The bar heights are measured so nothing overlaps.
+  useEffect(() => {
+    const root = document.documentElement;
+    window.scrollTo(0, 0);
+    root.classList.add("bcn-map-page");
+    const header = document.querySelector("header");
+    const bottomBar = document.querySelector("[data-mobile-bottom-bar]");
+    const measure = () => {
+      if (header) root.style.setProperty("--bcn-top", `${Math.round(header.getBoundingClientRect().height)}px`);
+      if (bottomBar) root.style.setProperty("--bcn-bottom", `${Math.round(bottomBar.getBoundingClientRect().height)}px`);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (header) ro.observe(header);
+    if (bottomBar) ro.observe(bottomBar);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+      root.classList.remove("bcn-map-page");
+      root.style.removeProperty("--bcn-top");
+      root.style.removeProperty("--bcn-bottom");
+    };
+  }, []);
+
   // tell the map when the visitor signs in or out (sold prices, reminders)
   useEffect(() => {
     if (isLoggedIn) apiRef.current?.signedIn?.();
@@ -257,7 +284,7 @@ export default function BCNearbyMap() {
 
   return (
     <>
-      <div className="relative md:mt-19 mt-15 w-full lg:h-[calc(100vh-80px)] h-[calc(100vh-140px)] overflow-hidden">
+      <div className="bcn-map-shell relative md:mt-19 mt-15 w-full lg:h-[calc(100vh-80px)] h-[calc(100vh-140px)] overflow-hidden">
         {frameSrc && (
           <iframe
             key={frameSrc}
@@ -268,7 +295,9 @@ export default function BCNearbyMap() {
           />
         )}
       </div>
-      <GetInTouch />
+      <div className="bcn-map-below">
+        <GetInTouch />
+      </div>
     </>
   );
 }

@@ -17,9 +17,11 @@ import Description, { IDescriptionTypes } from "@/src/components/description/Des
 const PropertyInfo = ({
   paramsId,
   isDialog = false,
+  seo,
 }: {
   paramsId: string;
   isDialog?: boolean;
+  seo?: React.ReactNode; // "Questions about <address>" + structured data from the server
 }) => {
   const {
     data: listing,
@@ -45,7 +47,7 @@ const PropertyInfo = ({
     }
   }, [listing, paramsId]);
 
-  if (loading) return <PropertyInfoSkeleton />;
+  if (loading) return <><PropertyInfoSkeleton />{seo}</>;
   if (error)
     return (
       <div className="p-10 text-red-500 xl:max-w-screen-2xl mx-auto w-full h-[50svh] flex justify-center items-center">
@@ -121,6 +123,7 @@ const PropertyInfo = ({
         </div>
       </section>
 
+      {seo}
       <GetInTouch />
     </>
   );

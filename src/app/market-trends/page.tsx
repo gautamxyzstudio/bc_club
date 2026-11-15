@@ -15,7 +15,7 @@ export const metadata: Metadata = {
       "Explore BC real estate market trends, monthly sales reports, housing statistics, and property price movements to make informed real estate decisions.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/bcrealestatemarket.webp",
+        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title: "BC Real Estate Market Trends & Statistics",
     description:
       "Explore BC real estate market trends, monthly sales reports, housing statistics, and property price movements to make informed real estate decisions.",
-    images: ["https://bcrealestatemarket.com/bcrealestatemarket.webp"],
+    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
   },
 };
 

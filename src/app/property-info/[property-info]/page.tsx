@@ -1,4 +1,5 @@
-import { getListingById } from "@/src/api/listing/realEstateListing";
+import { listingMetadata } from "@/src/mainComponents/bcListing/seo/getListingSeo";
+import ListingFaq from "@/src/mainComponents/bcListing/seo/ListingFaq";
 import BCListingPage from "@/src/mainComponents/bcListing/BCListingPage";
 
 interface Params {
@@ -11,36 +12,14 @@ export async function generateMetadata({
   params: Promise<{ "property-info": string }>;
 }) {
   const { "property-info": slug } = await params;
-  const propertyData = await getListingById(slug);
-  return {
-    title: `${propertyData?.data?.address} | BC Real Estate` || "Property For Sale",
-    description: propertyData?.data?.public_remarks.slice(0, 150) || propertyData?.data?.private_remarks.slice(0, 150) || "",
-    openGraph: {
-    title: propertyData?.data?.address || "Property For Sale",
-    description:propertyData?.data?.public_remarks.slice(0, 150) || propertyData?.data?.private_remarks.slice(0, 150) || "",
-    images: [
-      {
-        url: propertyData?.data?.media_url?.[0] || "",
-        width: 1144,
-        height: 636,
-        alt: propertyData?.data?.address,
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: propertyData?.data?.address || "Property For Sale",
-    description:propertyData?.data?.public_remarks.slice(0, 150) || propertyData?.data?.private_remarks.slice(0, 150) || "",
-    images: [propertyData?.data?.media_url?.[0] || ""],
-  },
-  };
+  return listingMetadata(slug, "sale");   // title, description and share card from this listing (seo/getListingSeo.ts)
 }
 
 const page = async ({ params }: { params: Promise<Params> }) => {
   const resolvedParams = await params;
   const paramsId = resolvedParams["property-info"];
   return (
-    <BCListingPage key={paramsId} paramsId={paramsId} />
+    <BCListingPage key={paramsId} paramsId={paramsId} seo={<ListingFaq id={paramsId} kind="sale" />} />
   );
 };
 

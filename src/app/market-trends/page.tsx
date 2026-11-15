@@ -10,12 +10,15 @@ export const metadata: Metadata = {
     "BC Real Estate, British Columbia Real Estate, Real Estate Market Trends, Housing Market BC, Property Prices BC, BC Housing Market Analysis, Real Estate Statistics BC, Vancouver Real Estate Trends, Toronto Real Estate Trends, Canadian Real Estate Market",
   robots: "index, follow",
   openGraph: {
+    siteName: "BC Real Estate Market",
+    locale: "en_CA",
+    type: "website",
     title: "BC Real Estate Market Trends & Statistics",
     description:
       "Explore BC real estate market trends, monthly sales reports, housing statistics, and property price movements to make informed real estate decisions.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
+        url: "/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -27,7 +30,7 @@ export const metadata: Metadata = {
     title: "BC Real Estate Market Trends & Statistics",
     description:
       "Explore BC real estate market trends, monthly sales reports, housing statistics, and property price movements to make informed real estate decisions.",
-    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
+    images: ["/share-image-1200x630.png"],
   },
 };
 

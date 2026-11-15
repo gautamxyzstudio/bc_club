@@ -11,12 +11,15 @@ export const metadata: Metadata = {
     "BC Real Estate Monthly Sales Reports, Housing Market Reports, BC Home Sales Data, British Columbia Real Estate Reports",
   robots: "index, follow",
   openGraph: {
+    siteName: "BC Real Estate Market",
+    locale: "en_CA",
+    type: "website",
     title: "Monthly Sales Reports | BC Real Estate Market Trends",
     description:
       "Explore comprehensive BC real estate monthly sales reports, market activity, sales to active ratios, and inventory stats.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
+        url: "/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate Monthly Sales Reports",
@@ -28,7 +31,7 @@ export const metadata: Metadata = {
     title: "Monthly Sales Reports | BC Real Estate Market Trends",
     description:
       "Explore comprehensive BC real estate monthly sales reports, market activity, sales to active ratios, and inventory stats.",
-    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
+    images: ["/share-image-1200x630.png"],
   },
 };
 

@@ -13,6 +13,9 @@ export async function generateMetadata({
     title: blogData?.data?.metaTitle || blogData?.data?.title || "Blog",
     description: blogData?.data?.metaDescription || "",
     openGraph: {
+      siteName: "BC Real Estate Market",
+      locale: "en_CA",
+      type: "website",
     title: blogData?.data?.metaTitle,
     description:blogData?.data?.metaDescription,
     images: [

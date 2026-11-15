@@ -16,6 +16,10 @@ import { CanonicalURL } from "../components/colonical-tag-generator/ColonicalTag
 import Script from "next/script";
 
 export const metadata: Metadata = {
+  // share links (WhatsApp, Facebook, LinkedIn): relative images like /share-image-1200x630.png become
+  // full links on whichever site is running (uat.bcrealestatemarket.com or bcrealestatemarket.com)
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_MAIN_URL || "https://bcrealestatemarket.com"),
+  applicationName: "BC Real Estate Market",
   title: "BC Homes for Sale & Sold Prices | BC Real Estate Market",
   description:
     "Search MLS® listings in Greater Vancouver and the Fraser Valley. See sold prices, lot lines, flood risk and monthly market reports. Free.",
@@ -32,12 +36,16 @@ export const metadata: Metadata = {
     apple: [{ url: "/app-icon-180.png", sizes: "180x180" }],
   },
   openGraph: {
+    url: "/",
+    siteName: "BC Real Estate Market",
+    locale: "en_CA",
+    type: "website",
     title: "BC Homes for Sale & Sold Prices | BC Real Estate Market",
     description:
       "Search MLS® listings in Greater Vancouver and the Fraser Valley. See sold prices, lot lines, flood risk and monthly market reports. Free.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
+        url: "/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate | Homes, Condos & Townhouses for Sale",
@@ -49,7 +57,7 @@ export const metadata: Metadata = {
     title: "BC Homes for Sale & Sold Prices | BC Real Estate Market",
     description:
       "Search MLS® listings in Greater Vancouver and the Fraser Valley. See sold prices, lot lines, flood risk and monthly market reports. Free.",
-    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
+    images: ["/share-image-1200x630.png"],
   },
 };
 

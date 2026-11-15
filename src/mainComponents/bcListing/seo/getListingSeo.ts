@@ -40,12 +40,14 @@ export async function listingMetadata(id: string, kind: ListingKind): Promise<Me
     title: s.title,
     description: s.description,
     openGraph: {
+      siteName: "BC Real Estate Market",
+      locale: "en_CA",
+      type: "website",
       title: s.title,
       description: s.description,
       url: s.url,
-      type: "website",
-      images: img ? [{ url: img, width: 1144, height: 636, alt: s.name }] : ["https://bcrealestatemarket.com/share-image-1200x630.png"],
+      images: img ? [{ url: img, width: 1144, height: 636, alt: s.name }] : ["/share-image-1200x630.png"],
     },
-    twitter: { card: "summary_large_image", title: s.title, description: s.description, images: [img || "https://bcrealestatemarket.com/share-image-1200x630.png"] },
+    twitter: { card: "summary_large_image", title: s.title, description: s.description, images: [img || "/share-image-1200x630.png"] },
   };
 }

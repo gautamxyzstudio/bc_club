@@ -11,12 +11,15 @@ export const metadata: Metadata = {
     "BC Real Estate Monthly Sales Chart, Real Estate Market Trends, BC Property Prices, British Columbia Housing Market",
   robots: "index, follow",
   openGraph: {
+    siteName: "BC Real Estate Market",
+    locale: "en_CA",
+    type: "website",
     title: "Monthly Sales Chart | BC Real Estate Market Trends",
     description:
       "Explore BC real estate monthly sales charts, median and average prices, active listings, and market trends across British Columbia.",
     images: [
       {
-        url: "https://bcrealestatemarket.com/share-image-1200x630.png",
+        url: "/share-image-1200x630.png",
         width: 1200,
         height: 630,
         alt: "BC Real Estate Monthly Sales Chart",
@@ -28,7 +31,7 @@ export const metadata: Metadata = {
     title: "Monthly Sales Chart | BC Real Estate Market Trends",
     description:
       "Explore BC real estate monthly sales charts, median and average prices, active listings, and market trends across British Columbia.",
-    images: ["https://bcrealestatemarket.com/share-image-1200x630.png"],
+    images: ["/share-image-1200x630.png"],
   },
 };
 
